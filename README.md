@@ -46,7 +46,7 @@ Configura la Base de Datos:
 
 Crea una nueva base de datos en tu servidor MySQL sis-asistencia.
 
-Importa el archivo database.sql (ubicado en la raíz del proyecto o en una carpeta sql/) a tu nueva base de datos. Este archivo contiene la estructura de las tablas y algunos datos iniciales.
+Importa el archivo sistema_asistencia2.sql  a tu nueva base de datos. Este archivo contiene la estructura de las tablas y algunos datos iniciales.
 Abre tu navegador web y navega a la URL donde hayas desplegado el sistema (ej. http://localhost/sis-asistencia/vista/login/login.php o http://tu-dominio.com/).
 
 Inicia Sesion
