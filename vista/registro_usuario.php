@@ -22,8 +22,14 @@ ul li:nth-child(2) .activo {
 <div class="page-content">
 
     <h4 class= "text-center text-secondary">Registro de usuarios</h4>
+<?php
+include '../modelo/conexion.php';
+include "../controlador/controlador_registrar_usuario.php";
+?>
+
+
 <div class="row">
-<form action="">
+<form action="" method="POST">
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
         
             <label for="nombre">Nombre</label>
@@ -48,8 +54,9 @@ ul li:nth-child(2) .activo {
             <input type="password" class="input input__text" name="txtpassword">
         
     </div>
-    <div>
+    <div class="text-right p-2">
         <a href="" class="btn btn-secondary btn-rounded">Atras</a>
+        <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
     </div>
 </form>
 
