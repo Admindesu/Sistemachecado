@@ -14,7 +14,7 @@
     outline: none !important;
 }
 .input:focus {
-    border-bottom: 2px solid rgba(98, 191, 253, 0.644);
+    border-bottom: 2px solid rgba(7, 149, 243, 0.644);
     border-right: 2px solid rgba(98, 191, 253, 0.644);
 }
 
