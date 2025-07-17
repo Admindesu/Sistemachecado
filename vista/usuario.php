@@ -26,6 +26,7 @@ ul li:nth-child(2) .activo {
 <?php
 include "../modelo/conexion.php";
 include "../controlador/controlador_modificar_usuario.php";
+include "../controlador/controlador_eliminar_usuario.php";
 // Consulta para obtener los datos de asistencia, empleado y cargo
 // Se utiliza INNER JOIN para combinar las tablas asistencia, empleado y cargo
 $sql= $conexion->query("SELECT * FROM usuario");
@@ -53,7 +54,7 @@ $sql= $conexion->query("SELECT * FROM usuario");
       <td><?= $datos-> usuario ?></td>
       <td>
         <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_usuario ?>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</a>
-<a href="inicio.php?id=<?php $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger">Eliminar</a>
+<a href="usuario.php?id=<?= $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger">Eliminar</a>
 
       </td>
     </tr>
