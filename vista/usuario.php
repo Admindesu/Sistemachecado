@@ -25,7 +25,7 @@ ul li:nth-child(2) .activo {
 
 <?php
 include "../modelo/conexion.php";
-include "../controlador/controlador_eliminar_asistencia.php";
+include "../controlador/controlador_modificar_usuario.php";
 // Consulta para obtener los datos de asistencia, empleado y cargo
 // Se utiliza INNER JOIN para combinar las tablas asistencia, empleado y cargo
 $sql= $conexion->query("SELECT * FROM usuario");
@@ -52,11 +52,61 @@ $sql= $conexion->query("SELECT * FROM usuario");
       <td><?= $datos-> apellido ?></td>
       <td><?= $datos-> usuario ?></td>
       <td>
-        <a href="" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</a>
-<a href="inicio.php?id=<?= $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger">Eliminar</a>
+        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_usuario ?>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</a>
+<a href="inicio.php?id=<?php $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger">Eliminar</a>
 
       </td>
     </tr>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal<?= $datos->id_usuario ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?= $datos->id_usuario ?>" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modificar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="POST">
+          <div hidden class="fl-flex-label mb-4 px-2 col-12">
+        
+            <label for="ID">ID</label>
+            <input type="text" class="input input__text" name="txtid" value="<?= $datos-> id_usuario ?>" >
+        
+    </div>
+    <div class="fl-flex-label mb-4 px-2 col-12">
+        
+            <label for="nombre">Nombre</label>
+            <input type="text" class="input input__text" name="txtnombre" value="<?= $datos-> nombre ?>" >
+        
+    </div>
+    <div class="fl-flex-label mb-4 px-2 col-12">
+       
+            <label for="apellido">Apellido</label>
+            <input type="text" class="input input__text" name="txtapellido" value="<?= $datos-> apellido ?>" >
+        
+    </div>
+    <div class="fl-flex-label mb-4 px-2 col-12">
+        
+            <label for="usuario">Usuario</label>
+            <input type="text" class="input input__text" name="txtusuario" value="<?= $datos-> usuario ?>">
+        
+    </div>
+    <div class="text-right p-2">
+        <a href="usuario.php" class="btn btn-secondary btn-rounded">Atras</a>
+        <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
+    </div>
+</form>
+      </div>
+      <div class="modal-footer">
+  
+      </div>
+    </div>
+  </div>
+</div>
      <?php } 
      
      ?>

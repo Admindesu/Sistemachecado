@@ -55,7 +55,7 @@ include "../controlador/controlador_registrar_usuario.php";
         
     </div>
     <div class="text-right p-2">
-        <a href="" class="btn btn-secondary btn-rounded">Atras</a>
+        <a href="usuario.php" class="btn btn-secondary btn-rounded">Atras</a>
         <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
     </div>
 </form>
