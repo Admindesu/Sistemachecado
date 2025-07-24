@@ -39,7 +39,7 @@ cargo.nombre AS 'nom_cargo'
 
  
 ?>
-<a href="registro_usuario.php" class="btn btn-primary btn-rounded mb-3"><i class="fa-solid fa-plus"></i> Agregar Usuario</a>
+<a href="registro_empleado.php" class="btn btn-primary btn-rounded mb-3"><i class="fa-solid fa-plus"></i> Agregar Usuario</a>
     <table class="table table-bordered table-hover col-12" id="example">
   <thead>
     <tr>
