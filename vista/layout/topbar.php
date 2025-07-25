@@ -135,7 +135,7 @@
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right pt-0" aria-labelledby="dd-user-menu">
 
-                                    <h5 class="p-2 text-center bg-primary"><?=$_SESSION["nombre"]. " ". $_SESSION["apellido"] ?></h5>
+                                    <h5 class="p-2 text-center bg-primary"><?=" ". $_SESSION["nombre"]. " ". $_SESSION["apellido"]. " "?></h5>
                                     <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-user"></span>Perfil</a>
                                     <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña</a>
 

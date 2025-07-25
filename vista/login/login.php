@@ -15,20 +15,16 @@
 </head>
 
 <body>
-    <img class="wave" src="img/wave.png">
-    <div class="container">
-        <div class="img">
-            <img src="img/bg.svg">
-        </div>
-        <div class="login-content">
+    <img class="wave" src="img/grecas.png">
+    <div class="container d-flex justify-content-end">
+        <div class="login-content" style="margin-top: -80px;">
             <form method="POST" action="">
-                <img src="img/avatar.svg">
+                <img src="img/caracol rojo.png">
                 <h2 class="title">BIENVENIDO</h2>
-             <?php
-             include "../../modelo/conexion.php";
-             include "../../controlador/login.php";
-             
-             ?>
+                <?php
+                include "../../modelo/conexion.php";
+                include "../../controlador/login.php";
+                ?>
                 <div class="input-div one">
                     <div class="i">
                         <i class="fas fa-user"></i>

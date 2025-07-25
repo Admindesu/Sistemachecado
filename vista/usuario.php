@@ -33,7 +33,7 @@ $sql= $conexion->query("SELECT * FROM usuario");
 
  
 ?>
-<a href="registro_usuario.php" class="btn btn-primary btn-rounded mb-3"><i class="fa-solid fa-plus"></i> Agregar Usuario</a>
+<a href="registro_usuario.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar Usuario</a>
     <table class="table table-bordered table-hover col-12" id="example">
   <thead>
     <tr>
@@ -53,8 +53,8 @@ $sql= $conexion->query("SELECT * FROM usuario");
       <td><?= $datos-> apellido ?></td>
       <td><?= $datos-> usuario ?></td>
       <td>
-        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_usuario ?>" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</a>
-<a href="usuario.php?id=<?= $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger">Eliminar</a>
+        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_usuario ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+<a href="usuario.php?id=<?= $datos-> id_usuario ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
 
       </td>
     </tr>
