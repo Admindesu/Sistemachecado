@@ -124,9 +124,9 @@
                         <div class="site-header-shown">
 
                             <div class="dropdown dropdown-notification">
-                                <h6 class="text-light mt-2">
+                                <h7 class="text-light mt-2">
                                     Administrador
-                                </h6>
+                                </h7>
                             </div>
 
                             <div class="dropdown user-menu">
