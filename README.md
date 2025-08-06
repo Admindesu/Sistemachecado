@@ -49,7 +49,9 @@ Crea una nueva base de datos en tu servidor MySQL sis-asistencia.
 Importa el archivo sistema_asistencia2.sql  a tu nueva base de datos. Este archivo contiene la estructura de las tablas y algunos datos iniciales.
 Abre tu navegador web y navega a la URL donde hayas desplegado el sistema (ej. http://localhost/sis-asistencia/vista/login/login.php o http://tu-dominio.com/).
 
+
 Inicia Sesion
 Usuario: isai
 
 Contraseña: 123 (¡Por favor, cambia esta contraseña inmediatamente después de iniciar sesión!)
+Esto es un Fork de InformaticaStudios: https://www.youtube.com/watch?v=w5wrSsW9s_M&list=LL&index=4&ab_channel=InformaticaStudios
