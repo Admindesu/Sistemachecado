@@ -7,7 +7,7 @@
 ?>
 
 <style>
-ul li:nth-child(2) .activo {
+ul li:nth-child(4) .activo {
     background: rgb(11, 150, 214) !important;
 }
 
@@ -31,7 +31,7 @@ $sql= $conexion->query("SELECT * FROM CARGO");
 
  
 ?>
-<a href="registro_usuario.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar Usuario</a>
+<a href="registro_cargo.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar</a>
     <table class="table table-bordered table-hover col-12" id="example">
   <thead>
     <tr>
