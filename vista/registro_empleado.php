@@ -64,7 +64,7 @@ while ($datos = $sql->fetch_object()) { ?>
         </select>
 </div>
     <div class="text-right p-2">
-        <a href="usuario.php" class="btn btn-secondary btn-rounded">Atras</a>
+        <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>
         <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
     </div>
 </form>

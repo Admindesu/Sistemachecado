@@ -25,6 +25,7 @@ ul li:nth-child(3) .activo {
 
 <?php
 include "../modelo/conexion.php";
+include "../controlador/controlador_modificar_empleado.php";
 // Consulta para obtener los datos de asistencia, empleado y cargo
 // Se utiliza INNER JOIN para combinar las tablas asistencia, empleado y cargo
 $sql= $conexion->query("SELECT 
@@ -39,7 +40,7 @@ cargo.nombre AS 'nom_cargo'
 
  
 ?>
-<a href="registro_empleado.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar Usuario</a>
+<a href="registro_empleado.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar Empleado</a>
     <table class="table table-bordered table-hover col-12" id="example">
   <thead>
     <tr>
@@ -71,7 +72,7 @@ cargo.nombre AS 'nom_cargo'
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modificar Usuario</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Modificar Empleado</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -98,13 +99,21 @@ cargo.nombre AS 'nom_cargo'
     </div>
     <div class="fl-flex-label mb-4 px-2 col-12">
         
-            <label for="usuario">Usuario</label>
-            <input type="text" class="input input__text" name="txtusuario" value="<?= $datos-> usuario ?>">
+            <label for="cargo">Cargo</label>
+           <select name="txtcargo" class= "input input__select">
+           <?php 
+           $sql2= $conexion->query("SELECT * FROM cargo");
+           while ($datos2 = $sql2->fetch_object()) { ?>
+           <option <?= $datos->cargo==$datos2->id_cargo ?'selected' : '' ?> value ="<?= $datos2->id_cargo ?>"><?= $datos2->nombre ?></option>
+           <?php }
+
+?>
+           </select>
         
     </div>
     <div class="text-right p-2">
-        <a href="usuario.php" class="btn btn-secondary btn-rounded">Atras</a>
-        <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
+        <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>
+        <button type="submit" value="ok" name="btnmodificar" class="btn btn-primary btn-rounded">Registrar</button>
     </div>
 </form>
       </div>
