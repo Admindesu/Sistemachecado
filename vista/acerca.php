@@ -1,6 +1,5 @@
 <?php require('./layout/topbar.php'); ?>
 <?php require('./layout/sidebar.php'); ?>
-
 <?php
 // session_start();
 // if (empty($_SESSION['user']) and empty($_SESSION['clave'])) {
@@ -10,9 +9,8 @@
 ?>
 
 <style>
-.sidebar-nav ul li:nth-child(5) a {
+ul li:nth-child(5) .activo {
     background: rgb(171, 11, 61) !important;
-    color: #fff !important;
 }
 </style>
 <div class="page-content">

@@ -20,52 +20,69 @@ ul li:nth-child(3) .activo {
 
 <!-- inicio del contenido principal -->
 <div class="page-content">
+    <div class="container-fluid">
+        <h4 class="text-center text-secondary">Lista de empleados</h4>
 
-    <h4 class= "text-center text-secondary">Lista de empleados</h4>
+        <?php
+        include "../modelo/conexion.php";
+        include "../controlador/controlador_modificar_empleado.php";
+        include "../controlador/controlador_eliminar_empleado.php";
 
-<?php
-include "../modelo/conexion.php";
-include "../controlador/controlador_modificar_empleado.php";
-include "../controlador/controlador_eliminar_empleado.php";
-// Consulta para obtener los datos de asistencia, empleado y cargo
-// Se utiliza INNER JOIN para combinar las tablas asistencia, empleado y cargo
-$sql= $conexion->query("SELECT 
-empleado.id_empleado,
-empleado.nombre,
-empleado.apellido,
-empleado.cargo,
-cargo.nombre AS 'nom_cargo'
- FROM empleado
- INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
- ");
+        try {
+            $sql = $conexion->query("SELECT 
+                empleado.id_empleado,
+                empleado.nombre,
+                empleado.apellido,
+                empleado.cargo,
+                cargo.nombre AS 'nom_cargo'
+                FROM empleado
+                INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
+            ");
+        } catch (Exception $e) {
+            echo "<div class='alert alert-danger'>Error al cargar los datos: " . $e->getMessage() . "</div>";
+        }
+        ?>
 
- 
-?>
-<a href="registro_empleado.php" class="btn btn-primary btn-rounded mb-3"><i class="fas fa-plus"></i> Agregar Empleado</a>
-    <table class="table table-bordered table-hover col-12" id="example">
-  <thead>
-    <tr>
-      <th scope="col">ID</th>
-      <th scope="col">Nombre</th>
-      <th scope="col">Apellido</th>
-      <th scope="col">nom_cargo</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
-     while ($datos = $sql->fetch_object()) { ?>
-      <tr>
-    <td><?= $datos-> id_empleado ?></td>
-      <td><?= $datos-> nombre ?></td>
-      <td><?= $datos-> apellido ?></td>
-      <td><?= $datos-> nom_cargo ?></td>
-      <td>
-        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-<a href="empleado.php?id=<?= $datos-> id_empleado ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="registro_empleado.php" class="btn btn-primary btn-rounded">
+                    <i class="fas fa-plus"></i> Agregar Empleado
+                </a>
+            </div>
+        </div>
 
-      </td>
-    </tr>
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover w-100" id="example">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Apellido</th>
+                                <th scope="col">Cargo</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($sql) {
+                                while ($datos = $sql->fetch_object()) { 
+                            ?>
+                                <tr>
+                                    <td><?= $datos->id_empleado ?></td>
+                                    <td><?= $datos->nombre ?></td>
+                                    <td><?= $datos->apellido ?></td>
+                                    <td><?= $datos->nom_cargo ?></td>
+                                    <td>
+                                        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <a href="empleado.php?id=<?= $datos->id_empleado ?>" onclick="advertencia(event)" class="btn btn-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> Eliminar
+                                        </a>
+                                    </td>
+                                </tr>
 
 
 <!-- Modal -->
@@ -124,14 +141,16 @@ cargo.nombre AS 'nom_cargo'
     </div>
   </div>
 </div>
-     <?php } 
-     
-     ?>
-   
-  </tbody>
-</table>
-
-</div>
+     <?php 
+                                }
+                            } 
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- fin del contenido principal -->
 

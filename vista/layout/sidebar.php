@@ -32,7 +32,7 @@
                     </a>
                 </li>
                 <li class="red">
-                    <a href="acerca.php" class="">
+                    <a href="acerca.php" class="activo">
                         <img src="../public/img-inicio/info.png" class="img-inicio" alt="">
                         <!-- <i class="fas fa-exclamation"></i> -->
                         <span class="lbl">ACERCA DE</span>
