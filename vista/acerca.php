@@ -9,6 +9,12 @@
 
 ?>
 
+<style>
+.sidebar-nav ul li:nth-child(5) a {
+    background: rgb(171, 11, 61) !important;
+    color: #fff !important;
+}
+</style>
 <div class="page-content">
 
     <h4 class="text-center text-secondary">Acerca de</h4>

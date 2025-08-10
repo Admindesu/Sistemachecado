@@ -31,9 +31,6 @@
                         <span class="lbl">CARGOS</span>
                     </a>
                 </li>
-
-                
-
                 <li class="red">
                     <a href="acerca.php" class="">
                         <img src="../public/img-inicio/info.png" class="img-inicio" alt="">
