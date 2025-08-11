@@ -88,19 +88,24 @@ INSERT INTO `empresa` VALUES ('1', 'Informatica Studios', '925310896', 'av. los 
 DROP TABLE IF EXISTS `usuario`;
 CREATE TABLE `usuario` (
   `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) DEFAULT NULL,
-  `apellido` varchar(100) DEFAULT NULL,
-  `usuario` varchar(100) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `apellido` varchar(100) NOT NULL,
+  `usuario` varchar(100) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
+  `is_admin` BOOLEAN NOT NULL DEFAULT FALSE,
+  `estado` ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',
+  `ultimo_login` datetime DEFAULT NULL,
+  `intentos_fallidos` int(1) NOT NULL DEFAULT 0,
+  `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_modificacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Records of usuario
 -- ----------------------------
-INSERT INTO `usuario` VALUES ('1', 'ismaelito', 'sandoval', 'isai', '202cb962ac59075b964b07152d234b70');
-INSERT INTO `usuario` VALUES ('2', 'juan', 'mamani', 'juan', '202cb962ac59075b964b07152d234b70');
-
+INSERT INTO `usuario` (`nombre`, `apellido`, `usuario`, `password`, `is_admin`) 
+VALUES ('ismaelito', 'sandoval', 'isai', '202cb962ac59075b964b07152d234b70', TRUE);
 
 DROP TABLE IF EXISTS `asistencia`;
 CREATE TABLE `asistencia` (
@@ -120,3 +125,27 @@ INSERT INTO `asistencia` VALUES ('13', '1', '2022-03-31 00:17:34', '2022-03-31 0
 INSERT INTO `asistencia` VALUES ('14', '6', '2022-03-31 00:22:53', '2022-03-31 00:23:04');
 INSERT INTO `asistencia` VALUES ('21', '11', '2022-03-31 10:36:58', '2022-03-31 10:37:37');
 INSERT INTO `asistencia` VALUES ('22', '6', '2022-08-06 20:59:07', null);
+
+-- Add password reset functionality
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_expiracion` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`usuario_id`) REFERENCES `usuario`(`id_usuario`) ON DELETE CASCADE,
+  INDEX `idx_token` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add login history for audit
+CREATE TABLE `login_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario_id` int(11) NOT NULL,
+  `fecha_login` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ip_address` varchar(45) NOT NULL,
+  `user_agent` varchar(255) NOT NULL,
+  `exitoso` boolean NOT NULL DEFAULT TRUE,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`usuario_id`) REFERENCES `usuario`(`id_usuario`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
