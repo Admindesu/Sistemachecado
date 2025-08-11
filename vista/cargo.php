@@ -25,6 +25,7 @@ ul li:nth-child(4) .activo {
 
         <?php
         include "../modelo/conexion.php";
+        include "../controlador/controlador_modificar_cargo.php";
         $sql = $conexion->query("SELECT * FROM cargo ORDER BY id_cargo");
         ?>
 
@@ -63,7 +64,7 @@ ul li:nth-child(4) .activo {
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Modificar Usuario</h5>
+                                            <h5 class="modal-title" id="exampleModalLabel">Modificar Cargo</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
@@ -78,16 +79,9 @@ ul li:nth-child(4) .activo {
                                                     <label for="nombre">Nombre</label>
                                                     <input type="text" class="input input__text" name="txtnombre" value="<?= $datos-> nombre ?>" >
                                                 </div>
-                                                <div class="fl-flex-label mb-4 px-2 col-12">
-                                                    <label for="apellido">Apellido</label>
-                                                    <input type="text" class="input input__text" name="txtapellido" value="<?= $datos-> apellido ?>" >
-                                                </div>
-                                                <div class="fl-flex-label mb-4 px-2 col-12">
-                                                    <label for="usuario">Usuario</label>
-                                                    <input type="text" class="input input__text" name="txtusuario" value="<?= $datos-> usuario ?>">
-                                                </div>
+                                        
                                                 <div class="text-right p-2">
-                                                    <a href="usuario.php" class="btn btn-secondary btn-rounded">Atras</a>
+                                                    <a href="cargo.php" class="btn btn-secondary btn-rounded">Atras</a>
                                                     <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
                                                 </div>
                                             </form>
