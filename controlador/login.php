@@ -6,17 +6,23 @@ session_start();
 if(!empty($_POST['btningresar'])) {
     if(!empty($_POST['usuario']) and !empty($_POST['password'])) {
         $usuario= $_POST["usuario"];
-        $password= md5($_POST["password"]);
-        $sql= $conexion->query("SELECT * FROM usuario WHERE usuario='$usuario' AND password='$password'");
+        $password= $_POST["password"];
+        
+        $sql= $conexion->query("SELECT * FROM usuario WHERE usuario='$usuario'");
+        
         if ($datos=$sql ->fetch_object()){
-            $_SESSION['nombre'] = $datos->nombre;
-            $_SESSION['apellido'] = $datos->apellido;
-            header("location: ../inicio.php");
-        }else{
-            echo "<div class = 'alert alert-danger'> Usuario no existe</div>";
+            if (password_verify($password, $datos->password)) {
+                $_SESSION["nombre"] = $datos->nombre;
+                $_SESSION["apellido"] = $datos->apellido;
+                header("location:../inicio.php");
+            } else {
+                echo '<div class="alert alert-danger">Contraseña incorrecta</div>';
+            }
+        } else {
+            echo '<div class="alert alert-danger">Usuario no existe</div>';
         }
     } else {
-        echo "<div class = 'alert alert-danger'> Los campos estan vacios</div>";
+        echo '<div class="alert alert-danger">Campos vacíos</div>';
     }
 }
 

@@ -22,8 +22,15 @@ $nombre = $_POST["txtnombre"];
         </script>
 
    <?php } else {
-    $modificar=$conexion->query("update usuario set nombre='$nombre',apellido='$apellido',usuario='$usuario' where id_usuario=$id");
-    if ($modificar==true) { ?>
+    // Si se proporciona una nueva contraseña, actualizarla
+        if (!empty($_POST["txtpassword"])) {
+            $password = password_hash($_POST["txtpassword"], PASSWORD_DEFAULT);
+            $sql = $conexion->query("UPDATE usuario SET nombre='$nombre', apellido='$apellido', usuario='$usuario', password='$password' WHERE id_usuario = $id");
+        } else {
+            $sql = $conexion->query("UPDATE usuario SET nombre='$nombre', apellido='$apellido', usuario='$usuario' WHERE id_usuario = $id");
+        }
+        
+        if ($sql == 1) { ?>
  <script>
             $(function notificacion(){
                 new PNotify({

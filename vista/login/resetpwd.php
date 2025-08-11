@@ -1,5 +1,4 @@
 <?php
-<?php
 session_start();
 include "../../modelo/conexion.php";
 
@@ -44,7 +43,7 @@ function sendResetEmail($email, $token) {
                             
                             if (!empty($usuario)) {
                                 // Verificar si el usuario existe
-                                $stmt = $conexion->prepare("SELECT id_usuario, nombre FROM usuario WHERE usuario = ? AND estado = 'activo'");
+                                $stmt = $conexion->prepare("SELECT id_usuario, nombre, email FROM usuario WHERE usuario = ? AND estado = 'activo'");
                                 $stmt->bind_param("s", $usuario);
                                 $stmt->execute();
                                 $result = $stmt->get_result();
@@ -52,17 +51,23 @@ function sendResetEmail($email, $token) {
                                 if ($result->num_rows > 0) {
                                     $user = $result->fetch_assoc();
                                     $token = generateToken();
-                                    $expiracion = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                                    $expiracion = date('Y-m-d H:i:s', strtotime('+24 hours')); // Changed from +1 hour to +24 hours
 
                                     // Guardar token en la base de datos
                                     $stmt = $conexion->prepare("INSERT INTO password_resets (usuario_id, token, fecha_expiracion) VALUES (?, ?, ?)");
                                     $stmt->bind_param("iss", $user['id_usuario'], $token, $expiracion);
                                     
                                     if ($stmt->execute()) {
-                                        // Aquí deberías implementar el envío real del correo
-                                        echo '<div class="alert alert-success">
-                                                Se ha enviado un enlace de recuperación a tu correo electrónico.
-                                              </div>';
+                                        // Enviar el correo usando el email del usuario
+                                        if (sendResetEmail($user['email'], $token)) {
+                                            echo '<div class="alert alert-success">
+                                                    Se ha enviado un enlace de recuperación a ' . htmlspecialchars($user['email']) . '
+                                                  </div>';
+                                        } else {
+                                            echo '<div class="alert alert-danger">
+                                                    Error al enviar el correo. Por favor, contacte al administrador.
+                                                  </div>';
+                                        }
                                     } else {
                                         echo '<div class="alert alert-danger">
                                                 Error al procesar la solicitud. Por favor, intenta nuevamente.

@@ -98,14 +98,15 @@ CREATE TABLE `usuario` (
   `intentos_fallidos` int(1) NOT NULL DEFAULT 0,
   `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_modificacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `email` varchar(255) NOT NULL UNIQUE,
   PRIMARY KEY (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Records of usuario
 -- ----------------------------
-INSERT INTO `usuario` (`nombre`, `apellido`, `usuario`, `password`, `is_admin`) 
-VALUES ('ismaelito', 'sandoval', 'isai', '202cb962ac59075b964b07152d234b70', TRUE);
+INSERT INTO `usuario` (`nombre`, `apellido`, `usuario`, `password`, `is_admin`, `estado`, `email`) 
+VALUES ('ismaelito', 'sandoval', 'isai', '202cb962ac59075b964b07152d234b70', TRUE, 'activo', 'dharryparedes@gmail.com');
 
 DROP TABLE IF EXISTS `asistencia`;
 CREATE TABLE `asistencia` (
