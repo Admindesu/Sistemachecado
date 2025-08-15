@@ -49,6 +49,9 @@ CREATE TABLE `empleado` (
   `apellido` varchar(255) DEFAULT NULL,
   `dni` varchar(255) NOT NULL,
   `cargo` int(11) NOT NULL,
+  `usuario` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `is_admin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_empleado`),
   KEY `fk1` (`cargo`),
   CONSTRAINT `fk1` FOREIGN KEY (`cargo`) REFERENCES `cargo` (`id_cargo`) ON DELETE CASCADE
@@ -57,12 +60,12 @@ CREATE TABLE `empleado` (
 -- ----------------------------
 -- Records of empleado
 -- ----------------------------
-INSERT INTO `empleado` VALUES ('1', 'juan manuel', 'quispe chocce', '78945612', '1');
-INSERT INTO `empleado` VALUES ('2', 'josep', 'vega chavez', '77441122', '2');
-INSERT INTO `empleado` VALUES ('3', 'erick', 'muleta paredes', '77885522', '3');
-INSERT INTO `empleado` VALUES ('4', 'maria', 'molina gutierrez', '00225566', '5');
-INSERT INTO `empleado` VALUES ('6', 'ismael', 'sandoval', '74433542', '4');
-INSERT INTO `empleado` VALUES ('11', 'prueba', 'prueba', '00225588', '1');
+INSERT INTO `empleado` VALUES ('1', 'juan manuel', 'quispe chocce', '78945612', '1', 'juanmanuel', '202cb962ac59075b964b07152d234b70', '1');
+INSERT INTO `empleado` VALUES ('2', 'josep', 'vega chavez', '77441122', '2', 'josepvega', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('3', 'erick', 'muleta paredes', '77885522', '3', 'erickmuleta', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('4', 'maria', 'molina gutierrez', '00225566', '5', 'mariamolina', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('6', 'ismael', 'sandoval', '74433542', '4', 'ismaelsandoval', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('11', 'prueba', 'prueba', '00225588', '1', 'prueba', '202cb962ac59075b964b07152d234b70', '0');
 
 -- ----------------------------
 -- Table structure for empresa
@@ -81,26 +84,6 @@ CREATE TABLE `empresa` (
 -- Records of empresa
 -- ----------------------------
 INSERT INTO `empresa` VALUES ('1', 'Informatica Studios', '925310896', 'av. los incas', '78945612378');
-
--- ----------------------------
--- Table structure for usuario
--- ----------------------------
-DROP TABLE IF EXISTS `usuario`;
-CREATE TABLE `usuario` (
-  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) DEFAULT NULL,
-  `apellido` varchar(100) DEFAULT NULL,
-  `usuario` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  PRIMARY KEY (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of usuario
--- ----------------------------
-INSERT INTO `usuario` VALUES ('1', 'ismaelito', 'sandoval', 'isai', '202cb962ac59075b964b07152d234b70');
-INSERT INTO `usuario` VALUES ('2', 'juan', 'mamani', 'juan', '202cb962ac59075b964b07152d234b70');
-
 
 DROP TABLE IF EXISTS `asistencia`;
 CREATE TABLE `asistencia` (

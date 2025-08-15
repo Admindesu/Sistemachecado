@@ -7,7 +7,7 @@
 ?>
 
 <style>
-ul li:nth-child(3) .activo {
+ul li:nth-child(2) .activo {
     background: rgb(171, 11, 61) !important;
 }
 
@@ -33,8 +33,11 @@ ul li:nth-child(3) .activo {
                 empleado.id_empleado,
                 empleado.nombre,
                 empleado.apellido,
+                empleado.dni,
+                empleado.usuario,
                 empleado.cargo,
-                cargo.nombre AS 'nom_cargo'
+                empleado.is_admin,
+                cargo.nombre AS nom_cargo
                 FROM empleado
                 INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
             ");
@@ -60,7 +63,10 @@ ul li:nth-child(3) .activo {
                                 <th scope="col">ID</th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Apellido</th>
-                                <th scope="col">Cargo</th>
+                                <th scope="col">DNI</th>
+                                <th scope="col">Usuario</th>
+                                <th scope="col">Admin</th>
+                                <th scope="col">Cargo</th>                               
                                 <th scope="col">Acciones</th>
                             </tr>
                         </thead>
@@ -73,6 +79,11 @@ ul li:nth-child(3) .activo {
                                     <td><?= $datos->id_empleado ?></td>
                                     <td><?= $datos->nombre ?></td>
                                     <td><?= $datos->apellido ?></td>
+                                    <td><?= $datos->dni ?></td>
+                                    <td><?= $datos->usuario ?></td>
+                                    <td>
+                                        <input type="checkbox" disabled <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
+                                    </td>
                                     <td><?= $datos->nom_cargo ?></td>
                                     <td>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning">
@@ -87,7 +98,7 @@ ul li:nth-child(3) .activo {
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal<?= $datos->id_empleado ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?= $datos->id_empleado ?>" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg"><!-- Cambiado a modal-lg para mayor tamaño -->
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Modificar Empleado</h5>
@@ -129,6 +140,19 @@ ul li:nth-child(3) .activo {
            </select>
         
     </div>
+    <div class="fl-flex-label mb-5 px- col-12">
+    <label for="usuario">Usuario</label>
+    <input type="text" class="input input__text" name="txtusuario" value="<?= $datos->usuario ?>" required>
+</div>
+<div class="fl-flex-label mb-4 px-2 col-12">
+    <label for="password">Contraseña</label>
+    <input type="password" class="input input__text" name="txtpassword" placeholder="Ingrese nueva contraseña si desea cambiarla">
+</div>
+<div class="fl-flex-label mb-4 px-2 col-12">
+    <label for="is_admin">Administrador</label>
+    <input type="checkbox" name="is_admin" id="is_admin" value="1" <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
+    <span style="margin-left:8px;">Añadir como administrador?</span>
+</div>
     <div class="text-right p-2">
         <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>
         <button type="submit" value="ok" name="btnmodificar" class="btn btn-primary btn-rounded">Registrar</button>

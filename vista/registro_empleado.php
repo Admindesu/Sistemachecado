@@ -63,6 +63,19 @@ while ($datos = $sql->fetch_object()) { ?>
 
         </select>
 </div>
+    <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
+        <label for="usuario">Usuario</label>
+        <input type="text" class="input input__text" name="txtusuario" required>
+    </div>
+    <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
+        <label for="password">Contraseña</label>
+        <input type="password" class="input input__text" name="txtpassword" required placeholder="Ingrese contraseña">
+    </div>
+    <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
+        <label for="is_admin">Administrador</label>
+        <input type="checkbox" name="is_admin" id="is_admin" value="1">
+        <span style="margin-left:8px;">¿Es administrador?</span>
+    </div>
     <div class="text-right p-2">
         <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>
         <button type="submit" value="ok" name="btnregistrar" class="btn btn-primary btn-rounded">Registrar</button>
