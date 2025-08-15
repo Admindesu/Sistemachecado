@@ -116,3 +116,33 @@ ul li:nth-child(2) .activo {
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+
+<?php
+if (isset($_POST['btn_cambiar_pass'])) {
+    include "../modelo/conexion.php";
+    $id_usuario = $_SESSION['id_usuario'] ?? null;
+    $pass_actual = $_POST['pass_actual'];
+    $pass_nueva = $_POST['pass_nueva'];
+    $pass_confirmar = $_POST['pass_confirmar'];
+
+    if (!$id_usuario) {
+        echo "<div class='alert alert-danger'>No se encontró el usuario logueado.</div>";
+    } elseif ($pass_nueva !== $pass_confirmar) {
+        echo "<div class='alert alert-danger'>Las contraseñas nuevas no coinciden.</div>";
+    } else {
+        $consulta = $conexion->query("SELECT password FROM usuario WHERE id_usuario=$id_usuario");
+        if ($consulta && $consulta->num_rows > 0) {
+            $row = $consulta->fetch_assoc();
+            if (md5($pass_actual) === $row['password']) {
+                $pass_hash = md5($pass_nueva);
+                $conexion->query("UPDATE usuario SET password='$pass_hash' WHERE id_usuario=$id_usuario");
+                echo "<div class='alert alert-success'>Contraseña actualizada correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>La contraseña actual es incorrecta.</div>";
+            }
+        } else {
+            echo "<div class='alert alert-danger'>No se pudo obtener la contraseña actual.</div>";
+        }
+    }
+}
+?>

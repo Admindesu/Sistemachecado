@@ -137,7 +137,9 @@
 
                                     <h5 class="p-2 text-center bg-primary"><?=" ". $_SESSION["nombre"]. " ". $_SESSION["apellido"]. " "?></h5>
                                     <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-user"></span>Perfil</a>
-                                    <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña</a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modalCambiarPass">
+                                        <span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña
+                                    </a>
 
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="../controlador/controlador_cerrar_sesion.php">
@@ -162,4 +164,38 @@
         </header>
 
         <div class="mobile-menu-left-overlay">
+        </div>
+
+        <!-- Modal Cambiar Contraseña -->
+        <div class="modal fade" id="modalCambiarPass" tabindex="-1" aria-labelledby="modalCambiarPassLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../vista/usuario.php" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalCambiarPassLabel">Cambiar Contraseña</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="fl-flex-label mb-4 px-2 col-12">
+                                <label for="actual">Contraseña Actual</label>
+                                <input type="password" class="input input__text" name="pass_actual" required>
+                            </div>
+                            <div class="fl-flex-label mb-4 px-2 col-12">
+                                <label for="nueva">Nueva Contraseña</label>
+                                <input type="password" class="input input__text" name="pass_nueva" required>
+                            </div>
+                            <div class="fl-flex-label mb-4 px-2 col-12">
+                                <label for="confirmar">Confirmar Nueva Contraseña</label>
+                                <input type="password" class="input input__text" name="pass_confirmar" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-rounded" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" name="btn_cambiar_pass" class="btn btn-primary btn-rounded">Cambiar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
