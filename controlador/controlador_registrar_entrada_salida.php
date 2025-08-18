@@ -20,6 +20,7 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
 
     if ($result->num_rows > 0) {
         // Registrar asistencia
+        date_default_timezone_set('America/Cancun'); // Cambia a tu zona horaria
         $fecha = date('Y-m-d H:i:s');
         $sql2 = "INSERT INTO asistencia (dni, tipo, fecha) VALUES (?, ?, ?)";
         $stmt2 = $conexion->prepare($sql2);
@@ -45,3 +46,4 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
     header("Location: ../index.php?msg=empleado_no_encontrado");
 }
 ?>
+

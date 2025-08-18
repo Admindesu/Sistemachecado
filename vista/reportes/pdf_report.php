@@ -1,6 +1,10 @@
 <?php
+use setasign\Fpdi\Fpdi;
+
 require('../../libs/fpdf/fpdf.php');
+require('../../libs/fpdi/src/autoload.php'); // Ajusta la ruta si es necesario
 include "../../modelo/conexion.php";
+
 
 // Get filter parameters
 $fecha_inicio = !empty($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : date('Y-01-01');
@@ -13,12 +17,11 @@ $where[] = "DATE(asistencia.fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
 if ($empleado_id) {
     $where[] = "asistencia.dni = '$empleado_id'";
 }
-
 $where_clause = "WHERE " . implode(" AND ", $where);
 
 // SQL query
 $sql = "SELECT 
-    asistencia.id_asistencia,
+
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
@@ -33,36 +36,44 @@ $sql = "SELECT
     $where_clause
     ORDER BY asistencia.fecha DESC";
 
-class ReportePDF extends FPDF {
+class ReportePDF extends Fpdi {
     function Header() {
-        $this->SetFont('Arial', 'B', 15);
-        $this->Cell(0, 10, 'Reporte de Asistencias', 0, 1, 'C');
-        
-        if (isset($GLOBALS['fecha_inicio']) && isset($GLOBALS['fecha_fin'])) {
-            $this->SetFont('Arial', 'I', 10);
-            $this->Cell(0, 10, 'Periodo: ' . $GLOBALS['fecha_inicio'] . ' - ' . $GLOBALS['fecha_fin'], 0, 1, 'C');
-        }
-        
-        $this->Ln(10);
-        
-        // Encabezados
-        $this->SetFont('Arial', 'B', 11);
-        $this->Cell(15, 10, 'ID', 1, 0, 'C');
-        $this->Cell(60, 10, 'Empleado', 1, 0, 'C');
-        $this->Cell(30, 10, 'NoEmpleado', 1, 0, 'C');
-        $this->Cell(30, 10, 'Cargo', 1, 0, 'C');
-        $this->Cell(25, 10, 'Tipo', 1, 0, 'C');
-        $this->Cell(35, 10, 'Fecha/Hora', 1, 1, 'C');
+        // No header, as template is used
     }
 }
 
 $pdf = new ReportePDF();
 $pdf->AddPage();
+
+// Import template
+$pdf->setSourceFile('plantilla.pdf');
+$tplIdx = $pdf->importPage(1);
+$pdf->useTemplate($tplIdx);
+
+// Set position for table (adjust X/Y as needed)
+$pdf->SetXY(10, 50);
+
+$pdf->SetFont('Arial', 'B', 15);
+$pdf->Cell(0, 10, 'Reporte de Asistencias', 0, 1, 'C');
+
+$pdf->SetFont('Arial', 'I', 10);
+$pdf->Cell(0, 10, 'Periodo: ' . $fecha_inicio . ' - ' . $fecha_fin, 0, 1, 'C');
+$pdf->Ln(5);
+
+// Encabezados
+$pdf->SetFont('Arial', 'B', 11);
+
+$pdf->Cell(60, 10, 'Empleado', 1, 0, 'C');
+$pdf->Cell(30, 10, 'NoEmpleado', 1, 0, 'C');
+$pdf->Cell(30, 10, 'Cargo', 1, 0, 'C');
+$pdf->Cell(25, 10, 'Tipo', 1, 0, 'C');
+$pdf->Cell(35, 10, 'Fecha/Hora', 1, 1, 'C');
+
 $pdf->SetFont('Arial', '', 10);
 
 $result = $conexion->query($sql);
 while($row = $result->fetch_object()) {
-    $pdf->Cell(15, 10, $row->id_asistencia, 1, 0, 'C');
+   
     $pdf->Cell(60, 10, utf8_decode($row->nom_empleado . " " . $row->apellido), 1, 0, 'L');
     $pdf->Cell(30, 10, $row->dni, 1, 0, 'C');
     $pdf->Cell(30, 10, utf8_decode($row->nom_cargo), 1, 0, 'L');

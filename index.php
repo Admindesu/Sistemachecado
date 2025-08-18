@@ -142,5 +142,13 @@ $numeroEmpleado = $_SESSION['dni'];
     <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'empleado_no_encontrado'): ?>
     <div class="alert alert-danger">Empleado no encontrado.</div>
     <?php endif; ?>
+    <div style="width:100%; text-align:center; margin-top:30px;">
+        <form action="vista/reportes/pdf_report.php" method="POST" target="_blank" style="display:inline-block;">
+            <input type="hidden" name="empleado" value="<?= htmlspecialchars($numeroEmpleado) ?>">
+            <button type="submit" style="padding:10px 25px; font-size:16px; border-radius:5px; background:#3498db; color:#fff; border:none; cursor:pointer;">
+                Descargar mi reporte de asistencias
+            </button>
+        </form>
+    </div>
 </body>
 </html>

@@ -17,7 +17,7 @@ $where_clause = "WHERE " . implode(" AND ", $where);
 
 // SQL query
 $sql = "SELECT 
-    asistencia.id_asistencia,
+
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
@@ -63,7 +63,6 @@ if (!empty($filtros)) {
 }
 
 echo "<tr>
-        <th>ID</th>
         <th>Empleado</th>
         <th>NoEmpleado</th>
         <th>Cargo</th>
@@ -76,7 +75,6 @@ echo "<tr>
 $result = $conexion->query($sql);
 while($row = $result->fetch_object()) {
     echo "<tr>
-        <td>{$row->id_asistencia}</td>
         <td>{$row->nom_empleado} {$row->apellido}</td>
         <td>{$row->dni}</td>
         <td>{$row->nom_cargo}</td>
