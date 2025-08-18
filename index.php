@@ -15,6 +15,7 @@ $numeroEmpleado = $_SESSION['dni'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagina de bienvenida</title>
+    <link rel="shortcut icon" href="public/app/publico/img/favicon.ico">
     <link rel="stylesheet" href="public/estilos/estilos.css">
     <style>
         /* Estilos responsive */
