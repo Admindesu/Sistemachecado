@@ -1,5 +1,16 @@
+
 <?php
-<?php
+/**
+ * Inicia la sesión y gestiona el proceso de autenticación de usuarios.
+ * 
+ * - Verifica si el formulario de login fue enviado.
+ * - Valida que los campos 'usuario' y 'password' no estén vacíos.
+ * - Encripta la contraseña usando md5 y consulta la base de datos para buscar coincidencias.
+ * - Si el usuario existe, guarda información relevante en la sesión y redirige al index.
+ * - Si no existe, muestra un mensaje de error.
+ * - Si los campos están vacíos, muestra un mensaje de advertencia.
+ *
+ */
 
 session_start();
 

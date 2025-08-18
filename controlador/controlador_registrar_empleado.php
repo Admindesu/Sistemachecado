@@ -1,4 +1,21 @@
+
 <?php
+/**
+ * Procesa el registro de un nuevo empleado a través de un formulario POST.
+ *
+ * Validaciones:
+ * - Verifica que todos los campos requeridos estén completos.
+ * - Comprueba si el empleado (por DNI) o el usuario ya existen en la base de datos.
+ * - Si existen, muestra una notificación de error.
+ * - Si no existen, inserta el nuevo empleado en la base de datos.
+ * - Encripta la contraseña usando md5 antes de almacenarla.
+ * - Permite marcar al empleado como administrador mediante el campo 'is_admin'.
+ * - Muestra notificaciones de éxito o error según el resultado de la operación.
+ * - Limpia el historial para evitar reenvío del formulario al recargar la página.
+ * Dependencias:
+ * - Requiere jQuery y PNotify para las notificaciones en el frontend.
+ * - Depende de la variable $conexion para la conexión a la base de datos MySQL.
+ */
 if(!empty($_POST["btnregistrar"])){
     if(
         !empty($_POST["txtnombre"]) &&

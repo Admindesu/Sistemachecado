@@ -1,21 +1,22 @@
 <?php
-docs\Sistemachecado\vista\reportes\reporte_asistencia.php
-<?php
 require('../../libs/fpdf/fpdf.php');
 include "../../modelo/conexion.php";
 
+// Clase PDF personalizada que extiende FPDF para generar el reporte
 class PDF extends FPDF {
+    // Header: Encabezado de cada página del PDF
     function Header() {
+        // Título principal del reporte
         $this->SetFont('Arial', 'B', 15);
         $this->Cell(0, 10, 'Reporte de Asistencias', 0, 1, 'C');
         
-        // Subtítulo con el tipo de reporte
+        // Subtítulo que muestra el filtro aplicado al reporte
         $this->SetFont('Arial', 'I', 10);
         $filtro = isset($_POST['tipo_reporte']) ? ucfirst($_POST['tipo_reporte']) : 'General';
         $this->Cell(0, 10, 'Filtro: ' . $filtro, 0, 1, 'C');
         $this->Ln(10);
         
-        // Encabezados de la tabla
+        // Encabezados de la tabla de datos
         $this->SetFont('Arial', 'B', 11);
         $this->Cell(15, 10, 'ID', 1, 0, 'C');
         $this->Cell(60, 10, 'Empleado', 1, 0, 'C');
@@ -26,32 +27,38 @@ class PDF extends FPDF {
     }
 }
 
+// Instancia y configuración inicial del PDF
 $pdf = new PDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 10);
 
-// Construir la consulta según el filtro
+// Construcción dinámica del WHERE según el filtro recibido por POST
 $where = "";
 switch($_POST['tipo_reporte']) {
     case 'cargo':
+        // Filtra por cargo del empleado
         $cargo = $_POST['cargo'];
         $where = "WHERE empleado.cargo = '$cargo'";
         break;
     case 'dni':
+        // Filtra por DNI específico
         $dni = $_POST['dni'];
         $where = "WHERE asistencia.dni = '$dni'";
         break;
     case 'usuario':
+        // Filtra por usuario (DNI)
         $usuario = $_POST['usuario'];
         $where = "WHERE asistencia.dni = '$usuario'";
         break;
     case 'fecha':
+        // Filtra por rango de fechas
         $fecha_inicio = $_POST['fecha_inicio'];
         $fecha_fin = $_POST['fecha_fin'];
         $where = "WHERE DATE(asistencia.fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
         break;
 }
 
+// Consulta SQL para obtener los datos de asistencia según el filtro
 $sql = $conexion->query("SELECT 
     asistencia.id_asistencia,
     asistencia.dni,
@@ -68,6 +75,7 @@ $sql = $conexion->query("SELECT
     $where
     ORDER BY asistencia.fecha DESC");
 
+// Itera sobre los resultados y agrega cada registro como fila en el PDF
 while($row = $sql->fetch_object()) {
     $pdf->Cell(15, 10, $row->id_asistencia, 1, 0, 'C');
     $pdf->Cell(60, 10, utf8_decode($row->nom_empleado . " " . $row->apellido), 1, 0, 'L');
@@ -77,5 +85,6 @@ while($row = $sql->fetch_object()) {
     $pdf->Cell(35, 10, $row->fecha, 1, 1, 'C');
 }
 
+// Genera y envía el PDF al navegador
 $pdf->Output();
 ?>

@@ -1,5 +1,12 @@
+
 <?php
-<?php
+// Controlador de asistencia de empleados.
+// - Verifica sesión activa.
+// - Registra entrada/salida en la BD según botón presionado.
+// - Redirecciona con mensaje de éxito.
+//
+
+
 session_start();
 include "../modelo/conexion.php";
 
