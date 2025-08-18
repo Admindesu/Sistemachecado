@@ -140,7 +140,9 @@
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modalCambiarPass">
                                         <span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña
                                     </a>
-
+                                    <a class="dropdown-item" href="../index.php">
+                                        <span class="font-icon glyphicon glyphicon-time"></span>Regresar al reloj
+                                    </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="../controlador/controlador_cerrar_sesion.php">
                                         <span class="font-icon glyphicon glyphicon-log-out"></span>salir

@@ -16,11 +16,6 @@ Date: 2022-08-06 22:31:40
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
--- Table structure for asistencia
--- ----------------------------
-
-
--- ----------------------------
 -- Table structure for cargo
 -- ----------------------------
 DROP TABLE IF EXISTS `cargo`;
@@ -28,7 +23,7 @@ CREATE TABLE `cargo` (
   `id_cargo` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_cargo`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of cargo
@@ -53,9 +48,10 @@ CREATE TABLE `empleado` (
   `password` varchar(255) NOT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_empleado`),
+  UNIQUE KEY `dni_unique` (`dni`),
   KEY `fk1` (`cargo`),
   CONSTRAINT `fk1` FOREIGN KEY (`cargo`) REFERENCES `cargo` (`id_cargo`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of empleado
@@ -85,21 +81,24 @@ CREATE TABLE `empresa` (
 -- ----------------------------
 INSERT INTO `empresa` VALUES ('1', 'Informatica Studios', '925310896', 'av. los incas', '78945612378');
 
+-- ----------------------------
+-- Table structure for asistencia
+-- ----------------------------
 DROP TABLE IF EXISTS `asistencia`;
 CREATE TABLE `asistencia` (
   `id_asistencia` int(11) NOT NULL AUTO_INCREMENT,
-  `id_empleado` int(11) NOT NULL,
-  `entrada` datetime DEFAULT NULL,
-  `salida` datetime DEFAULT NULL,
+  `dni` varchar(255) NOT NULL,
+  `tipo` varchar(20) NOT NULL,
+  `fecha` datetime DEFAULT NULL,
   PRIMARY KEY (`id_asistencia`),
-  KEY `fk2` (`id_empleado`),
-  CONSTRAINT `fk2` FOREIGN KEY (`id_empleado`) REFERENCES `empleado` (`id_empleado`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+  KEY `fk2` (`dni`),
+  CONSTRAINT `fk2` FOREIGN KEY (`dni`) REFERENCES `empleado` (`dni`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of asistencia
 -- ----------------------------
-INSERT INTO `asistencia` VALUES ('13', '1', '2022-03-31 00:17:34', '2022-03-31 00:17:41');
-INSERT INTO `asistencia` VALUES ('14', '6', '2022-03-31 00:22:53', '2022-03-31 00:23:04');
-INSERT INTO `asistencia` VALUES ('21', '11', '2022-03-31 10:36:58', '2022-03-31 10:37:37');
-INSERT INTO `asistencia` VALUES ('22', '6', '2022-08-06 20:59:07', null);
+INSERT INTO `asistencia` VALUES ('13', '78945612', 'entrada', '2022-03-31 00:17:34');
+INSERT INTO `asistencia` VALUES ('14', '74433542', 'entrada', '2022-03-31 00:22:53');
+INSERT INTO `asistencia` VALUES ('21', '00225588', 'entrada', '2022-03-31 10:36:58');
+INSERT INTO `asistencia` VALUES ('22', '74433542', 'entrada', '2022-08-06 20:59:07');

@@ -18,24 +18,17 @@
     <img class="wave" src="img/grecas.png">
     <div class="container d-flex justify-content-end">
         <div class="login-content" style="margin-top: -80px;">
-            <form method="POST" action="">
+            <form method="POST" action="../../controlador/login.php">
                 <img src="img/caracol rojo.png">
                 <h2 class="title">BIENVENIDO</h2>
-                <?php
-                include "../../modelo/conexion.php";
-                include "../../controlador/login.php";
-                ?>
+
                 <div class="input-div one">
                     <div class="i">
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="div">
                         <h5>Usuario</h5>
-                        <input id="usuario" type="text"
-                            class="input" name="usuario"
-                            title="ingrese su nombre de usuario" autocomplete="usuario" value="">
-
-
+                        <input type="text" name="usuario" class="input" required>
                     </div>
                 </div>
                 <div class="input-div pass">
@@ -44,22 +37,10 @@
                     </div>
                     <div class="div">
                         <h5>Contraseña</h5>
-                        <input type="password" id="input" class="input"
-                            name="password" title="ingrese su clave para ingresar" autocomplete="current-password">
-
-
+                        <input type="password" name="password" class="input" required>
                     </div>
                 </div>
-                <div class="view">
-                    <div class="fas fa-eye verPassword" onclick="vista()" id="verPassword"></div>
-                </div>
-
-
-                <div class="text-center">
-                    <a class="font-italic isai5" href="">Olvidé mi contraseña</a>
-                </div>
-                <input name="btningresar" class="btn" title="click para ingresar" type="submit"
-                    value="INICIAR SESION">
+                <input name="btningresar" class="btn" type="submit" value="INICIAR SESIÓN">
             </form>
         </div>
     </div>
