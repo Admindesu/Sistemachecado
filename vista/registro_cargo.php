@@ -1,11 +1,17 @@
 <?php
-   session_start();
-   if (empty($_SESSION['nombre']) and empty($_SESSION['apellido'])) {
-       header('location:login/login.php');
-   }
+session_start();
+if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
+    header('location: vista/login.php');
+    exit;
+}
 
+// Verifica si el usuario no es admin y cierra la sesión
+if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
+    session_destroy();
+    header('location: vista/login.php');
+    exit;
+}
 ?>
-
 <style>
 ul li:nth-child(4) .activo {
     background: rgb(11, 150, 214) !important;
