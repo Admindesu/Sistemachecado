@@ -28,11 +28,56 @@ CREATE TABLE `cargo` (
 -- ----------------------------
 -- Records of cargo
 -- ----------------------------
-INSERT INTO `cargo` VALUES ('1', 'cirujano');
-INSERT INTO `cargo` VALUES ('2', 'odontologo');
-INSERT INTO `cargo` VALUES ('3', 'farmacia');
-INSERT INTO `cargo` VALUES ('4', 'limpieza');
-INSERT INTO `cargo` VALUES ('5', 'enfermera');
+INSERT INTO `cargo` VALUES ('1', 'Analista Profesional');
+INSERT INTO `cargo` VALUES ('2', 'Servicios Generales');
+INSERT INTO `cargo` VALUES ('3', 'Jefe de Oficina');
+INSERT INTO `cargo` VALUES ('4', 'Limpieza');
+INSERT INTO `cargo` VALUES ('5', 'Supervisor Especializado');
+
+-- ----------------------------
+-- Table structure for direccion
+-- ----------------------------
+DROP TABLE IF EXISTS `direccion`;
+CREATE TABLE `direccion` (
+  `id_direccion` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_direccion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of direccion
+-- ----------------------------
+INSERT INTO `direccion` VALUES ('1', 'Direccion de Planeacion');
+INSERT INTO `direccion` VALUES ('2', 'Direccion de Administracion');
+INSERT INTO `direccion` VALUES ('3', 'Direccion de Tecnologia e Informacion');
+INSERT INTO `direccion` VALUES ('4', 'Direccion de Residuos');
+INSERT INTO `direccion` VALUES ('5', 'Direccion de Fomento y Proteccion Forestal');
+INSERT INTO `direccion` VALUES ('6', 'Direccion de Cambio Climatico');
+INSERT INTO `direccion` VALUES ('7', 'Direccion de Manejo y Productividad Forestal');
+INSERT INTO `direccion` VALUES ('8', 'Direccion de Impacto y Riesgo Ambiental');
+INSERT INTO `direccion` VALUES ('9', 'Direccion de Educacion Ambiental');
+INSERT INTO `direccion` VALUES ('10', 'Direccion de Ordenamiento');
+INSERT INTO `direccion` VALUES ('11', 'Direccion de Relaciones Publicas');
+INSERT INTO `direccion` VALUES ('12', 'Direccion Juridica y Transparencia');
+
+-- ----------------------------
+-- Table structure for subsecretaria
+-- ----------------------------
+DROP TABLE IF EXISTS `subsecretaria`;
+CREATE TABLE `subsecretaria` (
+  `id_subsecretaria` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_subsecretaria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of subsecretaria
+-- ----------------------------
+INSERT INTO `subsecretaria` VALUES ('1', 'Subsecretaria de Cultura Politica Ambiental Planeacion y Mejora Regulatoria de Archivo');
+INSERT INTO `subsecretaria` VALUES ('2', 'Subsecretaria de Gestion y Proteccion Ambiental');
+INSERT INTO `subsecretaria` VALUES ('3', 'Subsecretaria de Desarrollo Sostenible y Cambio Climatico');
+
+
 
 -- ----------------------------
 -- Table structure for empleado
@@ -44,6 +89,8 @@ CREATE TABLE `empleado` (
   `apellido` varchar(255) DEFAULT NULL,
   `dni` varchar(255) NOT NULL,
   `cargo` int(11) NOT NULL,
+  `direccion` int(11) NOT NULL,
+  `subsecretaria` int(11) NOT NULL,
   `usuario` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
@@ -56,12 +103,12 @@ CREATE TABLE `empleado` (
 -- ----------------------------
 -- Records of empleado
 -- ----------------------------
-INSERT INTO `empleado` VALUES ('1', 'juan manuel', 'quispe chocce', '78945612', '1', 'juanmanuel', '202cb962ac59075b964b07152d234b70', '1');
-INSERT INTO `empleado` VALUES ('2', 'josep', 'vega chavez', '77441122', '2', 'josepvega', '202cb962ac59075b964b07152d234b70', '0');
-INSERT INTO `empleado` VALUES ('3', 'erick', 'muleta paredes', '77885522', '3', 'erickmuleta', '202cb962ac59075b964b07152d234b70', '0');
-INSERT INTO `empleado` VALUES ('4', 'maria', 'molina gutierrez', '00225566', '5', 'mariamolina', '202cb962ac59075b964b07152d234b70', '0');
-INSERT INTO `empleado` VALUES ('6', 'ismael', 'sandoval', '74433542', '4', 'ismaelsandoval', '202cb962ac59075b964b07152d234b70', '0');
-INSERT INTO `empleado` VALUES ('11', 'prueba', 'prueba', '00225588', '1', 'prueba', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('1', 'juan manuel', 'quispe chocce', '78945612', '1', '3', '1', 'juanmanuel', '202cb962ac59075b964b07152d234b70', '1');
+INSERT INTO `empleado` VALUES ('2', 'josep', 'vega chavez', '77441122', '2', '3', '2', 'josepvega', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('3', 'erick', 'muleta paredes', '77885522', '3', '3', '3', 'erickmuleta', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('4', 'maria', 'molina gutierrez', '00225566', '5', '3', '4', 'mariamolina', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('6', 'ismael', 'sandoval', '74433542', '4', '3', '5', 'ismaelsandoval', '202cb962ac59075b964b07152d234b70', '0');
+INSERT INTO `empleado` VALUES ('11', 'prueba', 'prueba', '00225588', '1', '3', '6', 'prueba', '202cb962ac59075b964b07152d234b70', '0');
 
 -- ----------------------------
 -- Table structure for empresa

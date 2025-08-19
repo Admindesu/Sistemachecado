@@ -30,9 +30,12 @@
                         <span class="lbl">ACERCA DE</span>
                     </a>
                 </li>
-
-
-
-
+<!--<li class="red">
+                    <a href="Graficos.php" class="activo">
+                        <img src="../public/img-inicio/info.png" class="img-inicio" alt="">
+                        <i class="fas fa-exclamation"></i>
+                        <span class="lbl">Estadistica</span> -->
+                    </a>
+                </li>
             </ul>
         </nav>

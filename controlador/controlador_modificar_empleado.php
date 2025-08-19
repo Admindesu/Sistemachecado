@@ -10,6 +10,8 @@ if (!empty($_POST["btnmodificar"])) {
         !empty($_POST["txtnombre"]) &&
         !empty($_POST["txtapellido"]) &&
         !empty($_POST["txtcargo"]) &&
+        !empty($_POST["txtdireccion"]) &&
+        !empty($_POST["txtsubsecretaria"]) &&
         !empty($_POST["txtusuario"]) &&
         !empty($_POST["txtpassword"])
     ) {
@@ -18,6 +20,8 @@ if (!empty($_POST["btnmodificar"])) {
         $nombre = $_POST["txtnombre"];
         $apellido = $_POST["txtapellido"];
         $cargo = $_POST["txtcargo"];
+        $direccion = $_POST["txtdireccion"];
+        $subsecretaria = $_POST["txtsubsecretaria"];
         $usuario = $_POST["txtusuario"];
         // Encripta la contraseña usando md5 antes de almacenarla
         $password = md5($_POST["txtpassword"]);
@@ -30,6 +34,8 @@ if (!empty($_POST["btnmodificar"])) {
                 nombre='$nombre',
                 apellido='$apellido',
                 cargo='$cargo',
+                direccion='$direccion',
+                subsecretaria='$subsecretaria',
                 usuario='$usuario',
                 password='$password',
                 is_admin='$is_admin'

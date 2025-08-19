@@ -43,10 +43,16 @@ ul li:nth-child(2) .activo {
                 empleado.dni,
                 empleado.usuario,
                 empleado.cargo,
+                empleado.direccion,
+                empleado.subsecretaria,
                 empleado.is_admin,
-                cargo.nombre AS nom_cargo
+                cargo.nombre AS nom_cargo,
+                direccion.nombre AS nom_direccion,
+                subsecretaria.nombre AS nom_subsecretaria
                 FROM empleado
                 INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
+                INNER JOIN direccion ON empleado.direccion = direccion.id_direccion
+                INNER JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
             ");
         } catch (Exception $e) {
             echo "<div class='alert alert-danger'>Error al cargar los datos: " . $e->getMessage() . "</div>";
@@ -73,7 +79,9 @@ ul li:nth-child(2) .activo {
                                 <th scope="col">DNI</th>
                                 <th scope="col">Usuario</th>
                                 <th scope="col">Admin</th>
-                                <th scope="col">Cargo</th>                               
+                                <th scope="col">Cargo</th> 
+                                <th scope="col">Direccion</th>
+                                <th scope="col">Subsecretaria</th>
                                 <th scope="col">Acciones</th>
                             </tr>
                         </thead>
@@ -92,6 +100,8 @@ ul li:nth-child(2) .activo {
                                         <input type="checkbox" disabled <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
                                     </td>
                                     <td><?= $datos->nom_cargo ?></td>
+                                    <td><?= $datos->nom_direccion ?></td>
+                                    <td><?= $datos->nom_subsecretaria ?></td>
                                     <td>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning">
                                             <i class="fas fa-edit"></i> Editar
@@ -103,74 +113,128 @@ ul li:nth-child(2) .activo {
                                 </tr>
 
 
+
 <!-- Modal -->
 <div class="modal fade" id="exampleModal<?= $datos->id_empleado ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?= $datos->id_empleado ?>" aria-hidden="true">
-  <div class="modal-dialog modal-lg"><!-- Cambiado a modal-lg para mayor tamaño -->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modificar Empleado</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form action="" method="POST">
-          <div hidden class="fl-flex-label mb-4 px-2 col-12">
-        
-            <label for="ID">ID</label>
-            <input type="text" class="input input__text" name="txtid" value="<?= $datos-> id_empleado ?>" >
-        
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modificar Empleado</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST">
+                    <div class="row">
+                        <div class="col-12" hidden>
+                            <div class="form-group">
+                                <label for="ID">ID</label>
+                                <input type="text" class="form-control" name="txtid" value="<?= $datos->id_empleado ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control" name="txtnombre" value="<?= $datos->nombre ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="apellido">Apellido</label>
+                                <input type="text" class="form-control" name="txtapellido" value="<?= $datos->apellido ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cargo">Cargo</label>
+                                <select name="txtcargo" class="form-control">
+                                    <?php 
+                                    $sql2 = $conexion->query("SELECT * FROM cargo");
+                                    while ($datos2 = $sql2->fetch_object()) { ?>
+                                        <option <?= $datos->cargo == $datos2->id_cargo ? 'selected' : '' ?> 
+                                                value="<?= $datos2->id_cargo ?>">
+                                            <?= $datos2->nombre ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="subsecretaria">Subsecretaría</label>
+                                <select name="txtsubsecretaria" class="form-control">
+                                    <?php 
+                                    $sql2 = $conexion->query("SELECT * FROM subsecretaria");
+                                    while ($datos2 = $sql2->fetch_object()) { ?>
+                                        <option <?= $datos->subsecretaria == $datos2->id_subsecretaria ? 'selected' : '' ?> 
+                                                value="<?= $datos2->id_subsecretaria ?>">
+                                            <?= $datos2->nombre ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="direccion">Dirección</label>
+                                <select name="txtdireccion" class="form-control">
+                                    <?php 
+                                    $sql2 = $conexion->query("SELECT * FROM direccion");
+                                    while ($datos2 = $sql2->fetch_object()) { ?>
+                                        <option <?= $datos->direccion == $datos2->id_direccion ? 'selected' : '' ?> 
+                                                value="<?= $datos2->id_direccion ?>">
+                                            <?= $datos2->nombre ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="usuario">Usuario</label>
+                                <input type="text" class="form-control" name="txtusuario" value="<?= $datos->usuario ?>" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password">Contraseña</label>
+                                <input type="password" class="form-control" name="txtpassword" placeholder="Ingrese nueva contraseña si desea cambiarla">
+                            </div>
+                        </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           name="is_admin" 
+                                           id="is_admin<?= $datos->id_empleado ?>" 
+                                           value="1" 
+                                           <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" 
+                                           for="is_admin<?= $datos->id_empleado ?>">
+                                        ¿Añadir como administrador?
+                                    </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" name="btnmodificar" class="btn btn-primary">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="fl-flex-label mb-4 px-2 col-12">
-        
-            <label for="nombre">Nombre</label>
-            <input type="text" class="input input__text" name="txtnombre" value="<?= $datos-> nombre ?>" >
-        
-    </div>
-    <div class="fl-flex-label mb-4 px-2 col-12">
-       
-            <label for="apellido">Apellido</label>
-            <input type="text" class="input input__text" name="txtapellido" value="<?= $datos-> apellido ?>" >
-        
-    </div>
-    <div class="fl-flex-label mb-4 px-2 col-12">
-        
-            <label for="cargo">Cargo</label>
-           <select name="txtcargo" class= "input input__select">
-           <?php 
-           $sql2= $conexion->query("SELECT * FROM cargo");
-           while ($datos2 = $sql2->fetch_object()) { ?>
-           <option <?= $datos->cargo==$datos2->id_cargo ?'selected' : '' ?> value ="<?= $datos2->id_cargo ?>"><?= $datos2->nombre ?></option>
-           <?php }
-
-?>
-           </select>
-        
-    </div>
-    <div class="fl-flex-label mb-5 px- col-12">
-    <label for="usuario">Usuario</label>
-    <input type="text" class="input input__text" name="txtusuario" value="<?= $datos->usuario ?>" required>
-</div>
-<div class="fl-flex-label mb-4 px-2 col-12">
-    <label for="password">Contraseña</label>
-    <input type="password" class="input input__text" name="txtpassword" placeholder="Ingrese nueva contraseña si desea cambiarla">
-</div>
-<div class="fl-flex-label mb-4 px-2 col-12">
-    <label for="is_admin">Administrador</label>
-    <input type="checkbox" name="is_admin" id="is_admin" value="1" <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
-    <span style="margin-left:8px;">Añadir como administrador?</span>
-</div>
-    <div class="text-right p-2">
-        <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>
-        <button type="submit" value="ok" name="btnmodificar" class="btn btn-primary btn-rounded">Registrar</button>
-    </div>
-</form>
-      </div>
-      <div class="modal-footer">
-  
-      </div>
-    </div>
-  </div>
 </div>
      <?php 
                                 }
