@@ -1,12 +1,13 @@
-<?php require('./layout/topbar.php'); ?>
-<?php require('./layout/sidebar.php'); ?>
 <?php
-  session_start();
-   if (empty($_SESSION['nombre']) and empty($_SESSION['apellido'])) {
-       header('location:login/login.php');
-   }
+session_start();
+if (empty($_SESSION['nombre']) and empty($_SESSION['apellido'])) {
+    header('location:login/login.php');
+    exit; // Importante añadir exit después de un header redirect
+}
 
-
+// Ahora que verificaste la sesión, puedes incluir los archivos de diseño
+require('./layout/topbar.php');
+require('./layout/sidebar.php');
 ?>
 
 <style>
@@ -37,7 +38,5 @@ ul li:nth-child(4) .activo {
 
 </div>
 </div>
-
-
 
 <?php require('./layout/footer.php'); ?>

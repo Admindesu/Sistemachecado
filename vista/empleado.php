@@ -209,7 +209,7 @@ ul li:nth-child(2) .activo {
                                 <input type="password" class="form-control" name="txtpassword" placeholder="Ingrese nueva contraseña si desea cambiarla">
                             </div>
                         </div>
-                        </div>
+                        
                         <div class="col-md-6">
                             <div class="form-group">
                                 <div class="form-check">
@@ -229,7 +229,7 @@ ul li:nth-child(2) .activo {
                     
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                        <button type="submit" name="btnmodificar" class="btn btn-primary">Guardar cambios</button>
+                        <button type="submit" name="btnmodificar" value="1" class="btn btn-primary">Guardar cambios</button>
                     </div>
                 </form>
             </div>
