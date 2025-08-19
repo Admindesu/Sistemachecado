@@ -62,21 +62,21 @@ include "../controlador/controlador_registrar_empleado.php";
         <select name="txtcargo" class="input input__select">
             <option value="">Seleccionar...</option>
             <?php
-            $sql= $conexion->query("SELECT * FROM cargo");
-            while ($datos = $sql->fetch_object()) { ?>
-                <option value="<?= $datos->id_cargo ?>"><?= $datos->nombre ?></option>
+            $sqlCargo = $conexion->query("SELECT * FROM cargo");
+            while ($datosCargo = $sqlCargo->fetch_object()) { ?>
+                <option value="<?= $datosCargo->id_cargo ?>"><?= $datosCargo->nombre ?></option>
             <?php } ?>
         </select>
     </div>
- </div>
+ 
     <div style="display: flex; flex-direction: column; align-items: flex-start;" class="fl-flex-label mb-4 px-2 col-12 col-md-6">
         <label for="direccion" style="align-self: flex-start;">Dirección</label>
         <select name="txtdireccion" class="input input__select w-100">
             <option value="">Seleccionar...</option>
             <?php
-            $sql= $conexion->query("SELECT * FROM direccion");
-            while ($datos = $sql->fetch_object()) { ?>
-                <option value="<?= $datos->id_direccion ?>"><?= $datos->nombre ?></option>
+            $sqlDireccion = $conexion->query("SELECT * FROM direccion");
+            while ($datosDireccion = $sqlDireccion->fetch_object()) { ?>
+                <option value="<?= $datosDireccion->id_direccion ?>"><?= $datosDireccion->nombre ?></option>
             <?php } ?>
         </select>
     </div>
@@ -86,9 +86,9 @@ include "../controlador/controlador_registrar_empleado.php";
         <select name="txtsubsecretaria" class="input input__select w-100">
             <option value="">Seleccionar...</option>
             <?php
-            $sql= $conexion->query("SELECT * FROM subsecretaria");
-            while ($datos = $sql->fetch_object()) { ?>
-                <option value="<?= $datos->id_subsecretaria ?>"><?= $datos->nombre ?></option>
+            $sqlSubsecretaria = $conexion->query("SELECT * FROM subsecretaria");
+            while ($datosSubsecretaria = $sqlSubsecretaria->fetch_object()) { ?>
+                <option value="<?= $datosSubsecretaria->id_subsecretaria ?>"><?= $datosSubsecretaria->nombre ?></option>
             <?php } ?>
         </select>
     </div>
@@ -100,11 +100,13 @@ include "../controlador/controlador_registrar_empleado.php";
         <label for="password">Contraseña</label>
         <input type="password" class="input input__text" name="txtpassword" required placeholder="Ingrese contraseña">
     </div>
+    </div>
     <div class="fl-flex-label mb-4 px-2 col-12 md-6">
         <label for="is_admin">Administrador</label>
         <input type="checkbox" name="is_admin" id="is_admin" value="1">
         <span style="margin-left:8px;">¿Habilitar como administrador?</span>
     </div>
+    
     
     <div class="text-right p-2 mt-4 col-12">
         <a href="empleado.php" class="btn btn-secondary btn-rounded">Atras</a>

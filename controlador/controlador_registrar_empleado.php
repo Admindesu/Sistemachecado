@@ -25,13 +25,15 @@ if(!empty($_POST["btnregistrar"])){
         !empty($_POST["txtusuario"]) &&
         !empty($_POST["txtpassword"])
     ){
-        $nombre = $_POST["txtnombre"];
-        $apellido = $_POST["txtapellido"];
-        $dni = $_POST["txtdni"];
-        $cargo = $_POST["txtcargo"];
-        $usuario = $_POST["txtusuario"];
-        $password = md5($_POST["txtpassword"]);
-        $is_admin = isset($_POST['is_admin']) ? 1 : 0;
+    $nombre = $_POST["txtnombre"];
+    $apellido = $_POST["txtapellido"];
+    $dni = $_POST["txtdni"];
+    $cargo = $_POST["txtcargo"];
+    $direccion = $_POST["txtdireccion"];
+    $subsecretaria = $_POST["txtsubsecretaria"];
+    $usuario = $_POST["txtusuario"];
+    $password = md5($_POST["txtpassword"]);
+    $is_admin = isset($_POST['is_admin']) ? 1 : 0;
 
         $sql=$conexion->query("SELECT count(*) as 'total' FROM empleado WHERE dni ='$dni' OR usuario='$usuario'");
         if($sql->fetch_object()->total > 0) {?>
@@ -46,7 +48,7 @@ if(!empty($_POST["btnregistrar"])){
                 })
             </script>
         <?php } else {
-            $registro = $conexion->query("INSERT INTO empleado(nombre,apellido,dni,cargo,usuario,password,is_admin) VALUES('$nombre','$apellido','$dni','$cargo','$usuario','$password','$is_admin')");
+            $registro = $conexion->query("INSERT INTO empleado(nombre,apellido,dni,cargo,direccion,subsecretaria,usuario,password,is_admin) VALUES('$nombre','$apellido','$dni','$cargo','$direccion','$subsecretaria','$usuario','$password','$is_admin')");
             if ($registro == true) {?>
                 <script>
                     $(function notificacion(){
