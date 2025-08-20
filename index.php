@@ -8,6 +8,9 @@ if (!isset($_SESSION['dni'])) {
 }
 
 $numeroEmpleado = $_SESSION['dni'];
+$nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ? 
+    $_SESSION['nombre'] . ' ' . $_SESSION['apellido'] : '';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,6 +21,25 @@ $numeroEmpleado = $_SESSION['dni'];
     <link rel="shortcut icon" href="public/app/publico/img/favicon.ico">
     <link rel="stylesheet" href="public/estilos/estilos.css">
     <style>
+
+        body {
+            background-image: url('vista/login/img/SEMA.PNG');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+            
+        }
+
+        /* Actualiza el fondo del contenedor para mejor contraste */
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
         /* Estilos responsive */
         @media screen and (max-width: 768px) {
             .container {
@@ -74,6 +96,42 @@ $numeroEmpleado = $_SESSION['dni'];
                 margin: 10px 0;
                 padding: 10px;
             }
+            
+            .clock-container {
+                text-align: center;
+                padding: 10px;
+                margin-bottom: 20px;
+                height: 10vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .clock {
+                background: #2c3e50;
+                padding: 15px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-family: 'Arial', sans-serif;
+                font-size: 24px;
+                font-weight: bold;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                white-space: nowrap;
+            }
+
+            .clock span {
+                display: inline-block;
+                min-width: 35px;
+            }
+
+            .clock .colon {
+                min-width: 15px;
+                text-align: center;
+            }
         }
         
         /* Estilos generales mejorados */
@@ -101,37 +159,96 @@ $numeroEmpleado = $_SESSION['dni'];
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        
+        .clock-container {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .clock {
+            background: #2c3e50;
+            padding: 20px 30px;
+            border-radius: 8px;
+            display: inline-block;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .clock span {
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        .clock .colon {
+            opacity: 1;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
-    <div style="position: absolute; top: 15px; right: 15px;">
-        <form action="controlador/controlador_cerrar_sesion.php" method="POST" style="display:inline;">
-            <button type="submit" style="padding:4px 10px; font-size:12px; border-radius:5px; background:#e74c3c; color:#fff; border:none; cursor:pointer;">
-                Cerrar sesión
-            </button>
-        </form>
-    </div>
-    <h1>BIENVENIDOS, REGISTRA TU ASISTENCIA</h1>
-    <h2 id="fecha"> </h2>
+    <h1>BIENVENIDO <?= strtoupper($nombreCompleto) ?>, REGISTRA TU ASISTENCIA</h1>
     <div class="container">
         <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-            <a class="acceso" href="vista/inicio.php">Ingresar al sistema</a>
+            <button type="button" onclick="window.location.href='vista/inicio.php'" 
+                    style="padding:10px 25px; font-size:16px; border-radius:5px; background:#3498db; color:#fff; border:none; cursor:pointer; width:100%; margin-bottom:20px;">
+                Ingresar al sistema
+            </button>
+            
         <?php endif; ?>
-        <p class="numeroempleado">Ingrese su Numero de empleado</p>
+                    <form action="controlador/controlador_cerrar_sesion.php" method="POST">
+                <button type="submit" 
+                        style="padding:10px 25px; font-size:16px; border-radius:5px; background:#721c24; color:#fff; border:none; cursor:pointer; width:100%; margin-bottom:20px;">
+                    Cerrar sesión
+                </button>
+            </form>
+        
+        <!-- Reloj Digital -->
+        <div class="clock-container">
+            <div class="clock">
+                <span id="hours">00</span>
+                <span class="colon">:</span>
+                <span id="minutes">00</span>
+                <span class="colon">:</span>
+                <span id="seconds">00</span>
+            </div>
+        </div>
+
         <form action="controlador/controlador_registrar_entrada_salida.php" method="POST">
-            <input type="text" placeholder="NumeroDeEmpleado" name="txtEmpleado" value="<?= htmlspecialchars($numeroEmpleado) ?>" readonly>
+            <input type="hidden" name="txtEmpleado" value="<?= htmlspecialchars($numeroEmpleado) ?>">
             <div class="botones">
-                <button class="entrada" type="submit" name="tipo" value="entrada">Entrada</button>
-                <button class="salida" type="submit" name="tipo" value="salida">Salida</button>
+                <button type="submit" name="tipo" value="entrada" 
+                        style="padding:10px 25px; font-size:16px; border-radius:5px; background:rgb(171, 11, 61); color:#fff; border:none; cursor:pointer; width:100%; margin-bottom:10px;">
+                    Entrada
+                </button>
+                <button type="submit" name="tipo" value="salida" 
+                        style="padding:10px 25px; font-size:16px; border-radius:5px; background:#3498db; color:#fff; border:none; cursor:pointer; width:100%; margin-bottom:10px;">
+                    Salida
+                </button>
             </div>
         </form>
     </div>
     <script>
-        setInterval(() => {
-            let fecha = new Date();
-            let fechaHora= fecha.toLocaleString();
-            document.getElementById("fecha").textContent = fechaHora;
-        }, 1000);
+        // Reloj
+        function actualizarReloj() {
+            const ahora = new Date();
+            const horas = String(ahora.getHours()).padStart(2, '0');
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            const segundos = String(ahora.getSeconds()).padStart(2, '0');
+            document.getElementById('hours').textContent = horas;
+            document.getElementById('minutes').textContent = minutos;
+            document.getElementById('seconds').textContent = segundos;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
     </script>
     <?php if (isset($_GET['msg']) && $_GET['msg'] == 'entrada_ok'): ?>
     <div class="alert alert-success">Entrada registrada correctamente.</div>
