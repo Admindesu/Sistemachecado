@@ -1,6 +1,6 @@
 <?php
-// Verifica si el formulario fue enviado (si el botón 'btnregistrar' no está vacío)
-if (!empty($_POST['btnregistrar'])) {
+// Verifica si el formulario fue enviado (si el botón 'btnmodificar' no está vacío)
+if (!empty($_POST['btnmodificar'])) {
 
     // Verifica que los campos 'txtid' y 'txtnombre' no estén vacíos
     if (!empty($_POST['txtid']) && !empty($_POST['txtnombre'])) {

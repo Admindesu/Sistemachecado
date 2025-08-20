@@ -64,6 +64,48 @@ ul li:nth-child(2) .activo {
                 <a href="registro_empleado.php" class="btn btn-primary btn-rounded">
                     <i class="fas fa-plus"></i> Agregar Empleado
                 </a>
+                
+                <!-- CSV Upload Button and Form -->
+                <button type="button" class="btn btn-success btn-rounded ml-2" data-toggle="modal" data-target="#csvUploadModal">
+                    <i class="fas fa-file-csv"></i> Importar CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- CSV Upload Modal -->
+        <div class="modal fade" id="csvUploadModal" tabindex="-1" aria-labelledby="csvUploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="csvUploadModalLabel">Importar Empleados desde CSV</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <a href="../controlador/importar_csv.php?download_template=1" class="btn btn-info btn-sm">
+                                <i class="fas fa-download"></i> Descargar plantilla CSV
+                            </a>
+                        </div>
+                        
+                        <form action="../controlador/importar_csv.php" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="csvFile">Seleccionar archivo CSV</label>
+                                <input type="file" class="form-control-file" id="csvFile" name="csvFile" accept=".csv" required>
+                            </div>
+                            <div class="alert alert-info">
+                                <small>
+                                    <strong>Formato del CSV:</strong><br>
+                                    nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin<br><br>
+                                    <strong>Ejemplo:</strong><br>
+                                    Juan,Perez,12345678,jperez,password123,1,1,1,0
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Importar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 

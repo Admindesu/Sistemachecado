@@ -17,10 +17,10 @@
                     </a>
                 </li>
                 <li class="red">
-                    <a href="cargo.php" class="activo">
+                    <a href="organigrama.php" class="activo">
                         <img src="../public/img-inicio/team.png" class="img-inicio" alt="">
                         <!-- <i class="fas fa-house-user"></i> -->
-                        <span class="lbl">CARGOS</span>
+                        <span class="lbl">ORGANIGRAMA</span>
                     </a>
                 </li>
                 <li class="red">
