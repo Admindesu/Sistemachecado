@@ -14,7 +14,7 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
 ?>
 
 <style>
-ul li:nth-child(3) .activo {
+ul li:nth-child(2) .activo {
     background: rgb(11, 150, 214) !important;
 }
 
