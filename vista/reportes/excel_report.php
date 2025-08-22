@@ -2,10 +2,10 @@
 // Incluye el archivo de conexión a la base de datos
 include "../../modelo/conexion.php";
 
+// Establece la zona horaria
+date_default_timezone_set('America/Cancun');
+
 // Obtiene los parámetros de filtro desde el formulario (POST)
-// Si no se envía fecha_inicio, se usa el primer día del año actual
-// Si no se envía fecha_fin, se usa el último día del año actual
-// Si no se envía empleado, se deja vacío
 $fecha_inicio = !empty($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : date('Y-01-01');
 $fecha_fin = !empty($_POST['fecha_fin']) ? $_POST['fecha_fin'] : date('Y-12-31');
 $empleado_id = $_POST['empleado'] ?? '';
@@ -25,14 +25,13 @@ $sql = "SELECT
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
-    empleado.nombre as nom_empleado,
-    empleado.apellido,
-    empleado.dni,
-    empleado.cargo,
+    asistencia.estado,
+    CONCAT(empleado.nombre, ' ', empleado.apellido) as nombre_completo,
     cargo.nombre as nom_cargo
     FROM asistencia
     INNER JOIN empleado ON asistencia.dni = empleado.dni
     INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
+    LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
     $where_clause
     ORDER BY asistencia.fecha DESC";
 
@@ -40,6 +39,25 @@ $sql = "SELECT
 header('Content-Type: application/vnd.ms-excel');
 header('Content-Disposition: attachment;filename="Reporte_Asistencias.xls"');
 header('Cache-Control: max-age=0');
+
+// Función para obtener el color según el estado
+function getEstadoColor($estado) {
+    switch ($estado) {
+        case 'A_TIEMPO':
+            return '#90EE90'; // Verde claro
+        case 'RETARDO':
+            return '#FFD700'; // Amarillo
+        case 'FALTA':
+            return '#FFB6C1'; // Rojo claro
+        default:
+            return '#FFFFFF'; // Blanco
+    }
+}
+
+// Función para formatear la hora en formato 12 horas
+function formatearHora($hora) {
+    return date('h:i A', strtotime($hora));
+}
 
 // Prepara la información de los filtros aplicados para mostrarla en el reporte
 $filtros = [];
@@ -70,28 +88,34 @@ if (!empty($filtros)) {
 }
 
 // Imprime los encabezados de las columnas
-echo "<tr>
-        <th>Empleado</th>
-        <th>NoEmpleado</th>
-        <th>Cargo</th>
-        <th>Tipo</th>
-        <th>Fecha/Hora</th>
-    </tr>
+echo "<tr style='background-color:#f5f5f5; font-weight:bold;'>
+    <th style='width:100px;'>DNI</th>
+    <th style='width:200px;'>Empleado</th>
+    <th style='width:150px;'>Cargo</th>
+    <th style='width:120px;'>Fecha y Hora</th>
+    <th style='width:80px;'>Tipo</th>
+    <th style='width:100px;'>Estado</th>
+</tr>
 </thead>
 <tbody>";
 
-// Ejecuta la consulta y recorre los resultados para imprimir cada fila
+// Ejecuta la consulta y muestra los resultados
 $result = $conexion->query($sql);
-while($row = $result->fetch_object()) {
+
+while ($row = $result->fetch_assoc()) {
+    $estado_color = getEstadoColor($row['estado']);
+    
     echo "<tr>
-        <td>{$row->nom_empleado} {$row->apellido}</td>
-        <td>{$row->dni}</td>
-        <td>{$row->nom_cargo}</td>
-        <td>" . ucfirst($row->tipo) . "</td>
-        <td>{$row->fecha}</td>
+        <td style='text-align:center;'>{$row['dni']}</td>
+        <td>{$row['nombre_completo']}</td>
+        <td>{$row['nom_cargo']}</td>
+        <td style='text-align:center;'>" . date('d/m/Y h:i A', strtotime($row['fecha'])) . "</td>
+        <td style='text-align:center;'>" . ucfirst($row['tipo']) . "</td>
+        <td style='background-color:{$estado_color}; text-align:center;'>" . 
+            ($row['estado'] ? str_replace('_', ' ', strtoupper($row['estado'])) : 'N/A') . 
+        "</td>
     </tr>";
 }
 
-// Cierra la tabla HTML
 echo "</tbody></table>";
 ?>

@@ -46,13 +46,18 @@ ul li:nth-child(2) .activo {
                 empleado.direccion,
                 empleado.subsecretaria,
                 empleado.is_admin,
+                empleado.id_horario,
                 cargo.nombre AS nom_cargo,
                 direccion.nombre AS nom_direccion,
-                subsecretaria.nombre AS nom_subsecretaria
+                subsecretaria.nombre AS nom_subsecretaria,
+                horarios.nombre AS nom_horario,
+                horarios.hora_entrada,
+                horarios.hora_salida
                 FROM empleado
                 INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
                 INNER JOIN direccion ON empleado.direccion = direccion.id_direccion
                 INNER JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
+                LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
             ");
         } catch (Exception $e) {
             echo "<div class='alert alert-danger'>Error al cargar los datos: " . $e->getMessage() . "</div>";
@@ -97,9 +102,9 @@ ul li:nth-child(2) .activo {
                             <div class="alert alert-info">
                                 <small>
                                     <strong>Formato del CSV:</strong><br>
-                                    nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin<br><br>
+                                    nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario<br><br>
                                     <strong>Ejemplo:</strong><br>
-                                    Juan,Perez,12345678,jperez,password123,1,1,1,0
+                                    Juan,Perez,12345678,jperez,password123,1,1,1,0,1
                                 </small>
                             </div>
                             <button type="submit" class="btn btn-primary">Importar</button>
@@ -118,12 +123,13 @@ ul li:nth-child(2) .activo {
                                 <th scope="col">ID</th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Apellido</th>
-                                <th scope="col">DNI</th>
+                                <th scope="col">NoEmpleado</th>
                                 <th scope="col">Usuario</th>
                                 <th scope="col">Admin</th>
                                 <th scope="col">Cargo</th> 
                                 <th scope="col">Direccion</th>
                                 <th scope="col">Subsecretaria</th>
+                                <th scope="col">Horario</th>
                                 <th scope="col">Acciones</th>
                             </tr>
                         </thead>
@@ -144,6 +150,7 @@ ul li:nth-child(2) .activo {
                                     <td><?= $datos->nom_cargo ?></td>
                                     <td><?= $datos->nom_direccion ?></td>
                                     <td><?= $datos->nom_subsecretaria ?></td>
+                                    <td><?= $datos->nom_horario ? $datos->nom_horario . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
                                     <td>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning">
                                             <i class="fas fa-edit"></i> Editar
@@ -190,6 +197,21 @@ ul li:nth-child(2) .activo {
                             </div>
                         </div>
                         
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="horario">Horario Laboral</label>
+                                <select name="txthorario" class="form-control">
+                                    <?php 
+                                    $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
+                                    while ($horario = $sql_horarios->fetch_object()) { ?>
+                                        <option value="<?= $horario->id_horario ?>" <?= $datos->id_horario == $horario->id_horario ? 'selected' : '' ?>>
+                                            <?= $horario->nombre ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="cargo">Cargo</label>
@@ -291,6 +313,8 @@ ul li:nth-child(2) .activo {
 </div>
 <!-- fin del contenido principal -->
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>

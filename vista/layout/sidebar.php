@@ -24,6 +24,13 @@
                     </a>
                 </li>
                 <li class="red">
+                    <a href="horarios.php" class="activo">
+                        <img src="../public/img-inicio/programar.png" class="img-inicio" alt="">
+                        <!-- <i class="fas fa-clock"></i> -->
+                        <span class="lbl">HORARIOS</span>
+                    </a>
+                </li>
+                <li class="red">
                     <a href="acerca.php" class="activo">
                         <img src="../public/img-inicio/info.png" class="img-inicio" alt="">
                         <!-- <i class="fas fa-exclamation"></i> -->

@@ -250,14 +250,54 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
     </script>
-    <?php if (isset($_GET['msg']) && $_GET['msg'] == 'entrada_ok'): ?>
-    <div class="alert alert-success">Entrada registrada correctamente.</div>
-    <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'salida_ok'): ?>
-    <div class="alert alert-success">Salida registrada correctamente.</div>
-    <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'no_entrada'): ?>
-    <div class="alert alert-warning">No hay entrada registrada para marcar salida.</div>
-    <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'empleado_no_encontrado'): ?>
-    <div class="alert alert-danger">Empleado no encontrado.</div>
+    <?php if (isset($_GET['msg'])): ?>
+        <?php 
+        $msg = $_GET['msg'];
+        switch ($msg) {
+            case 'entrada_a_tiempo':
+                echo '<div class="alert alert-success">
+                    <strong>¡Bienvenido!</strong> Has registrado tu entrada A TIEMPO.
+                </div>';
+                break;
+            case 'entrada_retardo':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Has registrado tu entrada con RETARDO. 
+                    Procura llegar más temprano mañana.
+                </div>';
+                break;
+            case 'entrada_falta':
+                echo '<div class="alert alert-danger">
+                    <strong>¡Importante!</strong> Tu entrada ha sido registrada como FALTA 
+                    debido al tiempo de llegada. Por favor, habla con tu supervisor.
+                </div>';
+                break;
+            case 'salida_ok':
+                echo '<div class="alert alert-success">
+                    <strong>¡Hasta pronto!</strong> Salida registrada correctamente.
+                </div>';
+                break;
+            case 'no_entrada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> No hay entrada registrada para marcar salida.
+                </div>';
+                break;
+            case 'empleado_no_encontrado':
+                echo '<div class="alert alert-danger">
+                    <strong>Error:</strong> Empleado no encontrado.
+                </div>';
+                break;
+            case 'salida_temprana':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> No puedes registrar salida antes de la hora establecida en tu horario.
+                </div>';
+                break;
+            case 'entrada_anticipada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Solo puedes registrar entrada 15 minutos antes de tu horario.
+                </div>';
+                break;
+        }
+        ?>
     <?php endif; ?>
     <div style="width:100%; text-align:center; margin-top:30px;">
         <form action="vista/reportes/pdf_report.php" method="POST" target="_blank" style="display:inline-block;">

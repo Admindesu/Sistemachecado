@@ -1,27 +1,51 @@
 <?php
 session_start();
 include "../modelo/conexion.php";
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .btn {
+            margin: 10px;
+        }
+        .alert {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
 
+<?php
 // Check if the download template button was clicked
 if(isset($_GET['download_template'])) {
-    $file = "../vista/plantillacsv/bulk_usuarios.csv";
+    // Create template content
+    $template_content = "nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario\n";
+    $template_content .= "Juan,Pérez,12345678,jperez,password123,1,1,1,0,1\n";
+    $template_content .= "María,González,87654321,mgonzalez,password456,2,2,2,0,2";
     
-    if(file_exists($file)) {
-        // Set headers for download
-        header('Content-Description: File Transfer');
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="plantilla_empleados.csv"');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($file));
-        readfile($file);
-        exit;
-    } else {
-        $_SESSION['error'] = "La plantilla no se encuentra disponible";
-        header('Location: importar_csv.php');
-        exit;
-    }
+    // Set headers for download
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="plantilla_empleados.csv"');
+    header('Pragma: public');
+    echo $template_content;
+    exit;
 }
 
 // Enable error display for debugging
@@ -38,13 +62,26 @@ function logError($message) {
 function getAvailableIDs($conexion, $table, $id_field) {
     $ids = [];
     $names = [];
-    $result = $conexion->query("SELECT $id_field, nombre FROM $table");
+    
+    if ($table === 'horarios') {
+        $query = "SELECT $id_field, nombre, hora_entrada, hora_salida FROM $table";
+    } else {
+        $query = "SELECT $id_field, nombre FROM $table";
+    }
+    
+    $result = $conexion->query($query);
     
     if ($result) {
         while ($row = $result->fetch_assoc()) {
             $id = (int)$row[$id_field];
             $ids[] = $id;
-            $names[$id] = $row['nombre'];
+            if ($table === 'horarios') {
+                $names[$id] = $row['nombre'] . ' (' . 
+                             date('h:i A', strtotime($row['hora_entrada'])) . ' - ' . 
+                             date('h:i A', strtotime($row['hora_salida'])) . ')';
+            } else {
+                $names[$id] = $row['nombre'];
+            }
         }
     }
     
@@ -55,6 +92,7 @@ function getAvailableIDs($conexion, $table, $id_field) {
 $cargos = getAvailableIDs($conexion, 'cargo', 'id_cargo');
 $direcciones = getAvailableIDs($conexion, 'direccion', 'id_direccion');
 $subsecretarias = getAvailableIDs($conexion, 'subsecretaria', 'id_subsecretaria');
+$horarios = getAvailableIDs($conexion, 'horarios', 'id_horario');
 
 // Display available IDs
 echo "<div style='background:#f8f9fa; color:#212529; padding:20px; margin:20px; border-radius:5px; border:1px solid #dee2e6;'>";
@@ -84,9 +122,18 @@ foreach ($subsecretarias['names'] as $id => $name) {
     echo "<li>ID $id: $name</li>";
 }
 echo "</ul></div>";
+
+// Horarios
+echo "<div style='flex:1; min-width:300px;'>";
+echo "<h4>Horarios:</h4><ul>";
+foreach ($horarios['names'] as $id => $name) {
+    echo "<li>ID $id: $name</li>";
+}
+echo "</ul></div>";
 echo "</div>";
 
 echo "<p>Por favor verifica que los IDs en tu CSV coincidan con los valores disponibles en la base de datos.</p>";
+echo "<p>El formato del CSV debe ser: nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario</p>";
 echo "</div>";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
@@ -98,179 +145,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
             throw new Exception('Error en la carga: ' . $file['error']);
         }
         
-        // Check file size
-        if ($file['size'] == 0) {
-            throw new Exception('El archivo está vacío');
-        }
-        
-        // Validate file type (more permissive)
-        $allowedTypes = ['text/csv', 'application/vnd.ms-excel', 'text/plain', 'application/octet-stream'];
-        if (!in_array($file['type'], $allowedTypes)) {
-            throw new Exception('El archivo debe ser CSV. Tipo detectado: ' . $file['type']);
+        // Validate file type
+        $mimeType = mime_content_type($file['tmp_name']);
+        if ($mimeType !== 'text/csv' && $mimeType !== 'text/plain') {
+            throw new Exception('El archivo debe ser un CSV válido. Tipo detectado: ' . $mimeType);
         }
 
-        // Open file
-        $handle = fopen($file['tmp_name'], 'r');
-        if (!$handle) {
-            $errorMsg = error_get_last() ? error_get_last()['message'] : 'Unknown error';
-            throw new Exception('Error al abrir el archivo: ' . $errorMsg);
-        }
-
-        // Skip header row
-        $headers = fgetcsv($handle);
-        if (!$headers) {
-            throw new Exception('El archivo CSV está vacío o tiene formato inválido');
+        // Open and read the file
+        $handle = fopen($file['tmp_name'], "r");
+        if ($handle === FALSE) {
+            throw new Exception('No se pudo abrir el archivo');
         }
 
         // Begin transaction
         $conexion->begin_transaction();
 
-        // Prepare insert statement
-        $stmt = $conexion->prepare("INSERT INTO empleado (nombre, apellido, dni, usuario, password, cargo, direccion, subsecretaria, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        if (!$stmt) {
-            throw new Exception('Error en prepare statement: ' . $conexion->error);
-        }
+        try {
+            // Skip header row
+            $header = fgetcsv($handle);
+            if (!$header) {
+                throw new Exception('El archivo CSV está vacío');
+            }
 
-        $count = 0;
-        $errors = [];
-        $csvData = [];
-        
-        // First pass: validate all rows
-        while (($data = fgetcsv($handle)) !== FALSE) {
-            $rowNum = $count + 2; // +2 because of header row and 0-indexing
-            $csvData[] = $data;
-            
-            // Validate row data
-            if (count($data) !== 9) {
-                $errors[] = "Fila $rowNum: Formato inválido. Columnas esperadas: 9, Encontradas: " . count($data);
-                $count++;
-                continue;
+            // Validate header columns
+            $expectedColumns = ['nombre', 'apellido', 'dni', 'usuario', 'password', 'cargo', 'direccion', 'subsecretaria', 'is_admin', 'id_horario'];
+            if (count($header) !== count($expectedColumns)) {
+                throw new Exception('El formato del CSV no es correcto. Se esperaban ' . count($expectedColumns) . ' columnas');
             }
-            
-            $cargo = (int)$data[5];
-            $direccion = (int)$data[6];
-            $subsecretaria = (int)$data[7];
-            
-            // Validate foreign keys
-            if (!in_array($cargo, $cargos['ids'])) {
-                $errors[] = "Fila $rowNum: El cargo ID $cargo no existe en la base de datos. Valores válidos: " . implode(', ', $cargos['ids']);
-            }
-            
-            if (!in_array($direccion, $direcciones['ids'])) {
-                $errors[] = "Fila $rowNum: La dirección ID $direccion no existe en la base de datos. Valores válidos: " . implode(', ', $direcciones['ids']);
-            }
-            
-            if (!in_array($subsecretaria, $subsecretarias['ids'])) {
-                $errors[] = "Fila $rowNum: La subsecretaría ID $subsecretaria no existe en la base de datos. Valores válidos: " . implode(', ', $subsecretarias['ids']);
-            }
-            
-            $count++;
-        }
-        
-        // If there are validation errors, stop and report them
-        if (!empty($errors)) {
-            throw new Exception("Se encontraron errores en el archivo CSV:<br>" . implode("<br>", $errors));
-        }
-        
-        // Reset file pointer
-        rewind($handle);
-        fgetcsv($handle); // Skip header again
-        
-        // Second pass: insert rows
-        $count = 0;
-        foreach ($csvData as $data) {
-            try {
-                // Create variables that can be passed by reference
-                $nombre = $data[0];
-                $apellido = $data[1];
-                $dni = $data[2];
-                $usuario = $data[3];
-                $password = md5($data[4]);
-                $cargo = (int)$data[5];
-                $direccion = (int)$data[6];
-                $subsecretaria = (int)$data[7];
-                $is_admin = filter_var($data[8], FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
 
-                // Bind parameters and execute
-                $stmt->bind_param("sssssiiis", 
-                    $nombre,
-                    $apellido,
-                    $dni,
-                    $usuario,
-                    $password,
-                    $cargo,
-                    $direccion,
-                    $subsecretaria,
-                    $is_admin
-                );
+            // Prepare the statement
+            $stmt = $conexion->prepare("INSERT INTO empleado (nombre, apellido, dni, usuario, password, cargo, direccion, subsecretaria, is_admin, id_horario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            if (!$stmt) {
+                throw new Exception("Error preparando la consulta: " . $conexion->error);
+            }
 
-                if (!$stmt->execute()) {
-                    throw new Exception('Error al insertar: ' . $stmt->error);
+            $rowNumber = 2; // Start at 2 because row 1 is headers
+            $successful = 0;
+            $errors = [];
+
+            while (($data = fgetcsv($handle)) !== FALSE) {
+                try {
+                    if (count($data) !== count($expectedColumns)) {
+                        throw new Exception("Número incorrecto de columnas");
+                    }
+
+                    // Validate foreign keys
+                    if (!in_array($data[5], $cargos['ids'])) {
+                        throw new Exception("ID de cargo inválido");
+                    }
+                    if (!in_array($data[6], $direcciones['ids'])) {
+                        throw new Exception("ID de dirección inválido");
+                    }
+                    if (!in_array($data[7], $subsecretarias['ids'])) {
+                        throw new Exception("ID de subsecretaría inválido");
+                    }
+                    if (!in_array($data[9], $horarios['ids'])) {
+                        throw new Exception("ID de horario inválido");
+                    }
+
+                    // Hash password
+                    $hashedPassword = md5($data[4]);
+                    
+                    // Bind parameters
+                    $stmt->bind_param("sssssiiiis", 
+                        $data[0], // nombre
+                        $data[1], // apellido
+                        $data[2], // dni
+                        $data[3], // usuario
+                        $hashedPassword, // password
+                        $data[5], // cargo
+                        $data[6], // direccion
+                        $data[7], // subsecretaria
+                        $data[8], // is_admin
+                        $data[9]  // id_horario
+                    );
+
+                    if ($stmt->execute()) {
+                        $successful++;
+                    } else {
+                        throw new Exception($stmt->error);
+                    }
+                } catch (Exception $e) {
+                    $errors[] = "Error en la fila $rowNumber: " . $e->getMessage();
                 }
-
-                $count++;
-            } catch (Exception $rowEx) {
-                throw new Exception('Error en la fila ' . ($count + 2) . ': ' . $rowEx->getMessage());
+                $rowNumber++;
             }
+
+            if (count($errors) > 0) {
+                throw new Exception(implode("\n", $errors));
+            }
+
+            // If we got here, commit the transaction
+            $conexion->commit();
+            
+            ?>
+            <div style="text-align: center; margin-top: 20px;">
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">¡Importación Exitosa!</h4>
+                    <p>Se importaron <?= $successful ?> empleados correctamente.</p>
+                </div>
+                <a href="../vista/empleado.php" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Regresar a Empleados
+                </a>
+            </div>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Se importaron <?= $successful ?> empleados correctamente',
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+            </script>
+            <?php
+            
+        } catch (Exception $e) {
+            $conexion->rollback();
+            throw $e;
         }
 
-        // Commit transaction
-        $conexion->commit();
         fclose($handle);
-
-        $_SESSION['mensaje'] = "Se importaron $count registros exitosamente";
-        
-        echo "<div style='background:#d4edda; color:#155724; padding:15px; margin:20px; border-radius:5px;'>
-            <h3>Importación Exitosa</h3>
-            <p>Se importaron $count registros exitosamente.</p>
-            <br>
-            <a href='../vista/empleado.php' style='background:#155724; color:white; padding:10px; text-decoration:none; border-radius:5px;'>
-                Volver a empleados
-            </a>
-        </div>";
         
     } catch (Exception $e) {
-        $errorMsg = logError("CSV Import Error: " . $e->getMessage());
-        
-        // Rollback on error
-        if (isset($conexion) && $conexion->ping()) {
-            $conexion->rollback();
-        }
-        
-        if (isset($handle) && is_resource($handle)) {
-            fclose($handle);
-        }
-        
-        echo "<div style='background:#f8d7da; color:#721c24; padding:15px; margin:20px; border-radius:5px;'>
-            <h3>Error al importar CSV:</h3>
-            <p>{$errorMsg}</p>
-            <br>
-            <a href='../vista/empleado.php' style='background:#721c24; color:white; padding:10px; text-decoration:none; border-radius:5px;'>
-                Volver a empleados
-            </a>
-        </div>";
-    }
-} else {
-    echo "<div style='margin:20px; padding:15px; background:#e9ecef; border-radius:5px;'>
-        <h3>Importar empleados desde CSV</h3>
-        <p>Por favor carga un archivo CSV con el formato correcto:</p>
-        
-        <div style='display:flex; justify-content:space-between; margin-bottom:20px;'>";
-            // Download template button
-            echo "<a href='importar_csv.php?download_template=1' class='btn btn-info' style='background:#17a2b8; color:white; border:none; padding:10px 20px; border-radius:4px; text-decoration:none;'>
-                <i class='fas fa-download'></i> Descargar plantilla CSV
-            </a>
-        <div>
-        </div>
-        
-        <form action='importar_csv.php' method='POST' enctype='multipart/form-data'>
-            <div style='margin-bottom:15px;'>
-                <input type='file' name='csvFile' accept='.csv' required style='padding:10px; border:1px solid #ced4da; border-radius:4px; width:100%;'>
+        ?>
+        <div style="text-align: center; margin-top: 20px;">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error en la Importación</h4>
+                <p><?= nl2br(htmlspecialchars($e->getMessage())) ?></p>
             </div>
-            <button type='submit' style='background:#007bff; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;'>
-                Importar CSV
-            </button>
-        </form>
-    </div>";
+            <a href="../vista/empleado.php" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Regresar a Empleados
+            </a>
+        </div>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error en la Importación',
+                text: '<?= str_replace("'", "\'", $e->getMessage()) ?>',
+                showConfirmButton: true,
+                confirmButtonText: 'OK'
+            });
+        </script>
+        <?php
+    }
 }
-?>

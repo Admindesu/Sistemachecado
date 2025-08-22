@@ -32,15 +32,16 @@ ul li:nth-child(3) .activo {
 <?php
 include '../modelo/conexion.php';
 include "../controlador/controlador_registrar_empleado.php";
-?>
 
+// Obtener lista de horarios disponibles
+$sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
+?>
 
 <div class="row">
 <form action="" method="POST">
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
-        
             <label for="nombre">Nombre</label>
-            <input type="text" class="input input__text" name="txtnombre" >
+            <input type="text" class="input input__text" name="txtnombre" required>
         
     </div>
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
@@ -52,7 +53,7 @@ include "../controlador/controlador_registrar_empleado.php";
 
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
        
-            <label for="dni">DNI</label>
+            <label for="dni">NoEmpleado</label>
             <input type="text" class="input input__text" name="txtdni" >
         
     </div>
@@ -101,6 +102,17 @@ include "../controlador/controlador_registrar_empleado.php";
         <input type="password" class="input input__text" name="txtpassword" required placeholder="Ingrese contraseña">
     </div>
     </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-start;" class="fl-flex-label mb-4 px-2 col-12 col-md-6">
+        <label for="horario" style="align-self: flex-start;">Horario Laboral</label>
+        <select name="txthorario" class="input input__select w-100" required>
+            <option value="">Seleccionar...</option>
+            <?php
+            while ($horario = $sql_horarios->fetch_object()) { ?>
+                <option value="<?= $horario->id_horario ?>"><?= $horario->nombre ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)</option>
+            <?php } ?>
+        </select>
+    </div>
+    
     <div class="fl-flex-label mb-4 px-2 col-12 md-6">
         <label for="is_admin">Administrador</label>
         <input type="checkbox" name="is_admin" id="is_admin" value="1">

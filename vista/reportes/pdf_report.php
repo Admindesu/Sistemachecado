@@ -1,9 +1,11 @@
 <?php
-use setasign\Fpdi\Fpdi;
+// Evitar que se muestren warnings que puedan afectar la generación del PDF
+error_reporting(E_ERROR | E_PARSE);
 
 // Requiere las librerías necesarias para generar PDFs y manejar plantillas PDF.
 require('../../libs/fpdf/fpdf.php');
-require('../../libs/fpdi/src/autoload.php'); // Ajusta la ruta si es necesario
+require('../../libs/fpdi/src/autoload.php');
+use setasign\Fpdi\Fpdi;
 include "../../modelo/conexion.php";
 
 // Obtiene los parámetros de filtro enviados por POST, con valores por defecto si no existen.
@@ -24,10 +26,8 @@ $sql = "SELECT
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
-    empleado.nombre as nom_empleado,
-    empleado.apellido,
-    empleado.dni,
-    empleado.cargo,
+    asistencia.estado,
+    CONCAT(empleado.nombre, ' ', empleado.apellido) as nombre_completo,
     cargo.nombre as nom_cargo
     FROM asistencia
     INNER JOIN empleado ON asistencia.dni = empleado.dni
@@ -37,53 +37,128 @@ $sql = "SELECT
 
 // Clase personalizada que extiende FPDI para el reporte PDF.
 // Se sobreescribe el método Header para no mostrar encabezado, ya que se usa una plantilla.
-class ReportePDF extends Fpdi {
+class PDF extends Fpdi {
     function Header() {
         // No header, as template is used
     }
+
+    // Formatea una hora en formato 12 horas
+    function formatearHora($hora) {
+        if (!$hora) return 'N/A';
+        return date('h:i A', strtotime($hora));
+    }
+    
+    // Obtiene el color RGB según el estado
+    function getEstadoColor($estado) {
+        switch (strtoupper($estado)) {
+            case 'A_TIEMPO':
+                return array(0, 200, 0); // Verde
+            case 'RETARDO':
+                return array(255, 191, 0); // Amarillo
+            case 'FALTA':
+                return array(255, 0, 0); // Rojo
+            default:
+                return array(0, 0, 0); // Negro
+        }
+    }
+    
+    // Formatea el estado para mostrar
+    function formatearEstado($estado) {
+        switch (strtoupper($estado)) {
+            case 'A_TIEMPO':
+                return 'A TIEMPO';
+            case 'RETARDO':
+                return 'RETARDO';
+            case 'FALTA':
+                return 'FALTA';
+            default:
+                return $estado ? str_replace('_', ' ', $estado) : 'N/A';
+        }
+    }
 }
 
-// Instancia la clase ReportePDF y agrega una nueva página.
-$pdf = new ReportePDF();
+// Crea el PDF
+$pdf = new PDF('P', 'mm', 'A4');
 $pdf->AddPage();
+$pdf->SetMargins(10, 10, 10);
 
-// Importa la plantilla PDF y la usa como fondo de la página.
-$pdf->setSourceFile('plantilla.pdf');
-$tplIdx = $pdf->importPage(1);
-$pdf->useTemplate($tplIdx);
-
-// Establece la posición inicial para la tabla de datos.
-$pdf->SetXY(10, 50);
-
-// Agrega el título del reporte.
-$pdf->SetFont('Arial', 'B', 15);
+// Título del reporte
+$pdf->SetFont('Arial', 'B', 16);
 $pdf->Cell(0, 10, 'Reporte de Asistencias', 0, 1, 'C');
-
-// Agrega el periodo del reporte.
-$pdf->SetFont('Arial', 'I', 10);
-$pdf->Cell(0, 10, 'Periodo: ' . $fecha_inicio . ' - ' . $fecha_fin, 0, 1, 'C');
 $pdf->Ln(5);
 
-// Encabezados de la tabla.
+// Periodo del reporte
 $pdf->SetFont('Arial', 'B', 11);
-$pdf->Cell(60, 10, 'Empleado', 1, 0, 'C');
-$pdf->Cell(30, 10, 'NoEmpleado', 1, 0, 'C');
-$pdf->Cell(30, 10, 'Cargo', 1, 0, 'C');
-$pdf->Cell(25, 10, 'Tipo', 1, 0, 'C');
-$pdf->Cell(35, 10, 'Fecha/Hora', 1, 1, 'C');
+$pdf->Cell(0, 10, 'Periodo: ' . date('d/m/Y', strtotime($fecha_inicio)) . ' - ' . date('d/m/Y', strtotime($fecha_fin)), 0, 1, 'C');
 
-// Fuente para los datos de la tabla.
-$pdf->SetFont('Arial', '', 10);
-
-// Ejecuta la consulta y recorre los resultados para agregarlos al PDF.
-$result = $conexion->query($sql);
-while($row = $result->fetch_object()) {
-    $pdf->Cell(60, 10, utf8_decode($row->nom_empleado . " " . $row->apellido), 1, 0, 'L');
-    $pdf->Cell(30, 10, $row->dni, 1, 0, 'C');
-    $pdf->Cell(30, 10, utf8_decode($row->nom_cargo), 1, 0, 'L');
-    $pdf->Cell(25, 10, ucfirst($row->tipo), 1, 0, 'C');
-    $pdf->Cell(35, 10, $row->fecha, 1, 1, 'C');
+// Si hay filtro por empleado
+if ($empleado_id) {
+    $emp = $conexion->query("SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = '$empleado_id'")->fetch_object();
+    if ($emp) {
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(0, 10, 'Empleado: ' . utf8_decode($emp->nombre), 0, 1, 'L');
+    }
 }
+$pdf->Ln(5);
+
+// Encabezados de la tabla
+$pdf->SetFont('Arial', 'B', 9);
+$pdf->SetFillColor(230, 230, 230);
+
+// Configuración de la tabla
+$pdf->SetFillColor(230, 230, 230);
+$pdf->SetFont('Arial', 'B', 10);
+
+// Anchura de las columnas (total 190mm para A4)
+$w = array(25, 55, 35, 35, 20, 20);
+$headers = array('DNI', 'Empleado', 'Cargo', 'Fecha/Hora', 'Tipo', 'Estado');
+
+// Cabecera de la tabla
+foreach($headers as $i => $header) {
+    $pdf->Cell($w[$i], 8, utf8_decode($header), 1, 0, 'C', true);
+}
+$pdf->Ln();
+
+// Contenido de la tabla
+$pdf->SetFont('Arial', '', 9);
+$result = $conexion->query($sql);
+
+while ($row = $result->fetch_assoc()) {
+    $pdf->Cell($w[0], 7, $row['dni'], 1, 0, 'C');
+    $pdf->Cell($w[1], 7, utf8_decode($row['nombre_completo']), 1, 0, 'L');
+    $pdf->Cell($w[2], 7, utf8_decode($row['nom_cargo']), 1, 0, 'L');
+    $pdf->Cell($w[3], 7, date('d/m/Y H:i', strtotime($row['fecha'])), 1, 0, 'C');
+    $pdf->Cell($w[4], 7, ucfirst($row['tipo']), 1, 0, 'C');
+    
+    // Color según el estado
+    $estado_color = $pdf->getEstadoColor($row['estado']);
+    $pdf->SetTextColor($estado_color[0], $estado_color[1], $estado_color[2]);
+    $pdf->Cell($w[5], 7, $pdf->formatearEstado($row['estado']), 1, 0, 'C');
+    $pdf->SetTextColor(0, 0, 0);
+    
+    $pdf->Ln();
+}
+
+
+
+// Agregar leyenda de estados al final
+$pdf->Ln(10);
+$pdf->SetFont('Arial', 'B', 9);
+$pdf->Cell(0, 6, 'Leyenda de Estados:', 0, 1, 'L');
+$pdf->SetFont('Arial', '', 9);
+
+// A Tiempo
+$pdf->SetTextColor(0, 200, 0);
+$pdf->Cell(30, 6, 'A TIEMPO', 0, 0, 'L');
+// Retardo
+$pdf->SetTextColor(255, 191, 0);
+$pdf->Cell(30, 6, 'RETARDO', 0, 0, 'L');
+// Falta
+$pdf->SetTextColor(255, 0, 0);
+$pdf->Cell(30, 6, 'FALTA', 0, 1, 'L');
+
+// Restaurar color del texto
+$pdf->SetTextColor(0, 0, 0);
 
 // Genera y muestra el PDF al usuario.
 $pdf->Output();

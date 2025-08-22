@@ -36,6 +36,7 @@ if (isset($_POST["btnmodificar"])) {
         $usuario = $conexion->real_escape_string($_POST["txtusuario"]);
         $password = $conexion->real_escape_string($_POST["txtpassword"]);
         $is_admin = isset($_POST['is_admin']) ? 1 : 0;
+        $horario = $conexion->real_escape_string($_POST["txthorario"]);
 
         // Construye la consulta SQL
         if(!empty($password)){
@@ -47,7 +48,8 @@ if (isset($_POST["btnmodificar"])) {
                 cargo='$cargo', 
                 direccion='$direccion', 
                 subsecretaria='$subsecretaria',
-                is_admin=$is_admin 
+                is_admin=$is_admin,
+                id_horario='$horario'
                 WHERE id_empleado=$id";
         } else {
             $sql = "UPDATE empleado SET 
@@ -57,7 +59,8 @@ if (isset($_POST["btnmodificar"])) {
                 cargo='$cargo', 
                 direccion='$direccion', 
                 subsecretaria='$subsecretaria',
-                is_admin=$is_admin 
+                is_admin=$is_admin,
+                id_horario='$horario'
                 WHERE id_empleado=$id";
         }
 
