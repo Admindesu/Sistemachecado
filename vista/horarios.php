@@ -14,7 +14,7 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
 ?>
 
 <style>
-ul li:nth-child(6) .activo {
+ul li:nth-child(4) .activo {
     background: rgb(171, 11, 61) !important;
 }
 </style>
@@ -76,7 +76,7 @@ ul li:nth-child(6) .activo {
                                         <a href="#" data-toggle="modal" data-target="#editarHorario<?= $datos->id_horario ?>" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="horarios.php?id=<?= $datos->id_horario ?>" onclick="return confirm('¿Está seguro de eliminar este horario?')" class="btn btn-danger btn-sm">
+                                        <a href="javascript:void(0)" onclick="confirmarEliminacion(<?= $datos->id_horario ?>)" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
@@ -267,6 +267,23 @@ function editarHorario(event, id) {
             title: 'Error',
             text: 'Error en la comunicación con el servidor'
         });
+    });
+}
+
+function confirmarEliminacion(id) {
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: "Esta acción eliminará permanentemente este horario",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'horarios.php?id=' + id;
+        }
     });
 }
 </script>

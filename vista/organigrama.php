@@ -14,22 +14,41 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
 
 include "../modelo/conexion.php";
 
+// Incluir controladores de forma condicional
+if (isset($_GET['id'])) {
+    include "../controlador/controlador_eliminar_cargo.php";
+} elseif (isset($_GET['id_direccion'])) {
+    include "../controlador/controlador_eliminar_direccion.php";
+} elseif (isset($_GET['id_subsecretaria'])) {
+    include "../controlador/controlador_eliminar_subsecretaria.php";
+}
+?>
+<!-- primero se carga el topbar -->
+<?php require('./layout/topbar.php'); ?>
+<!-- luego se carga el sidebar -->
+<?php require('./layout/sidebar.php'); ?>
+
+<!-- Carga jQuery y SweetAlert ANTES de usarlos -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<?php include "../modelo/conexion.php"; 
+
+
+
 // Include controllers for CRUD operations
 include "../controlador/controlador_eliminar_cargo.php";
 include "../controlador/controlador_eliminar_direccion.php";
 include "../controlador/controlador_eliminar_subsecretaria.php";
-?>
 
+?>
 <style>
 ul li:nth-child(3) .activo {
     background: rgb(171, 11, 61) !important;
 }
 </style>
 
-<!-- primero se carga el topbar -->
-<?php require('./layout/topbar.php'); ?>
-<!-- luego se carga el sidebar -->
-<?php require('./layout/sidebar.php'); ?>
+
 
 <!-- inicio del contenido principal -->
 <div class="page-content">
@@ -41,13 +60,13 @@ ul li:nth-child(3) .activo {
         include "../controlador/controlador_modificar_cargo.php";
         include "../controlador/controlador_modificar_direccion.php";
         include "../controlador/controlador_modificar_subsecretaria.php";
-        
+
         // Obtener datos de cargo
         $sqlCargo = $conexion->query("SELECT * FROM cargo ORDER BY id_cargo");
-        
+
         // Obtener datos de dirección
         $sqlDireccion = $conexion->query("SELECT * FROM direccion ORDER BY id_direccion");
-        
+
         // Obtener datos de subsecretaria
         $sqlSubsecretaria = $conexion->query("SELECT * FROM subsecretaria ORDER BY id_subsecretaria");
         ?>
@@ -68,7 +87,7 @@ ul li:nth-child(3) .activo {
         <!-- Contenido de los tabs -->
         <div class="tab-content" id="myTabContent">
             <!-- Tab Cargos -->
-            <div class="tab-pane fade show active" id="cargo" role="tabpanel" aria-labelledby="cargo-tab">
+            <div class="tab-pane show active" id="cargo" role="tabpanel" aria-labelledby="cargo-tab">
                 <div class="row mb-3">
                     <div class="col-12">
                         <a href="registro_cargo.php" class="btn btn-primary btn-rounded">
@@ -95,7 +114,7 @@ ul li:nth-child(3) .activo {
                                         <td><?= $datos->nombre ?></td>
                                         <td>
                                             <a href="" data-toggle="modal" data-target="#modalCargo<?= $datos->id_cargo ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="cargo.php?id=<?= $datos->id_cargo ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="organigrama.php?tab=cargo&id=<?= $datos->id_cargo ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
 
@@ -135,7 +154,7 @@ ul li:nth-child(3) .activo {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tab Direcciones -->
             <div class="tab-pane fade" id="direccion" role="tabpanel" aria-labelledby="direccion-tab">
                 <div class="row mb-3">
@@ -145,7 +164,7 @@ ul li:nth-child(3) .activo {
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
@@ -164,10 +183,10 @@ ul li:nth-child(3) .activo {
                                         <td><?= $datosDireccion->nombre ?></td>
                                         <td>
                                             <a href="" data-toggle="modal" data-target="#modalDireccion<?= $datosDireccion->id_direccion ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="cargo.php?id_direccion=<?= $datosDireccion->id_direccion ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="organigrama.php?nav=direccion&id_direccion=<?= $datosDireccion->id_direccion ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
-                                    
+
                                     <!-- Modal Dirección -->
                                     <div class="modal fade" id="modalDireccion<?= $datosDireccion->id_direccion ?>" tabindex="-1" aria-labelledby="modalDireccionLabel<?= $datosDireccion->id_direccion ?>" aria-hidden="true">
                                         <div class="modal-dialog">
@@ -204,7 +223,7 @@ ul li:nth-child(3) .activo {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tab Subsecretarías -->
             <div class="tab-pane fade" id="subsecretaria" role="tabpanel" aria-labelledby="subsecretaria-tab">
                 <div class="row mb-3">
@@ -214,7 +233,7 @@ ul li:nth-child(3) .activo {
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
@@ -233,10 +252,10 @@ ul li:nth-child(3) .activo {
                                         <td><?= $datosSubsec->nombre ?></td>
                                         <td>
                                             <a href="" data-toggle="modal" data-target="#modalSubsec<?= $datosSubsec->id_subsecretaria ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="cargo.php?id_subsecretaria=<?= $datosSubsec->id_subsecretaria ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="organigrama.php?tab=subsecretaria&id_subsecretaria=<?= $datosSubsec->id_subsecretaria ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
-                                    
+
                                     <!-- Modal Subsecretaría -->
                                     <div class="modal fade" id="modalSubsec<?= $datosSubsec->id_subsecretaria ?>" tabindex="-1" aria-labelledby="modalSubsecLabel<?= $datosSubsec->id_subsecretaria ?>" aria-hidden="true">
                                         <div class="modal-dialog">
@@ -277,6 +296,12 @@ ul li:nth-child(3) .activo {
     </div>
 </div>
 <!-- fin del contenido principal -->
+<!-- Añadir esto cerca del inicio del archivo, después de incluir jQuery -->
+<link href="..\public\pnotify\css\pnotify.css" rel="stylesheet">
+<link href="..\public\pnotify\css\pnotify.buttons.css" rel="stylesheet">
+<script src="..\public\pnotify\js\pnotify.js"></script>
+<script src="..\public\pnotify\js\pnotify.buttons.js"></script>
+
 
 <script>
     $(document).ready(function() {
@@ -317,30 +342,32 @@ ul li:nth-child(3) .activo {
                 $(window).trigger('resize');
             }
         });
-        
+
         $('#tablaDireccion').DataTable({
             "language": spanishLanguage
         });
-        
+
         $('#tablaSubsecretaria').DataTable({
             "language": spanishLanguage
         });
-        
+
         // Fix for tabs and DataTables
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         });
-        
+
         // Force cargo tab to be active and visible on page load
         setTimeout(function() {
             $('#cargo-tab').tab('show');
             $('#tablaCargo').DataTable().columns.adjust();
         }, 100);
     });
-    
+
+    // En organigrama.php
     function advertencia(e) {
         e.preventDefault();
         var url = e.currentTarget.getAttribute('href');
+        
         Swal.fire({
             title: '¿Está seguro?',
             text: "Esta acción no se puede revertir",
@@ -354,9 +381,8 @@ ul li:nth-child(3) .activo {
             if (result.isConfirmed) {
                 window.location.href = url;
             }
-        })
+        });
     }
 </script>
-
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>

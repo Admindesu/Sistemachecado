@@ -13,7 +13,7 @@
 
         <link rel="shortcut icon" href="../public/app/publico/img/favicon.ico">
         <link href="../public/app/publico/css/lib/font-awesome/font-awesome.min.css" rel="stylesheet">
-        <link href="../public/bootstrap5/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <link href="../public/bootstrap5/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
         <link rel="stylesheet" href="../public/app/publico/css/lib/lobipanel/lobipanel.min.css">
         <link rel="stylesheet" href="../public/app/publico/css/separate/vendor/lobipanel.min.css">

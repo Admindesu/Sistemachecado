@@ -12,26 +12,28 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
     exit;
 }
 ?>
-
-<style>
-ul li:nth-child(2) .activo {
-    background: rgb(11, 150, 214) !important;
-}
-
-</style>
-
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
 <!-- luego se carga el sidebar -->
 <?php require('./layout/sidebar.php'); ?>
+
+<style>
+ul li:nth-child(2) .activo {
+    background: rgb(171, 11, 61) !important;
+}
+<?php
+include '../modelo/conexion.php';
+include "../controlador/controlador_registrar_empleado.php";
+?>
+</style>
+
 
 <!-- inicio del contenido principal -->
 <div class="page-content">
 
     <h4 class= "text-center text-secondary">Registro de empleados</h4>
 <?php
-include '../modelo/conexion.php';
-include "../controlador/controlador_registrar_empleado.php";
+
 
 // Obtener lista de horarios disponibles
 $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");

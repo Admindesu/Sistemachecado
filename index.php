@@ -276,6 +276,13 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
                     <strong>¡Hasta pronto!</strong> Salida registrada correctamente.
                 </div>';
                 break;
+            case 'salida_falta':
+                echo '<div class="alert alert-danger">
+                    <strong>¡Atención!</strong> Tu salida ha sido registrada como FALTA 
+                    debido a que excediste el límite de hora de Salida permitido. 
+                    Por favor, habla con tu supervisor.
+                </div>';
+                break;
             case 'no_entrada':
                 echo '<div class="alert alert-warning">
                     <strong>¡Atención!</strong> No hay entrada registrada para marcar salida.

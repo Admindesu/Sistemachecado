@@ -1,72 +1,75 @@
 <?php
-// Verifica si el formulario fue enviado (si el botón 'btnregistrar' no está vacío)
-if (!empty($_POST['btnregistrar'])) {
+// Para depuración - ver lo que llega en POST
+// echo "<pre>"; print_r($_POST); echo "</pre>";
+
+// Verifica si el formulario fue enviado (si el botón 'btnregistrar' existe)
+if (isset($_POST['btnregistrar'])) {
     // Verifica si el campo 'txtnombre' no está vacío
     if (!empty($_POST['txtnombre'])) {
         $nombre = $_POST['txtnombre'];
-        // Consulta para verificar si el nombre del cargo ya existe en la base de datos
-        $verificarNombre = $conexion->query("select count(*) as 'total' from cargo where nombre='$nombre'");
-        // Si el cargo ya existe, muestra una notificación de error
+        
+        // Consulta para verificar si ya existe un cargo con el mismo nombre
+        $verificarNombre = $conexion->query("SELECT count(*) as 'total' FROM cargo WHERE nombre = '$nombre'");
+        
+        // Si el nombre ya existe, muestra una notificación de error usando PNotify
         if ($verificarNombre->fetch_object()->total > 0) { ?>
             <script>
-                // Notificación de error usando PNotify si el cargo ya existe
-                $(function notificacion(){
+               $(function notificacion(){
                     new PNotify({
                         title: "Error",
-                        text: "Este cargo ya existe",
+                        text: "Este empleado o usuario ya existe",
                         type: "error",
                         styling: "bootstrap3"
                     })
                 })
             </script>
         <?php } else {
-            // Si el cargo no existe, realiza el registro en la base de datos
-            $sql= $conexion->query("INSERT INTO cargo(nombre) VALUES ('$nombre')");
-            // Si la inserción fue exitosa, muestra una notificación de éxito
-            if ($sql==true) { ?>
+            // Si el nombre no existe, inserta el nuevo cargo en la base de datos
+            $sql = $conexion->query("INSERT INTO cargo (nombre) VALUES ('$nombre')");
+            
+            // Si la inserción fue exitosa, muestra una notificación de éxito y redirige a 'organigrama.php'
+            if ($sql == true) { ?>
                 <script>
-                    // Notificación de éxito usando PNotify si el cargo se registró correctamente
                     $(function notificacion(){
-                        new PNotify({
-                            title: "Correcto",
-                            text: "Cargo registrado correctamente",
-                            type: "success",
-                            styling: "bootstrap3"
-                        })
-                    })
-                </script>
-            <?php } else { ?>
-                <script>
-                    // Notificación de error usando PNotify si hubo un error al registrar el cargo
-                    $(function notificacion(){
-                        new PNotify({
-                            title: "Inorrecto",
-                            text: "Error al registrar el cargo",
-                            type: "error",
-                            styling: "bootstrap3"
-                        })
-                    })
+                    new PNotify({
+                        title: 'Correcto',
+                        text: 'Cargo registrado correctamente',
+                        type: 'success',
+                        styling: 'bootstrap3'
+                    });
+                    setTimeout(function() {
+                        window.location.href = "organigrama.php";
+                    }, 1500);
+                });
+            </script>
+        <?php } else { ?>
+            <script>
+                $(function notificacion(){
+                    new PNotify({
+                        title: 'Error',
+                        text: 'Error al registrar el cargo: <?= $conexion->error ?>',
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
                 </script>
             <?php }
         }
     } else { ?>
         <script>
-            // Notificación de error usando PNotify si los campos están vacíos
-            $(function notificacion(){
-                new PNotify({
-                    title: "Inorrecto",
-                    text: "Los campos no pueden estar vacios",
-                    type: "error",
-                    styling: "bootstrap3"
-                })
-            })
+            new PNotify({
+                title: 'Advertencia',
+                text: 'El campo nombre no puede estar vacío',
+                type: 'notice',
+                styling: 'bootstrap3'
+            });
         </script>
-    <?php } ?>
-    <script>
-        // Limpia el historial para evitar el reenvío del formulario al recargar la página
-        setTimeout(() => {
-            window.history.replaceState(null, null, window.location.pathname); 
-        }, 0);
-    </script>
-<?php }
+    <?php }
+    
+    // Prevenir reenvío del formulario al recargar la página
+    echo '<script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>';
+}
 ?>
