@@ -23,10 +23,7 @@ ul li:nth-child(5) .activo {
             Este sistema de gestión de asistencia y control de empleados está diseñado para la Secretaría de Ecología y Medio Ambiente del Estado de Quintana Roo. Facilita el registro y seguimiento de la asistencia del personal, permitiendo a los administradores gestionar usuarios, registrar asistencias y generar reportes.
         </p>
         <p class="text-justify">
-            Desarrollado por: Dirección de Tecnología e Información de la Secretaría de Ecología y Medio Ambiente de Quintana Roo.
-        </p>
-        <p class="text-justify">
-            Ing. Sistemas Fermín Pérez Soza
+            Desarrollado por: Ing. Francisco Daniel Paredes Moreno. <br> Ing. en Sistemas Fermín Pérez Soza
         </p>
         <p class="text-justify">
             2025
