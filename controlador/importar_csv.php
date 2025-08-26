@@ -35,16 +35,32 @@ include "../modelo/conexion.php";
 <?php
 // Check if the download template button was clicked
 if(isset($_GET['download_template'])) {
-    // Create template content
-    $template_content = "nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario\n";
-    $template_content .= "Juan,Pérez,12345678,jperez,password123,1,1,1,0,1\n";
-    $template_content .= "María,González,87654321,mgonzalez,password456,2,2,2,0,2";
+    $filename = '../vista/plantillacsv/bulk_usuarios.csv';
     
-    // Set headers for download
+    // Verificar que el archivo exista
+    if (!file_exists($filename)) {
+        // Si no existe, crear el archivo con contenido básico
+        $content = "nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario\n";
+        $content .= "Juan,Pérez,12345678,jperez,password123,1,1,1,0,1\n";
+        $content .= "María,González,87654321,mgonzalez,password456,2,2,2,0,2";
+        file_put_contents($filename, $content);
+    }
+    
+    // Configurar headers para descarga
+    header('Content-Description: File Transfer');
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="plantilla_empleados.csv"');
-    header('Pragma: public');
-    echo $template_content;
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Content-Length: ' . filesize($filename));
+    
+    // Limpiar cualquier salida anterior
+    ob_clean();
+    flush();
+    
+    // Enviar el archivo
+    readfile($filename);
     exit;
 }
 
@@ -146,9 +162,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
         }
         
         // Validate file type
-        $mimeType = mime_content_type($file['tmp_name']);
-        if ($mimeType !== 'text/csv' && $mimeType !== 'text/plain') {
-            throw new Exception('El archivo debe ser un CSV válido. Tipo detectado: ' . $mimeType);
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($fileExtension !== 'csv') {
+            throw new Exception('El archivo debe tener extensión .csv');
         }
 
         // Open and read the file
