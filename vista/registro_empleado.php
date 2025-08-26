@@ -16,15 +16,20 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
 <?php require('./layout/topbar.php'); ?>
 <!-- luego se carga el sidebar -->
 <?php require('./layout/sidebar.php'); ?>
+<!-- Incluir jQuery y PNotify -->   
+<?php
+include '../modelo/conexion.php';
+?>
+<?php
+// Incluir el controlador después de cargar PNotify
+include "../controlador/controlador_registrar_empleado.php";
+?>
 
 <style>
 ul li:nth-child(2) .activo {
     background: rgb(171, 11, 61) !important;
 }
-<?php
-include '../modelo/conexion.php';
-include "../controlador/controlador_registrar_empleado.php";
-?>
+
 </style>
 
 
@@ -138,3 +143,6 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+<script src="ruta/a/jquery.min.js"></script>
+<script src="ruta/a/pnotify.js"></script>
+<link href="ruta/a/pnotify.css" rel="stylesheet">

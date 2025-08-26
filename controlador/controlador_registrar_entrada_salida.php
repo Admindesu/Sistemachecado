@@ -94,7 +94,7 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
                     // Convertir el estado para el mensaje (A_TIEMPO -> a_tiempo)
                     $estado_mensaje = strtolower(str_replace('_', '', $estado));
                     $mensaje = "entrada_" . $estado_mensaje;
-                    header("Location: ../index.php?msg=$mensaje");
+                    header("Location: ../index.php?msg=entrada_a_tiempo");
                     exit;
                 } else {
                     throw new Exception('Error registrando entrada: ' . $stmt_insert->error);
