@@ -254,7 +254,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
         <?php 
         $msg = $_GET['msg'];
         switch ($msg) {
-            case 'entrada_a_tiempo':
+            case 'entrada_atiempo':
                 echo '<div class="alert alert-success">
                     <strong>¡Bienvenido!</strong> Has registrado tu entrada A TIEMPO.
                 </div>';

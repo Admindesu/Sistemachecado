@@ -94,7 +94,7 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
                     // Convertir el estado para el mensaje (A_TIEMPO -> a_tiempo)
                     $estado_mensaje = strtolower(str_replace('_', '', $estado));
                     $mensaje = "entrada_" . $estado_mensaje;
-                    header("Location: ../index.php?msg=entrada_a_tiempo");
+                    header("Location: ../index.php?msg=$mensaje");
                     exit;
                 } else {
                     throw new Exception('Error registrando entrada: ' . $stmt_insert->error);
@@ -134,7 +134,7 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
 
                 // Verificar si han pasado más de 2 horas después de la hora de salida para marcar FALTA
                 $limite_salida = $minutos_salida + 120; // 120 minutos = 2 horas
-                $estado_salida = ($minutos_actual > $limite_salida) ? 'FALTA' : 'NORMAL';
+                $estado_salida = ($minutos_actual > $limite_salida) ? 'FALTA' : 'A_TIEMPO';
                 
                 // Log para depuración
                 error_log("Registro de salida:");
