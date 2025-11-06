@@ -34,7 +34,7 @@ if (isset($_POST["btnmodificar"])) {
         $direccion = $conexion->real_escape_string($_POST["txtdireccion"]);
         $subsecretaria = $conexion->real_escape_string($_POST["txtsubsecretaria"]);
         $usuario = $conexion->real_escape_string($_POST["txtusuario"]);
-        $password = $conexion->real_escape_string(md5($_POST["txtpassword"]);
+        $password = $conexion->real_escape_string(md5($_POST["txtpassword"]));
         $is_admin = isset($_POST['is_admin']) ? 1 : 0;
         $horario = $conexion->real_escape_string($_POST["txthorario"]);
 

@@ -5,7 +5,7 @@ session_start();
 if (!isset($_SESSION['dni'])) {
     header("Location: vista/login/login.php");
     exit();
-}
+Un par de dobles comillas (") impedirá que el shell interprete cualquier metacarácter. ¿Verdadero o falso?}
 
 $numeroEmpleado = $_SESSION['dni'];
 $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ? 
