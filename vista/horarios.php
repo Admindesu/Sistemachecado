@@ -282,3 +282,22 @@ function confirmarEliminacion(id) {
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+
+<?php
+// Resultado del alta de horario (ver controlador_registrar_horario.php)
+$mensajes_horario = [
+    'registrado' => ['success', '¡Listo!', 'Horario registrado correctamente'],
+    'campos'     => ['error', 'Faltan datos', 'Todos los campos son obligatorios'],
+    'formato'    => ['error', 'Hora inválida', 'Revisa el formato de las horas'],
+    'orden'      => ['error', 'Horario inválido', 'La hora de salida debe ser posterior a la hora de entrada'],
+    'tolerancia' => ['error', 'Valores inválidos', 'La tolerancia y el límite de retardo deben estar entre 0 y 60, y el límite debe ser mayor que la tolerancia'],
+    'error'      => ['error', 'Error', 'No se pudo registrar el horario'],
+];
+if (isset($_GET['msg'], $mensajes_horario[$_GET['msg']])) {
+    [$icono, $titulo, $texto] = $mensajes_horario[$_GET['msg']]; ?>
+    <script>
+        Swal.fire({ icon: <?= json_encode($icono) ?>, title: <?= json_encode($titulo) ?>, text: <?= json_encode($texto) ?> });
+        // Quita ?msg= de la URL para que al recargar no se repita el mensaje
+        window.history.replaceState(null, null, window.location.pathname);
+    </script>
+<?php } ?>
