@@ -55,25 +55,25 @@ ul li:nth-child(4) .activo {
                             <?php
                             while ($datos = $sql->fetch_object()) { ?>
                                 <tr>
-                                    <td><?= $datos->id_horario ?></td>
-                                    <td><?= $datos->nombre ?></td>
+                                    <td><?= e($datos->id_horario) ?></td>
+                                    <td><?= e($datos->nombre) ?></td>
                                     <td><?= date('h:i A', strtotime($datos->hora_entrada)) ?></td>
                                     <td><?= date('h:i A', strtotime($datos->hora_salida)) ?></td>
-                                    <td><?= $datos->tolerancia_entrada ?></td>
-                                    <td><?= $datos->limite_retardo ?></td>
-                                    <td><?= $datos->descripcion ?></td>
+                                    <td><?= e($datos->tolerancia_entrada) ?></td>
+                                    <td><?= e($datos->limite_retardo) ?></td>
+                                    <td><?= e($datos->descripcion) ?></td>
                                     <td>
-                                        <a href="#" data-toggle="modal" data-target="#editarHorario<?= $datos->id_horario ?>" class="btn btn-warning btn-sm">
+                                        <a href="#" data-toggle="modal" data-target="#editarHorario<?= e($datos->id_horario) ?>" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="javascript:void(0)" onclick="confirmarEliminacion(<?= $datos->id_horario ?>)" class="btn btn-danger btn-sm">
+                                        <a href="javascript:void(0)" onclick="confirmarEliminacion(<?= e($datos->id_horario) ?>)" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
 
                                 <!-- Modal Editar -->
-                                <div class="modal fade" id="editarHorario<?= $datos->id_horario ?>" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal fade" id="editarHorario<?= e($datos->id_horario) ?>" tabindex="-1" role="dialog" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -83,37 +83,38 @@ ul li:nth-child(4) .activo {
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <form id="formEditarHorario<?= $datos->id_horario ?>" onsubmit="editarHorario(event, <?= $datos->id_horario ?>)" method="POST">
-                                                    <input type="hidden" name="id_horario" value="<?= $datos->id_horario ?>">
+                                                <form id="formEditarHorario<?= e($datos->id_horario) ?>" onsubmit="editarHorario(event, <?= e($datos->id_horario) ?>)" method="POST">
+                                                <?= campo_csrf() ?>
+                                                    <input type="hidden" name="id_horario" value="<?= e($datos->id_horario) ?>">
                                                     
                                                     <div class="form-group">
                                                         <label>Nombre del Horario</label>
-                                                        <input type="text" class="form-control" name="nombre" value="<?= $datos->nombre ?>" required>
+                                                        <input type="text" class="form-control" name="nombre" value="<?= e($datos->nombre) ?>" required>
                                                     </div>
                                                     
                                                     <div class="form-group">
                                                         <label>Hora de Entrada</label>
-                                                        <input type="time" class="form-control" name="hora_entrada" value="<?= $datos->hora_entrada ?>" required>
+                                                        <input type="time" class="form-control" name="hora_entrada" value="<?= e($datos->hora_entrada) ?>" required>
                                                     </div>
                                                     
                                                     <div class="form-group">
                                                         <label>Hora de Salida</label>
-                                                        <input type="time" class="form-control" name="hora_salida" value="<?= $datos->hora_salida ?>" required>
+                                                        <input type="time" class="form-control" name="hora_salida" value="<?= e($datos->hora_salida) ?>" required>
                                                     </div>
                                                     
                                                     <div class="form-group">
                                                         <label>Tolerancia (minutos)</label>
-                                                        <input type="number" class="form-control" name="tolerancia_entrada" value="<?= $datos->tolerancia_entrada ?>" required min="0" max="60">
+                                                        <input type="number" class="form-control" name="tolerancia_entrada" value="<?= e($datos->tolerancia_entrada) ?>" required min="0" max="60">
                                                     </div>
                                                     
                                                     <div class="form-group">
                                                         <label>Límite de Retardo (minutos)</label>
-                                                        <input type="number" class="form-control" name="limite_retardo" value="<?= $datos->limite_retardo ?>" required min="0" max="60">
+                                                        <input type="number" class="form-control" name="limite_retardo" value="<?= e($datos->limite_retardo) ?>" required min="0" max="60">
                                                     </div>
                                                     
                                                     <div class="form-group">
                                                         <label>Descripción</label>
-                                                        <textarea class="form-control" name="descripcion" rows="3"><?= $datos->descripcion ?></textarea>
+                                                        <textarea class="form-control" name="descripcion" rows="3"><?= e($datos->descripcion) ?></textarea>
                                                     </div>
                                                     
                                                     <div class="modal-footer">
@@ -146,6 +147,7 @@ ul li:nth-child(4) .activo {
             </div>
             <div class="modal-body">
                 <form method="POST" action="../controlador/controlador_registrar_horario.php">
+<?= campo_csrf() ?>
                     <div class="form-group">
                         <label>Nombre del Horario</label>
                         <input type="text" class="form-control" name="nombre" required>
@@ -272,7 +274,7 @@ function confirmarEliminacion(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'horarios.php?id=' + id;
+            enviarPost('horarios.php?id=' + id);
         }
     });
 }

@@ -3,15 +3,6 @@ require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
 
 include "../modelo/conexion.php";
-
-// Incluir controladores de forma condicional
-if (isset($_GET['id'])) {
-    include "../controlador/controlador_eliminar_cargo.php";
-} elseif (isset($_GET['id_direccion'])) {
-    include "../controlador/controlador_eliminar_direccion.php";
-} elseif (isset($_GET['id_subsecretaria'])) {
-    include "../controlador/controlador_eliminar_subsecretaria.php";
-}
 ?>
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -22,11 +13,8 @@ if (isset($_GET['id'])) {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<?php include "../modelo/conexion.php"; 
-
-
-
-// Include controllers for CRUD operations
+<?php
+// Eliminaciones (llegan por POST con token CSRF; cada controlador revisa su propio campo)
 include "../controlador/controlador_eliminar_cargo.php";
 include "../controlador/controlador_eliminar_direccion.php";
 include "../controlador/controlador_eliminar_subsecretaria.php";
@@ -100,16 +88,16 @@ ul li:nth-child(3) .activo {
                                 <tbody>
                                     <?php while ($datos = $sqlCargo->fetch_object()) { ?>
                                     <tr>
-                                        <td><?= $datos->id_cargo ?></td>
-                                        <td><?= $datos->nombre ?></td>
+                                        <td><?= e($datos->id_cargo) ?></td>
+                                        <td><?= e($datos->nombre) ?></td>
                                         <td>
-                                            <a href="" data-toggle="modal" data-target="#modalCargo<?= $datos->id_cargo ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="organigrama.php?tab=cargo&id=<?= $datos->id_cargo ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="" data-toggle="modal" data-target="#modalCargo<?= e($datos->id_cargo) ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+                                            <a href="organigrama.php?tab=cargo&id=<?= e($datos->id_cargo) ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
 
                                     <!-- Modal Cargo -->
-                                    <div class="modal fade" id="modalCargo<?= $datos->id_cargo ?>" tabindex="-1" aria-labelledby="modalCargoLabel<?= $datos->id_cargo ?>" aria-hidden="true">
+                                    <div class="modal fade" id="modalCargo<?= e($datos->id_cargo) ?>" tabindex="-1" aria-labelledby="modalCargoLabel<?= e($datos->id_cargo) ?>" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -120,13 +108,14 @@ ul li:nth-child(3) .activo {
                                                 </div>
                                                 <div class="modal-body">
                                                     <form action="" method="POST">
+<?= campo_csrf() ?>
                                                         <div hidden class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="ID">ID</label>
-                                                            <input type="text" class="input input__text" name="txtid" value="<?= $datos->id_cargo ?>" >
+                                                            <input type="text" class="input input__text" name="txtid" value="<?= e($datos->id_cargo) ?>" >
                                                         </div>
                                                         <div class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="nombre">Nombre</label>
-                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= $datos->nombre ?>" >
+                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= e($datos->nombre) ?>" >
                                                         </div>
                                                         <div class="text-right p-2">
                                                             <button type="button" class="btn btn-secondary btn-rounded" data-dismiss="modal">Cerrar</button>
@@ -169,16 +158,16 @@ ul li:nth-child(3) .activo {
                                 <tbody>
                                     <?php while ($datosDireccion = $sqlDireccion->fetch_object()) { ?>
                                     <tr>
-                                        <td><?= $datosDireccion->id_direccion ?></td>
-                                        <td><?= $datosDireccion->nombre ?></td>
+                                        <td><?= e($datosDireccion->id_direccion) ?></td>
+                                        <td><?= e($datosDireccion->nombre) ?></td>
                                         <td>
-                                            <a href="" data-toggle="modal" data-target="#modalDireccion<?= $datosDireccion->id_direccion ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="organigrama.php?nav=direccion&id_direccion=<?= $datosDireccion->id_direccion ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="" data-toggle="modal" data-target="#modalDireccion<?= e($datosDireccion->id_direccion) ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+                                            <a href="organigrama.php?nav=direccion&id_direccion=<?= e($datosDireccion->id_direccion) ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
 
                                     <!-- Modal Dirección -->
-                                    <div class="modal fade" id="modalDireccion<?= $datosDireccion->id_direccion ?>" tabindex="-1" aria-labelledby="modalDireccionLabel<?= $datosDireccion->id_direccion ?>" aria-hidden="true">
+                                    <div class="modal fade" id="modalDireccion<?= e($datosDireccion->id_direccion) ?>" tabindex="-1" aria-labelledby="modalDireccionLabel<?= e($datosDireccion->id_direccion) ?>" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -189,13 +178,14 @@ ul li:nth-child(3) .activo {
                                                 </div>
                                                 <div class="modal-body">
                                                     <form action="" method="POST">
+<?= campo_csrf() ?>
                                                         <div hidden class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="ID">ID</label>
-                                                            <input type="text" class="input input__text" name="txtid" value="<?= $datosDireccion->id_direccion ?>" >
+                                                            <input type="text" class="input input__text" name="txtid" value="<?= e($datosDireccion->id_direccion) ?>" >
                                                         </div>
                                                         <div class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="nombre">Nombre</label>
-                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= $datosDireccion->nombre ?>" >
+                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= e($datosDireccion->nombre) ?>" >
                                                         </div>
                                                         <div class="text-right p-2">
                                                             <button type="button" class="btn btn-secondary btn-rounded" data-dismiss="modal">Cerrar</button>
@@ -238,16 +228,16 @@ ul li:nth-child(3) .activo {
                                 <tbody>
                                     <?php while ($datosSubsec = $sqlSubsecretaria->fetch_object()) { ?>
                                     <tr>
-                                        <td><?= $datosSubsec->id_subsecretaria ?></td>
-                                        <td><?= $datosSubsec->nombre ?></td>
+                                        <td><?= e($datosSubsec->id_subsecretaria) ?></td>
+                                        <td><?= e($datosSubsec->nombre) ?></td>
                                         <td>
-                                            <a href="" data-toggle="modal" data-target="#modalSubsec<?= $datosSubsec->id_subsecretaria ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
-                                            <a href="organigrama.php?tab=subsecretaria&id_subsecretaria=<?= $datosSubsec->id_subsecretaria ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
+                                            <a href="" data-toggle="modal" data-target="#modalSubsec<?= e($datosSubsec->id_subsecretaria) ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+                                            <a href="organigrama.php?tab=subsecretaria&id_subsecretaria=<?= e($datosSubsec->id_subsecretaria) ?>" onclick="advertencia(event)" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar</a>
                                         </td>
                                     </tr>
 
                                     <!-- Modal Subsecretaría -->
-                                    <div class="modal fade" id="modalSubsec<?= $datosSubsec->id_subsecretaria ?>" tabindex="-1" aria-labelledby="modalSubsecLabel<?= $datosSubsec->id_subsecretaria ?>" aria-hidden="true">
+                                    <div class="modal fade" id="modalSubsec<?= e($datosSubsec->id_subsecretaria) ?>" tabindex="-1" aria-labelledby="modalSubsecLabel<?= e($datosSubsec->id_subsecretaria) ?>" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -258,13 +248,14 @@ ul li:nth-child(3) .activo {
                                                 </div>
                                                 <div class="modal-body">
                                                     <form action="" method="POST">
+<?= campo_csrf() ?>
                                                         <div hidden class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="ID">ID</label>
-                                                            <input type="text" class="input input__text" name="txtid" value="<?= $datosSubsec->id_subsecretaria ?>" >
+                                                            <input type="text" class="input input__text" name="txtid" value="<?= e($datosSubsec->id_subsecretaria) ?>" >
                                                         </div>
                                                         <div class="fl-flex-label mb-4 px-2 col-12">
                                                             <label for="nombre">Nombre</label>
-                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= $datosSubsec->nombre ?>" >
+                                                            <input type="text" class="input input__text" name="txtnombre" value="<?= e($datosSubsec->nombre) ?>" >
                                                         </div>
                                                         <div class="text-right p-2">
                                                             <button type="button" class="btn btn-secondary btn-rounded" data-dismiss="modal">Cerrar</button>
@@ -369,7 +360,7 @@ ul li:nth-child(3) .activo {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = url;
+                enviarPost(url);
             }
         });
     }

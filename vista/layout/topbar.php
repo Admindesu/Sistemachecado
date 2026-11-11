@@ -5,6 +5,7 @@
 
     <head lang="es">
         <meta charset="utf-8">
+        <meta name="csrf-token" content="<?= e(token_csrf()) ?>">
         <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
         <meta content="ie=edge" http-equiv="x-ua-compatible">
         <title>Plantilla-php</title>
@@ -135,7 +136,7 @@
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right pt-0" aria-labelledby="dd-user-menu">
 
-                                    <h5 class="p-2 text-center bg-primary"><?=" ". $_SESSION["nombre"]. " ". $_SESSION["apellido"]. " "?></h5>
+                                    <h5 class="p-2 text-center bg-primary"><?= e($_SESSION["nombre"] . " " . $_SESSION["apellido"]) ?></h5>
                                     <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-user"></span>Perfil</a>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modalCambiarPass">
                                         <span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña
@@ -173,6 +174,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="../controlador/controlador_cambiar_password.php" method="POST">
+<?= campo_csrf() ?>
                         <input type="hidden" name="volver" value="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalCambiarPassLabel">Cambiar Contraseña</h5>

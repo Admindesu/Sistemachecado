@@ -39,6 +39,7 @@ if (necesita_rehash($datos->password)) {
 
 // Evita fijación de sesión
 session_regenerate_id(true);
+unset($_SESSION['csrf']); // token CSRF nuevo para la sesión autenticada
 
 $_SESSION['id_usuario'] = $datos->id_empleado;
 $_SESSION['nombre'] = $datos->nombre;

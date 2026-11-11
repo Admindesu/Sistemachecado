@@ -154,6 +154,7 @@ ul li:nth-child(2) .activo {
             <p><?= count($usuarios_dispositivo) ?> personas en el dispositivo, <?= count($nuevos) ?> nuevas.
                Revisa cómo se dividió el nombre antes de importar.</p>
             <form method="POST">
+                <?= campo_csrf() ?>
                 <div class="row mb-3">
                     <?php foreach (['cargo' => $cargos, 'direccion' => $direcciones, 'subsecretaria' => $subsecretarias, 'horario' => $horarios] as $campo => $opciones): ?>
                         <div class="col-md-3">

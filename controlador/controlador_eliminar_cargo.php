@@ -3,8 +3,8 @@ require_once __DIR__ . '/auth.php';
 requerir_admin();
 
 // filepath: c:\xampp\htdocs\Sistemachecado\controlador\controlador_eliminar_cargo.php
-if (!empty($_GET["id"])) {
-    $id = $_GET["id"];
+if (!empty($_POST["id"])) {
+    $id = $_POST["id"];
     
     // Primero verificamos si el cargo está en uso
     $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE cargo = ?", "i", $id);

@@ -65,6 +65,7 @@ ul li:nth-child(1) .activo {
                         </button>
                     </div>
                     <form id="reportForm" method="POST" target="_blank">
+<?= campo_csrf() ?>
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Formato de Reporte</label>
@@ -95,7 +96,7 @@ ul li:nth-child(1) .activo {
                                     <?php
                                     $empleados = $conexion->query("SELECT dni, nombre, apellido FROM empleado ORDER BY nombre, apellido");
                                     while($emp = $empleados->fetch_object()): ?>
-                                        <option value="<?= $emp->dni ?>"><?= $emp->nombre . ' ' . $emp->apellido ?></option>
+                                        <option value="<?= e($emp->dni) ?>"><?= e($emp->nombre . ' ' . $emp->apellido) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
@@ -127,16 +128,16 @@ ul li:nth-child(1) .activo {
                     <?php
                     while ($datos = $sql->fetch_object()) { ?>
                     <tr>
-                        <td><?= $datos->id_asistencia ?></td>
-                        <td><?= $datos->nom_empleado. " ". $datos->apellido ?></td>
-                        <td><?= $datos->dni ?></td>
-                        <td><?= $datos->nom_cargo ?></td>
-                        <td><?= ucfirst($datos->tipo) ?></td>
-                        <td><?= $datos->fecha ?></td>
-                        <td><?= htmlspecialchars(str_replace('_', ' ', (string) $datos->estado)) ?></td>
+                        <td><?= e($datos->id_asistencia) ?></td>
+                        <td><?= e($datos->nom_empleado . " " . $datos->apellido) ?></td>
+                        <td><?= e($datos->dni) ?></td>
+                        <td><?= e($datos->nom_cargo) ?></td>
+                        <td><?= e(ucfirst($datos->tipo)) ?></td>
+                        <td><?= e($datos->fecha) ?></td>
+                        <td><?= e(str_replace('_', ' ', (string) $datos->estado)) ?></td>
                         <td><?= $datos->origen === 'hikvision' ? '<span class="badge badge-info">Hikvision</span>' : '<span class="badge badge-secondary">Web</span>' ?></td>
                         <td>
-                            <a href="inicio.php?id=<?= $datos->id_asistencia ?>" onclick="advertencia(event)" class="btn btn-danger">
+                            <a href="inicio.php?id=<?= e($datos->id_asistencia) ?>" onclick="advertencia(event)" class="btn btn-danger">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>

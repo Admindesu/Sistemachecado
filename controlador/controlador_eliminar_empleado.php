@@ -14,8 +14,8 @@ requerir_admin();
  * - El script utiliza jQuery y PNotify para las notificaciones.
  * - Se realiza un replaceState en el historial del navegador para limpiar la URL después de la operación.
  */
-if (!empty($_GET['id'])) {   
-    $id = $_GET['id'];
+if (!empty($_POST['id'])) {   
+    $id = $_POST['id'];
     $sql = consulta($conexion, "DELETE FROM empleado WHERE id_empleado = ?", "i", $id);
     if ($sql == true) { ?>
         <script>

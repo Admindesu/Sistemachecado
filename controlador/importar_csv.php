@@ -121,7 +121,7 @@ echo "<div style='display:flex; flex-wrap:wrap; gap:20px;'>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Cargos:</h4><ul>";
 foreach ($cargos['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -129,7 +129,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Direcciones:</h4><ul>";
 foreach ($direcciones['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -137,7 +137,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Subsecretarías:</h4><ul>";
 foreach ($subsecretarias['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -145,7 +145,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Horarios:</h4><ul>";
 foreach ($horarios['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 echo "</div>";

@@ -1,3 +1,27 @@
+/**
+ * Envía por POST los parámetros de una URL (p. ej. "empleado.php?id=5") junto con
+ * el token CSRF de <meta name="csrf-token">. Se usa para eliminar registros:
+ * por GET cualquier enlace externo podría borrar datos.
+ */
+function enviarPost(url) {
+	var destino = new URL(url, window.location.href);
+	var form = document.createElement('form');
+	form.method = 'POST';
+	form.action = destino.pathname;
+	var agregar = function (nombre, valor) {
+		var input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = nombre;
+		input.value = valor;
+		form.appendChild(input);
+	};
+	destino.searchParams.forEach(function (valor, nombre) { agregar(nombre, valor); });
+	var meta = document.querySelector('meta[name="csrf-token"]');
+	if (meta) agregar('csrf', meta.getAttribute('content'));
+	document.body.appendChild(form);
+	form.submit();
+}
+
 function advertencia(e) {
 	e.preventDefault();	/* para que no se ejecute el evento por defecto */
 	var url= e.currentTarget.getAttribute('href');	/* para obtener el atributo href del evento */
@@ -27,7 +51,7 @@ function advertencia(e) {
 		/* Read more about isConfirmed, isDenied below */
 		if (result.isConfirmed) {
 		 // this.submit();
-		 window.location.href = url;	/* para redireccionar a la url */
+		 enviarPost(url);	/* elimina por POST con token CSRF */
 		}
 	  })
 

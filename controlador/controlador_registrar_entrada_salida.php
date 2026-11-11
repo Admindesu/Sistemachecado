@@ -5,7 +5,7 @@
  * que se aplican a los marcajes del terminal Hikvision.
  */
 require_once __DIR__ . '/auth.php';
-requerir_sesion();
+requerir_sesion(); // también valida el token CSRF
 include "../modelo/conexion.php";
 require_once __DIR__ . '/../modelo/asistencia_reglas.php';
 
