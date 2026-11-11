@@ -57,9 +57,11 @@ ul li:nth-child(3) .activo {
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="direccion-tab" data-toggle="tab" href="#direccion" role="tab" aria-controls="direccion" aria-selected="false">Direcciones</a>
             </li>
+            <?php if (usar_subsecretarias()): ?>
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="subsecretaria-tab" data-toggle="tab" href="#subsecretaria" role="tab" aria-controls="subsecretaria" aria-selected="false">Subsecretarías</a>
             </li>
+            <?php endif; ?>
         </ul>
 
         <!-- Contenido de los tabs -->
@@ -204,6 +206,7 @@ ul li:nth-child(3) .activo {
                 </div>
             </div>
 
+            <?php if (usar_subsecretarias()): ?>
             <!-- Tab Subsecretarías -->
             <div class="tab-pane fade" id="subsecretaria" role="tabpanel" aria-labelledby="subsecretaria-tab">
                 <div class="row mb-3">
@@ -273,6 +276,7 @@ ul li:nth-child(3) .activo {
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

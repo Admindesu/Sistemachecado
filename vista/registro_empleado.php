@@ -80,6 +80,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
         </select>
     </div>
 
+    <?php if (usar_subsecretarias()): ?>
     <div style="display: flex; flex-direction: column; align-items: flex-start;" class="fl-flex-label mb-4 px-2 col-12 col-md-6">
         <label for="subsecretaria" style="align-self: flex-start;">Subsecretaría</label>
         <select name="txtsubsecretaria" class="input input__select w-100">
@@ -91,6 +92,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
             <?php } ?>
         </select>
     </div>
+    <?php endif; ?>
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
         <label for="usuario">Usuario</label>
         <input type="text" class="input input__text" name="txtusuario" required>

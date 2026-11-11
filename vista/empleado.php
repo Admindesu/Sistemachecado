@@ -99,7 +99,12 @@ ul li:nth-child(2) .activo {
                                     <strong>Formato del CSV:</strong><br>
                                     nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario<br><br>
                                     <strong>Ejemplo:</strong><br>
+                                    <?php if (usar_subsecretarias()): ?>
                                     Juan,Perez,12345678,jperez,password123,1,1,1,0,1
+                                    <?php else: ?>
+                                    Juan,Perez,12345678,jperez,password123,1,1,,0,1<br>
+                                    <em>La columna subsecretaria se deja vacía.</em>
+                                    <?php endif; ?>
                                 </small>
                             </div>
                             <button type="submit" class="btn btn-primary">Importar</button>
@@ -123,7 +128,7 @@ ul li:nth-child(2) .activo {
                                 <th scope="col">Admin</th>
                                 <th scope="col">Cargo</th> 
                                 <th scope="col">Direccion</th>
-                                <th scope="col">Subsecretaria</th>
+                                <?php if (usar_subsecretarias()): ?><th scope="col">Subsecretaria</th><?php endif; ?>
                                 <th scope="col">Horario</th>
                                 <th scope="col">Acciones</th>
                             </tr>
@@ -144,7 +149,7 @@ ul li:nth-child(2) .activo {
                                     </td>
                                     <td><?= e($datos->nom_cargo) ?></td>
                                     <td><?= e($datos->nom_direccion) ?></td>
-                                    <td><?= $datos->nom_subsecretaria !== null ? e($datos->nom_subsecretaria) : '<span class="text-muted">—</span>' ?></td>
+                                    <?php if (usar_subsecretarias()): ?><td><?= $datos->nom_subsecretaria !== null ? e($datos->nom_subsecretaria) : '<span class="text-muted">—</span>' ?></td><?php endif; ?>
                                     <td><?= $datos->nom_horario ? e($datos->nom_horario) . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
                                     <td>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= e($datos->id_empleado) ?>" class="btn btn-warning">
@@ -224,6 +229,9 @@ ul li:nth-child(2) .activo {
                             </div>
                         </div>
                         
+                        <?php if (!usar_subsecretarias()): ?>
+                        <input type="hidden" name="txtsubsecretaria" value="<?= e($datos->subsecretaria) ?>">
+                        <?php else: ?>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="subsecretaria">Subsecretaría</label>
@@ -240,6 +248,7 @@ ul li:nth-child(2) .activo {
                                 </select>
                             </div>
                         </div>
+                        <?php endif; ?>
                         
                         <div class="col-md-6">
                             <div class="form-group">

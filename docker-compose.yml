@@ -13,6 +13,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       APP_TZ: ${APP_TZ:-America/Cancun}
+      APP_SUBSECRETARIAS: ${APP_SUBSECRETARIAS:-0}
       HIK_HOST: ${HIK_HOST:-}
       HIK_USUARIO: ${HIK_USUARIO:-admin}
       HIK_PASSWORD: ${HIK_PASSWORD:-}

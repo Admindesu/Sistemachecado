@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
+if (!usar_subsecretarias()) {
+    header('Location: organigrama.php');
+    exit;
+}
 // DESPUÉS cargar el layout
 require('./layout/topbar.php');
 require('./layout/sidebar.php');

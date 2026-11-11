@@ -134,12 +134,14 @@ foreach ($direcciones['names'] as $id => $name) {
 echo "</ul></div>";
 
 // Subsecretaria
-echo "<div style='flex:1; min-width:300px;'>";
-echo "<h4>Subsecretarías:</h4><ul>";
-foreach ($subsecretarias['names'] as $id => $name) {
-    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
+if (usar_subsecretarias()) {
+    echo "<div style='flex:1; min-width:300px;'>";
+    echo "<h4>Subsecretarías:</h4><ul>";
+    foreach ($subsecretarias['names'] as $id => $name) {
+        echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
+    }
+    echo "</ul></div>";
 }
-echo "</ul></div>";
 
 // Horarios
 echo "<div style='flex:1; min-width:300px;'>";

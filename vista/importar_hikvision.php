@@ -39,7 +39,7 @@ function usuario_disponible(mysqli $conexion, string $base): string
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btnimportar'])) {
     $cargo = (int) ($_POST['cargo'] ?? 0);
     $direccion = (int) ($_POST['direccion'] ?? 0);
-    $subsecretaria = (int) ($_POST['subsecretaria'] ?? 0) ?: null; // opcional
+    $subsecretaria = usar_subsecretarias() ? ((int) ($_POST['subsecretaria'] ?? 0) ?: null) : null; // opcional
     $horario = (int) ($_POST['horario'] ?? 0);
     $seleccion = $_POST['sel'] ?? [];
 
@@ -156,7 +156,10 @@ ul li:nth-child(2) .activo {
             <form method="POST">
                 <?= campo_csrf() ?>
                 <div class="row mb-3">
-                    <?php foreach (['cargo' => $cargos, 'direccion' => $direcciones, 'subsecretaria' => $subsecretarias, 'horario' => $horarios] as $campo => $opciones): ?>
+                    <?php
+                    $comunes = ['cargo' => $cargos, 'direccion' => $direcciones, 'subsecretaria' => $subsecretarias, 'horario' => $horarios];
+                    if (!usar_subsecretarias()) unset($comunes['subsecretaria']);
+                    foreach ($comunes as $campo => $opciones): ?>
                         <div class="col-md-3">
                             <label><?= ucfirst($campo === 'direccion' ? 'dirección' : ($campo === 'subsecretaria' ? 'subsecretaría' : $campo)) ?> (<?= $campo === 'subsecretaria' ? 'opcional' : 'para todos' ?>)</label>
                             <select name="<?= $campo ?>" class="form-control" <?= $campo === 'subsecretaria' ? '' : 'required' ?>>

@@ -52,6 +52,8 @@ Ese script solo corre cuando el volumen está vacío; para reiniciar la BD desde
 
 La zona horaria se configura con `APP_TZ` en `.env` (por defecto `America/Cancun`).
 
+Las subsecretarías están ocultas por defecto. Si tu centro de trabajo las usa, pon `APP_SUBSECRETARIAS=1` en `.env` (con XAMPP: `SetEnv APP_SUBSECRETARIAS 1` en la configuración de Apache).
+
 ## Integración con terminal Hikvision (DS-K1T344MBFWX-E1)
 
 El terminal solo registra **quién pasó y a qué hora**. Este sistema decide qué es entrada
