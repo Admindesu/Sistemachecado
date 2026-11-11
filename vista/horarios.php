@@ -9,27 +9,19 @@ function hora_mas_minutos(string $hora, int $minutos): string
 }
 
 /**
- * Campos de tolerancia y retardo: se capturan en minutos o como "hasta qué hora";
- * el JS de abajo mantiene ambos sincronizados con la hora de entrada.
+ * Campos de tolerancia y retardo en minutos después de la entrada; el JS de abajo
+ * muestra debajo a qué horas equivalen.
  */
 function campos_tolerancia(int $tolerancia, int $retardo): void
 { ?>
     <div class="form-row">
         <div class="form-group col-sm-6">
-            <label>A tiempo hasta</label>
-            <input type="time" class="form-control js-hasta" data-para="tolerancia_entrada">
-            <div class="input-group input-group-sm mt-1">
-                <input type="number" class="form-control js-minutos" name="tolerancia_entrada" value="<?= $tolerancia ?>" required min="0" max="720">
-                <div class="input-group-append"><span class="input-group-text">min de tolerancia</span></div>
-            </div>
+            <label>Tolerancia (minutos)</label>
+            <input type="number" class="form-control" name="tolerancia_entrada" value="<?= $tolerancia ?>" required min="0" max="720">
         </div>
         <div class="form-group col-sm-6">
-            <label>Retardo hasta</label>
-            <input type="time" class="form-control js-hasta" data-para="limite_retardo">
-            <div class="input-group input-group-sm mt-1">
-                <input type="number" class="form-control js-minutos" name="limite_retardo" value="<?= $retardo ?>" required min="1" max="720">
-                <div class="input-group-append"><span class="input-group-text">min de límite</span></div>
-            </div>
+            <label>Límite de retardo (minutos)</label>
+            <input type="number" class="form-control" name="limite_retardo" value="<?= $retardo ?>" required min="1" max="720">
         </div>
     </div>
     <div class="alert alert-secondary small py-2 js-resumen"></div>
@@ -208,15 +200,11 @@ ul li:nth-child(4) .activo {
 <!-- fin del contenido principal -->
 
 <script>
-/* ---- Tolerancia / retardo: minutos <-> "hasta qué hora" ---- */
+/* ---- Tolerancia / retardo: resumen de las franjas ---- */
 function aMinutos(hhmm) {
     if (!hhmm) return null;
     const [h, m] = hhmm.split(':').map(Number);
     return h * 60 + m;
-}
-function aHora(minutos) {
-    minutos = ((minutos % 1440) + 1440) % 1440;
-    return String(Math.floor(minutos / 60)).padStart(2, '0') + ':' + String(minutos % 60).padStart(2, '0');
 }
 function hora12(minutos) {
     const h = Math.floor(minutos / 60), m = minutos % 60;
@@ -237,19 +225,9 @@ function errorHorario(form) {
     return null;
 }
 
-/** Actualiza las horas "hasta" (o los minutos, si se editó una hora) y el resumen. */
-function sincronizarHorario(form, origen) {
+/** Muestra a qué horas equivalen la tolerancia y el retardo. */
+function sincronizarHorario(form) {
     const entrada = aMinutos(form.hora_entrada.value);
-    if (entrada !== null) {
-        if (origen && origen.classList.contains('js-hasta') && origen.value) {
-            form[origen.dataset.para].value = aMinutos(origen.value) - entrada;
-        }
-        form.querySelectorAll('.js-hasta').forEach(function (campo) {
-            if (campo === origen) return;
-            const min = parseInt(form[campo.dataset.para].value, 10);
-            campo.value = isNaN(min) ? '' : aHora(entrada + min);
-        });
-    }
     const resumen = form.querySelector('.js-resumen');
     const error = errorHorario(form);
     resumen.classList.toggle('alert-danger', !!error);
@@ -275,12 +253,14 @@ function validarHorario(form) {
     return true;
 }
 
-document.addEventListener('input', function (ev) {
-    const form = ev.target.form;
-    if (form && form.querySelector('.js-resumen')) sincronizarHorario(form, ev.target);
+['input', 'change'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (ev) {
+        const form = ev.target.form;
+        if (form && form.querySelector('.js-resumen')) sincronizarHorario(form);
+    });
 });
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.js-resumen').forEach(function (r) { sincronizarHorario(r.closest('form'), null); });
+    document.querySelectorAll('.js-resumen').forEach(function (r) { sincronizarHorario(r.closest('form')); });
 });
 
 function editarHorario(event, id) {
