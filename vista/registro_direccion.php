@@ -32,6 +32,7 @@ ul li:nth-child(3) .activo {
                     </div>
                     <div class="card-body">
                         <form action="" method="POST">
+<?= campo_csrf() ?>
                             <div class="form-group">
                                 <label for="txtnombre">Nombre de la Dirección</label>
                                 <input type="text" class="form-control" name="txtnombre" required>

@@ -6,8 +6,8 @@ if (!isset($conexion)) {
     include_once("../modelo/conexion.php");
 }
 
-if (isset($_GET['id'])) {
-    $id_horario = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
+if (isset($_POST['id'])) {
+    $id_horario = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
     
     try {
         // Verificar si el horario está siendo usado por empleados

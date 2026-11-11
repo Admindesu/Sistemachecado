@@ -2,8 +2,8 @@
 require_once __DIR__ . '/auth.php';
 requerir_admin();
 
-if (!empty($_GET["id_subsecretaria"])) {
-    $id_subsecretaria = $_GET["id_subsecretaria"];
+if (!empty($_POST["id_subsecretaria"])) {
+    $id_subsecretaria = $_POST["id_subsecretaria"];
     
     // Primero verificamos si la subsecretaría está en uso
     $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE subsecretaria = ?", "i", $id_subsecretaria);

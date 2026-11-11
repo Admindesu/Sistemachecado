@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/controlador/auth.php';
 
 // Redirigir si no hay sesión
 if (!isset($_SESSION['dni'])) {
@@ -195,7 +195,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
     </style>
 </head>
 <body>
-    <h1>BIENVENIDO <?= strtoupper($nombreCompleto) ?>, REGISTRA TU ASISTENCIA</h1>
+    <h1>BIENVENIDO <?= e(mb_strtoupper($nombreCompleto, 'UTF-8')) ?>, REGISTRA TU ASISTENCIA</h1>
     <div class="container">
         <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
             <button type="button" onclick="window.location.href='vista/inicio.php'" 
@@ -205,6 +205,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
             
         <?php endif; ?>
                     <form action="controlador/controlador_cerrar_sesion.php" method="POST">
+<?= campo_csrf() ?>
                 <button type="submit" 
                         style="padding:10px 25px; font-size:16px; border-radius:5px; background:#721c24; color:#fff; border:none; cursor:pointer; width:100%; margin-bottom:20px;">
                     Cerrar sesión
@@ -223,6 +224,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
         </div>
 
         <form action="controlador/controlador_registrar_entrada_salida.php" method="POST">
+<?= campo_csrf() ?>
             <input type="hidden" name="txtEmpleado" value="<?= htmlspecialchars($numeroEmpleado) ?>">
             <div class="botones">
                 <button type="submit" name="tipo" value="entrada" 
@@ -318,6 +320,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
     <?php endif; ?>
     <div style="width:100%; text-align:center; margin-top:30px;">
         <form action="vista/reportes/pdf_report.php" method="POST" target="_blank" style="display:inline-block;">
+<?= campo_csrf() ?>
             <input type="hidden" name="empleado" value="<?= htmlspecialchars($numeroEmpleado) ?>">
             <button type="submit" style="padding:10px 25px; font-size:16px; border-radius:5px; background:#3498db; color:#fff; border:none; cursor:pointer;">
                 Descargar mi reporte de asistencias

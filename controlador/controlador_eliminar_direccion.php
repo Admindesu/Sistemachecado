@@ -8,8 +8,8 @@ if (isset($_POST['btnregistrar'])) {
     }
 }
 
-if (!empty($_GET["id_direccion"])) {
-    $id_direccion = $_GET["id_direccion"];
+if (!empty($_POST["id_direccion"])) {
+    $id_direccion = $_POST["id_direccion"];
     
     // Primero verificamos si la dirección está en uso
     $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE direccion = ?", "i", $id_direccion);

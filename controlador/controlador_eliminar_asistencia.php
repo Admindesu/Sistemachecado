@@ -14,9 +14,9 @@ requerir_admin();
  * - Utiliza JavaScript para limpiar la URL después de la operación.
  * 
  */
-if (!empty($_GET['id'])) {
+if (!empty($_POST['id'])) {
     include "../modelo/conexion.php";
-    $id = $_GET['id'];
+    $id = $_POST['id'];
     $sql = consulta($conexion, "DELETE FROM asistencia WHERE id_asistencia = ?", "i", $id);
 
     if ($sql==true) {?>
