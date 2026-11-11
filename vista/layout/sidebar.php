@@ -37,11 +37,22 @@
                         <span class="lbl">ACERCA DE</span>
                     </a>
                 </li>
-<!--<li class="red">
-                    <a href="Graficos.php" class="activo">
+<li class="red">
+                    <a href="dashboard.php" class="activo">
                         <img src="../public/img-inicio/info.png" class="img-inicio" alt="">
-                        <i class="fas fa-exclamation"></i>
-                        <span class="lbl">Estadistica</span> -->
+                        <span class="lbl">DASHBOARD</span>
+                    </a>
+                </li>
+                <li class="red">
+                    <a href="justificaciones.php" class="activo">
+                        <img src="../public/img-inicio/programar.png" class="img-inicio" alt="">
+                        <span class="lbl">JUSTIFICACIONES</span>
+                    </a>
+                </li>
+                <li class="red">
+                    <a href="dias_inhabiles.php" class="activo">
+                        <img src="../public/img-inicio/programar.png" class="img-inicio" alt="">
+                        <span class="lbl">DÍAS INHÁBILES</span>
                     </a>
                 </li>
             </ul>

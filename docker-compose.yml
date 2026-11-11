@@ -35,6 +35,7 @@ services:
       - db_data:/var/lib/mysql
       # Solo se ejecuta la primera vez (cuando el volumen db_data está vacío)
       - ./sql/sis-asistencia.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./sql/migraciones/002_dias_inhabiles_justificaciones.sql:/docker-entrypoint-initdb.d/03-calendario.sql:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
