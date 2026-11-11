@@ -303,6 +303,16 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
                     <strong>¡Atención!</strong> Solo puedes registrar entrada 15 minutos antes de tu horario.
                 </div>';
                 break;
+            case 'entrada_duplicada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Ya registraste tu entrada hoy.
+                </div>';
+                break;
+            case 'salida_duplicada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Ya registraste tu salida hoy.
+                </div>';
+                break;
             case 'error_registro':
                 echo '<div class="alert alert-danger">
                     <strong>Error:</strong> No se pudo registrar tu asistencia. Verifica que tengas un horario asignado o avisa al administrador.

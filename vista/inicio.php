@@ -29,6 +29,8 @@ ul li:nth-child(1) .activo {
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
+    asistencia.estado,
+    asistencia.origen,
     empleado.nombre as 'nom_empleado',
     empleado.apellido,
     empleado.dni,
@@ -116,6 +118,8 @@ ul li:nth-child(1) .activo {
                         <th scope="col">Cargo</th>
                         <th scope="col">Tipo</th>
                         <th scope="col">Fecha/Hora</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Origen</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
@@ -129,6 +133,8 @@ ul li:nth-child(1) .activo {
                         <td><?= $datos->nom_cargo ?></td>
                         <td><?= ucfirst($datos->tipo) ?></td>
                         <td><?= $datos->fecha ?></td>
+                        <td><?= htmlspecialchars(str_replace('_', ' ', (string) $datos->estado)) ?></td>
+                        <td><?= $datos->origen === 'hikvision' ? '<span class="badge badge-info">Hikvision</span>' : '<span class="badge badge-secondary">Web</span>' ?></td>
                         <td>
                             <a href="inicio.php?id=<?= $datos->id_asistencia ?>" onclick="advertencia(event)" class="btn btn-danger">
                                 <i class="fas fa-trash"></i>

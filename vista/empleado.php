@@ -64,6 +64,10 @@ ul li:nth-child(2) .activo {
                 <button type="button" class="btn btn-success btn-rounded ml-2" data-toggle="modal" data-target="#csvUploadModal">
                     <i class="fas fa-file-csv"></i> Importar CSV
                 </button>
+
+                <a href="importar_hikvision.php" class="btn btn-info btn-rounded ml-2">
+                    <i class="fas fa-user-check"></i> Importar desde Hikvision
+                </a>
             </div>
         </div>
 

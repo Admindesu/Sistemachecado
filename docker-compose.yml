@@ -6,13 +6,20 @@ services:
     container_name: checador-app
     ports:
       - "${APP_PORT:-8080}:80"
-    environment:
+    environment: &app_env
       DB_HOST: db
       DB_PORT: 3306
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       APP_TZ: ${APP_TZ:-America/Cancun}
+      HIK_HOST: ${HIK_HOST:-}
+      HIK_USUARIO: ${HIK_USUARIO:-admin}
+      HIK_PASSWORD: ${HIK_PASSWORD:-}
+      HIK_PUSH_TOKEN: ${HIK_PUSH_TOKEN:-}
+      HIK_IPS_PERMITIDAS: ${HIK_IPS_PERMITIDAS:-}
+      HIK_MINORS_VALIDOS: ${HIK_MINORS_VALIDOS:-1,38,75}
+      HIK_DIAS_INICIALES: ${HIK_DIAS_INICIALES:-7}
     volumes:
       # Monta el código para desarrollo: los cambios se ven sin reconstruir la imagen.
       # Quitar esta línea en producción para usar el código copiado en la imagen.
@@ -35,11 +42,29 @@ services:
       - db_data:/var/lib/mysql
       # Solo se ejecuta la primera vez (cuando el volumen db_data está vacío)
       - ./sql/sis-asistencia.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./sql/migraciones/001_hikvision.sql:/docker-entrypoint-initdb.d/02-hikvision.sql:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
+
+  # Consulta periódica al terminal Hikvision (recupera marcajes que no llegaron por push)
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: checador-worker
+    environment:
+      <<: *app_env
+      HIK_INTERVALO_SEG: ${HIK_INTERVALO_SEG:-300}
+    volumes:
+      - ./:/var/www/html
+    command: ["sh", "-c", "while true; do php /var/www/html/cron/sincronizar_hikvision.php; sleep $${HIK_INTERVALO_SEG}; done"]
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   phpmyadmin:
