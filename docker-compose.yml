@@ -21,6 +21,9 @@ services:
       HIK_IPS_PERMITIDAS: ${HIK_IPS_PERMITIDAS:-}
       HIK_MINORS_VALIDOS: ${HIK_MINORS_VALIDOS:-1,38,75,153}
       HIK_DIAS_INICIALES: ${HIK_DIAS_INICIALES:-7}
+      HIK_AJUSTE_HASTA: ${HIK_AJUSTE_HASTA:-}
+      HIK_AJUSTE_HORAS: ${HIK_AJUSTE_HORAS:-0}
+      HIK_IGNORAR_ANTES: ${HIK_IGNORAR_ANTES:-}
     volumes:
       # Monta el código para desarrollo: los cambios se ven sin reconstruir la imagen.
       # Quitar esta línea en producción para usar el código copiado en la imagen.

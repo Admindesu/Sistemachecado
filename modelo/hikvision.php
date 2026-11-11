@@ -28,7 +28,24 @@ function hik_config(): array
         'dias_iniciales' => (int) (getenv('HIK_DIAS_INICIALES') ?: 7),
         // Identificador del dispositivo en marcaje_dispositivo (con un solo equipo basta la IP)
         'dispositivo' => getenv('HIK_HOST') ?: 'hikvision',
+        // Corrección de un reloj que estuvo mal: los eventos con hora del terminal anterior a
+        // HIK_AJUSTE_HASTA se desplazan HIK_AJUSTE_HORAS horas (el terminal los conserva con la
+        // hora equivocada y puede reenviarlos, así que la corrección se aplica siempre).
+        'ajuste_hasta' => getenv('HIK_AJUSTE_HASTA') ?: '',
+        'ajuste_horas' => (int) (getenv('HIK_AJUSTE_HORAS') ?: 0),
+        // Eventos anteriores a esta fecha se descartan (p. ej. reloj reiniciado a 2014)
+        'ignorar_antes' => getenv('HIK_IGNORAR_ANTES') ?: '',
     ];
+}
+
+/** Aplica la corrección de reloj de hik_config() a una fecha ya en la zona local. */
+function hik_corregir_hora(DateTime $fecha, array $cfg): DateTime
+{
+    if (!empty($cfg['ajuste_horas']) && !empty($cfg['ajuste_hasta'])
+        && $fecha < new DateTime($cfg['ajuste_hasta'])) {
+        $fecha->modify(sprintf('%+d hours', $cfg['ajuste_horas']));
+    }
+    return $fecha;
 }
 
 /**
@@ -65,6 +82,10 @@ function normalizar_evento(array $evento, array $cfg): ?array
         error_log("Hikvision: fecha inválida '$hora'");
         return null;
     }
+    if (!empty($cfg['ignorar_antes']) && $fecha < new DateTime($cfg['ignorar_antes'])) {
+        return null;
+    }
+    hik_corregir_hora($fecha, $cfg);
 
     return [
         'dni' => $dni,
