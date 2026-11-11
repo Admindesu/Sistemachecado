@@ -18,12 +18,12 @@ if (isset($_POST['btnmodificar'])) {
 
     // Sanitizar y validar inputs
     $id_horario = filter_var($_POST['id_horario'], FILTER_SANITIZE_NUMBER_INT);
-    $nombre = filter_var($_POST['nombre'], FILTER_SANITIZE_STRING);
+    $nombre = trim((string) $_POST['nombre']);
     $hora_entrada = $_POST['hora_entrada'];
     $hora_salida = $_POST['hora_salida'];
     $tolerancia = filter_var($_POST['tolerancia_entrada'], FILTER_SANITIZE_NUMBER_INT);
     $limite_retardo = filter_var($_POST['limite_retardo'], FILTER_SANITIZE_NUMBER_INT);
-    $descripcion = filter_var($_POST['descripcion'], FILTER_SANITIZE_STRING);
+    $descripcion = trim((string) ($_POST['descripcion'] ?? ''));
 
     // Validar formato de hora
     if (!preg_match("/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/", $hora_entrada) ||

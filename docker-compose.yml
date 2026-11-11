@@ -47,6 +47,7 @@ services:
       # Solo se ejecuta la primera vez (cuando el volumen db_data está vacío)
       - ./sql/sis-asistencia.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./sql/migraciones/001_hikvision.sql:/docker-entrypoint-initdb.d/02-hikvision.sql:ro
+      - ./sql/migraciones/002_dias_inhabiles_justificaciones.sql:/docker-entrypoint-initdb.d/03-calendario.sql:ro
       - ./sql/migraciones/003_subsecretaria_opcional.sql:/docker-entrypoint-initdb.d/04-subsecretaria-opcional.sql:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
