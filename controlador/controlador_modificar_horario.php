@@ -61,7 +61,8 @@ if (isset($_POST['btnmodificar'])) {
     }
 
     // Validar rangos de tolerancia y retardo
-    if ($tolerancia < 0 || $tolerancia > 60 || $limite_retardo < 0 || $limite_retardo > 60 || $limite_retardo <= $tolerancia) {
+    require_once __DIR__ . '/../modelo/asistencia_reglas.php';
+    if (validar_tolerancias($hora_entrada, $hora_salida, (int) $tolerancia, (int) $limite_retardo) !== null) {
         ?>
         <script>
             $(function notificacion(){

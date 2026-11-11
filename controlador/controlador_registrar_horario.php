@@ -45,9 +45,11 @@ if (isset($_POST['btnregistrar'])) {
     }
 
     // Validar rangos de tolerancia y retardo
-    if ($tolerancia < 0 || $tolerancia > 60 || $limite_retardo < 0 || $limite_retardo > 60 || $limite_retardo <= $tolerancia) {
+    require_once __DIR__ . '/../modelo/asistencia_reglas.php';
+    $error = validar_tolerancias($hora_entrada, $hora_salida, (int) $tolerancia, (int) $limite_retardo);
+    if ($error !== null) {
         echo "<script>
-            alert('Los valores de tolerancia y límite de retardo son inválidos');
+            alert(" . json_encode($error) . ");
             window.location.href = '../vista/horarios.php';
         </script>";
         exit;

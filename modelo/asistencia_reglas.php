@@ -21,6 +21,21 @@ function minutos_de_hora(string $hora): int
 }
 
 /**
+ * Valida la tolerancia y el límite de retardo de un horario (minutos después de la entrada).
+ * Pueden ser de varias horas (p. ej. personal que entra 7:40 y puede checar hasta 9:10),
+ * siempre que la falta empiece antes de la hora de salida. Devuelve el error o null.
+ */
+function validar_tolerancias(string $hora_entrada, string $hora_salida, int $tolerancia, int $limite_retardo): ?string
+{
+    $entrada = minutos_de_hora($hora_entrada);
+    $salida = minutos_de_hora($hora_salida);
+    if ($tolerancia < 0) return 'La tolerancia no puede ser negativa';
+    if ($limite_retardo <= $tolerancia) return 'El límite de retardo debe ser mayor que la tolerancia';
+    if ($entrada + $limite_retardo >= $salida) return 'El límite de retardo debe terminar antes de la hora de salida';
+    return null;
+}
+
+/**
  * Empleado + su horario. null si el empleado no existe.
  * Las columnas del horario vienen en null si no tiene horario asignado.
  */
