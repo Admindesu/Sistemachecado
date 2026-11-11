@@ -39,12 +39,12 @@ function usuario_disponible(mysqli $conexion, string $base): string
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btnimportar'])) {
     $cargo = (int) ($_POST['cargo'] ?? 0);
     $direccion = (int) ($_POST['direccion'] ?? 0);
-    $subsecretaria = (int) ($_POST['subsecretaria'] ?? 0);
+    $subsecretaria = (int) ($_POST['subsecretaria'] ?? 0) ?: null; // opcional
     $horario = (int) ($_POST['horario'] ?? 0);
     $seleccion = $_POST['sel'] ?? [];
 
-    if (!$cargo || !$direccion || !$subsecretaria || !$horario) {
-        $error = 'Selecciona cargo, dirección, subsecretaría y horario.';
+    if (!$cargo || !$direccion || !$horario) {
+        $error = 'Selecciona cargo, dirección y horario.';
     } elseif (!$seleccion) {
         $error = 'No seleccionaste ningún empleado.';
     } else {
@@ -158,9 +158,9 @@ ul li:nth-child(2) .activo {
                 <div class="row mb-3">
                     <?php foreach (['cargo' => $cargos, 'direccion' => $direcciones, 'subsecretaria' => $subsecretarias, 'horario' => $horarios] as $campo => $opciones): ?>
                         <div class="col-md-3">
-                            <label><?= ucfirst($campo === 'direccion' ? 'dirección' : ($campo === 'subsecretaria' ? 'subsecretaría' : $campo)) ?> (para todos)</label>
-                            <select name="<?= $campo ?>" class="form-control" required>
-                                <option value="">Seleccionar...</option>
+                            <label><?= ucfirst($campo === 'direccion' ? 'dirección' : ($campo === 'subsecretaria' ? 'subsecretaría' : $campo)) ?> (<?= $campo === 'subsecretaria' ? 'opcional' : 'para todos' ?>)</label>
+                            <select name="<?= $campo ?>" class="form-control" <?= $campo === 'subsecretaria' ? '' : 'required' ?>>
+                                <option value=""><?= $campo === 'subsecretaria' ? 'Sin subsecretaría' : 'Seleccionar...' ?></option>
                                 <?php foreach ($opciones as $o): ?>
                                     <option value="<?= (int) $o['id'] ?>" <?= (int) ($_POST[$campo] ?? 0) === (int) $o['id'] ? 'selected' : '' ?>><?= $e($o['nombre']) ?></option>
                                 <?php endforeach; ?>

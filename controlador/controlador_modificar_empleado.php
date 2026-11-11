@@ -26,7 +26,6 @@ if (isset($_POST["btnmodificar"])) {
         !empty($_POST["txtapellido"]) &&
         !empty($_POST["txtcargo"]) &&
         !empty($_POST["txtdireccion"]) &&
-        !empty($_POST["txtsubsecretaria"]) &&
         !empty($_POST["txtusuario"])
     ) {
         $id = (int) $_POST["txtid"];
@@ -34,7 +33,7 @@ if (isset($_POST["btnmodificar"])) {
         $apellido = trim($_POST["txtapellido"]);
         $cargo = (int) $_POST["txtcargo"];
         $direccion = (int) $_POST["txtdireccion"];
-        $subsecretaria = (int) $_POST["txtsubsecretaria"];
+        $subsecretaria = !empty($_POST["txtsubsecretaria"]) ? (int) $_POST["txtsubsecretaria"] : null; // opcional
         $usuario = trim($_POST["txtusuario"]);
         $is_admin = isset($_POST['is_admin']) ? 1 : 0;
         $horario = !empty($_POST["txthorario"]) ? (int) $_POST["txthorario"] : null;

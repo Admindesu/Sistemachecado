@@ -72,6 +72,7 @@ Los marcajes llegan por dos vías y se guardan sin duplicados en `marcaje_dispos
 ### 1. Base de datos
 - Docker: la migración se aplica sola al crear la base.
 - XAMPP o base existente: ejecutar `sql/migraciones/001_hikvision.sql` una vez en phpMyAdmin.
+- Si tu centro de trabajo no usa subsecretarías, ejecutar también `sql/migraciones/003_subsecretaria_opcional.sql` (la vuelve opcional en altas, edición e importaciones).
 
 ### 2. Variables en `.env`
 `HIK_HOST` (IP del terminal), `HIK_USUARIO`, `HIK_PASSWORD` y un `HIK_PUSH_TOKEN` largo y aleatorio.

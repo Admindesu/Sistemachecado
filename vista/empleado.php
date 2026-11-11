@@ -46,7 +46,7 @@ ul li:nth-child(2) .activo {
                 FROM empleado
                 INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
                 INNER JOIN direccion ON empleado.direccion = direccion.id_direccion
-                INNER JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
+                LEFT JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
                 LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
             ");
         } catch (Exception $e) {
@@ -144,7 +144,7 @@ ul li:nth-child(2) .activo {
                                     </td>
                                     <td><?= e($datos->nom_cargo) ?></td>
                                     <td><?= e($datos->nom_direccion) ?></td>
-                                    <td><?= e($datos->nom_subsecretaria) ?></td>
+                                    <td><?= $datos->nom_subsecretaria !== null ? e($datos->nom_subsecretaria) : '<span class="text-muted">—</span>' ?></td>
                                     <td><?= $datos->nom_horario ? e($datos->nom_horario) . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
                                     <td>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= e($datos->id_empleado) ?>" class="btn btn-warning">
@@ -228,6 +228,7 @@ ul li:nth-child(2) .activo {
                             <div class="form-group">
                                 <label for="subsecretaria">Subsecretaría</label>
                                 <select name="txtsubsecretaria" class="form-control">
+                                    <option value="">Sin subsecretaría</option>
                                     <?php 
                                     $sql2 = $conexion->query("SELECT * FROM subsecretaria");
                                     while ($datos2 = $sql2->fetch_object()) { ?>

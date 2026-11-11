@@ -83,7 +83,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
     <div style="display: flex; flex-direction: column; align-items: flex-start;" class="fl-flex-label mb-4 px-2 col-12 col-md-6">
         <label for="subsecretaria" style="align-self: flex-start;">Subsecretaría</label>
         <select name="txtsubsecretaria" class="input input__select w-100">
-            <option value="">Seleccionar...</option>
+            <option value="">Sin subsecretaría</option>
             <?php
             $sqlSubsecretaria = $conexion->query("SELECT * FROM subsecretaria");
             while ($datosSubsecretaria = $sqlSubsecretaria->fetch_object()) { ?>
