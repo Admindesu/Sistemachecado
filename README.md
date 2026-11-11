@@ -95,7 +95,7 @@ Con XAMPP: `php cron/sincronizar_hikvision.php`, programado con el Programador d
 
 > Sin probar aún contra el equipo real. Si el terminal responde `badParameters` a la consulta
 > o los marcajes no aparecen, revisar el firmware y `HIK_MINORS_VALIDOS`
-> (subtipos que cuentan como marcaje: 1 tarjeta, 38 huella, 75 rostro).
+> (subtipos que cuentan como marcaje: 1 tarjeta, 38 huella, 75 rostro, 153 rostro + huella).
 
 ## Instalación con XAMPP
 

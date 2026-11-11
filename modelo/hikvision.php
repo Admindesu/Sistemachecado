@@ -17,7 +17,7 @@ const MAJOR_CONTROL_ACCESO = 5;  // major "Event" de control de acceso en ISAPI
 
 function hik_config(): array
 {
-    $minors = getenv('HIK_MINORS_VALIDOS') ?: '1,38,75'; // tarjeta, huella, rostro autenticados
+    $minors = getenv('HIK_MINORS_VALIDOS') ?: '1,38,75,153'; // tarjeta, huella, rostro, rostro + huella autenticados
     return [
         'host' => getenv('HIK_HOST') ?: '',
         'usuario' => getenv('HIK_USUARIO') ?: 'admin',

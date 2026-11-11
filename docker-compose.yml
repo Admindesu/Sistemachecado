@@ -18,7 +18,7 @@ services:
       HIK_PASSWORD: ${HIK_PASSWORD:-}
       HIK_PUSH_TOKEN: ${HIK_PUSH_TOKEN:-}
       HIK_IPS_PERMITIDAS: ${HIK_IPS_PERMITIDAS:-}
-      HIK_MINORS_VALIDOS: ${HIK_MINORS_VALIDOS:-1,38,75}
+      HIK_MINORS_VALIDOS: ${HIK_MINORS_VALIDOS:-1,38,75,153}
       HIK_DIAS_INICIALES: ${HIK_DIAS_INICIALES:-7}
     volumes:
       # Monta el código para desarrollo: los cambios se ven sin reconstruir la imagen.
