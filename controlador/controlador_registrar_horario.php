@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 include_once("../modelo/conexion.php");
 
 if (isset($_POST['btnregistrar'])) {
@@ -72,7 +74,7 @@ if (isset($_POST['btnregistrar'])) {
         
     } catch (Exception $e) {
         echo "<script>
-            alert('Error al registrar el horario: " . $e->getMessage() . "');
+            alert('Error al registrar el horario');
             window.location.href = '../vista/horarios.php';
         </script>";
     }

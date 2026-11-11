@@ -1,16 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: vista/login.php');
-    exit;
-}
-
-// Verifica si el usuario no es admin y cierra la sesión
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    session_destroy();
-    header('location: vista/login.php');
-    exit;
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 ?>
 
 <style>
@@ -60,7 +50,7 @@ ul li:nth-child(2) .activo {
                 LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
             ");
         } catch (Exception $e) {
-            echo "<div class='alert alert-danger'>Error al cargar los datos: " . $e->getMessage() . "</div>";
+            echo "<div class='alert alert-danger'>Error al cargar los datos.</div>";
         }
         ?>
 
@@ -95,6 +85,7 @@ ul li:nth-child(2) .activo {
                         </div>
                         
                         <form action="../controlador/importar_csv.php" method="POST" enctype="multipart/form-data">
+<?= campo_csrf() ?>
                             <div class="form-group">
                                 <label for="csvFile">Seleccionar archivo CSV</label>
                                 <input type="file" class="form-control-file" id="csvFile" name="csvFile" accept=".csv" required>
@@ -139,23 +130,23 @@ ul li:nth-child(2) .activo {
                                 while ($datos = $sql->fetch_object()) { 
                             ?>
                                 <tr>
-                                    <td><?= $datos->id_empleado ?></td>
-                                    <td><?= $datos->nombre ?></td>
-                                    <td><?= $datos->apellido ?></td>
-                                    <td><?= $datos->dni ?></td>
-                                    <td><?= $datos->usuario ?></td>
+                                    <td><?= e($datos->id_empleado) ?></td>
+                                    <td><?= e($datos->nombre) ?></td>
+                                    <td><?= e($datos->apellido) ?></td>
+                                    <td><?= e($datos->dni) ?></td>
+                                    <td><?= e($datos->usuario) ?></td>
                                     <td>
                                         <input type="checkbox" disabled <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
                                     </td>
-                                    <td><?= $datos->nom_cargo ?></td>
-                                    <td><?= $datos->nom_direccion ?></td>
-                                    <td><?= $datos->nom_subsecretaria ?></td>
-                                    <td><?= $datos->nom_horario ? $datos->nom_horario . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
+                                    <td><?= e($datos->nom_cargo) ?></td>
+                                    <td><?= e($datos->nom_direccion) ?></td>
+                                    <td><?= e($datos->nom_subsecretaria) ?></td>
+                                    <td><?= $datos->nom_horario ? e($datos->nom_horario) . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
                                     <td>
-                                        <a href="" data-toggle="modal" data-target="#exampleModal<?= $datos->id_empleado ?>" class="btn btn-warning">
+                                        <a href="" data-toggle="modal" data-target="#exampleModal<?= e($datos->id_empleado) ?>" class="btn btn-warning">
                                             <i class="fas fa-edit"></i> Editar
                                         </a>
-                                        <a href="empleado.php?id=<?= $datos->id_empleado ?>" onclick="advertencia(event)" class="btn btn-danger">
+                                        <a href="empleado.php?id=<?= e($datos->id_empleado) ?>" onclick="advertencia(event)" class="btn btn-danger">
                                             <i class="fas fa-exclamation-triangle"></i> Eliminar
                                         </a>
                                     </td>
@@ -164,7 +155,7 @@ ul li:nth-child(2) .activo {
 
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal<?= $datos->id_empleado ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?= $datos->id_empleado ?>" aria-hidden="true">
+<div class="modal fade" id="exampleModal<?= e($datos->id_empleado) ?>" tabindex="-1" aria-labelledby="exampleModalLabel<?= e($datos->id_empleado) ?>" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -175,25 +166,26 @@ ul li:nth-child(2) .activo {
             </div>
             <div class="modal-body">
                 <form action="" method="POST">
+<?= campo_csrf() ?>
                     <div class="row">
                         <div class="col-12" hidden>
                             <div class="form-group">
                                 <label for="ID">ID</label>
-                                <input type="text" class="form-control" name="txtid" value="<?= $datos->id_empleado ?>">
+                                <input type="text" class="form-control" name="txtid" value="<?= e($datos->id_empleado) ?>">
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="nombre">Nombre</label>
-                                <input type="text" class="form-control" name="txtnombre" value="<?= $datos->nombre ?>">
+                                <input type="text" class="form-control" name="txtnombre" value="<?= e($datos->nombre) ?>">
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="apellido">Apellido</label>
-                                <input type="text" class="form-control" name="txtapellido" value="<?= $datos->apellido ?>">
+                                <input type="text" class="form-control" name="txtapellido" value="<?= e($datos->apellido) ?>">
                             </div>
                         </div>
                         
@@ -204,8 +196,8 @@ ul li:nth-child(2) .activo {
                                     <?php 
                                     $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
                                     while ($horario = $sql_horarios->fetch_object()) { ?>
-                                        <option value="<?= $horario->id_horario ?>" <?= $datos->id_horario == $horario->id_horario ? 'selected' : '' ?>>
-                                            <?= $horario->nombre ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)
+                                        <option value="<?= e($horario->id_horario) ?>" <?= $datos->id_horario == $horario->id_horario ? 'selected' : '' ?>>
+                                            <?= e($horario->nombre) ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -220,8 +212,8 @@ ul li:nth-child(2) .activo {
                                     $sql2 = $conexion->query("SELECT * FROM cargo");
                                     while ($datos2 = $sql2->fetch_object()) { ?>
                                         <option <?= $datos->cargo == $datos2->id_cargo ? 'selected' : '' ?> 
-                                                value="<?= $datos2->id_cargo ?>">
-                                            <?= $datos2->nombre ?>
+                                                value="<?= e($datos2->id_cargo) ?>">
+                                            <?= e($datos2->nombre) ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -236,8 +228,8 @@ ul li:nth-child(2) .activo {
                                     $sql2 = $conexion->query("SELECT * FROM subsecretaria");
                                     while ($datos2 = $sql2->fetch_object()) { ?>
                                         <option <?= $datos->subsecretaria == $datos2->id_subsecretaria ? 'selected' : '' ?> 
-                                                value="<?= $datos2->id_subsecretaria ?>">
-                                            <?= $datos2->nombre ?>
+                                                value="<?= e($datos2->id_subsecretaria) ?>">
+                                            <?= e($datos2->nombre) ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -252,8 +244,8 @@ ul li:nth-child(2) .activo {
                                     $sql2 = $conexion->query("SELECT * FROM direccion");
                                     while ($datos2 = $sql2->fetch_object()) { ?>
                                         <option <?= $datos->direccion == $datos2->id_direccion ? 'selected' : '' ?> 
-                                                value="<?= $datos2->id_direccion ?>">
-                                            <?= $datos2->nombre ?>
+                                                value="<?= e($datos2->id_direccion) ?>">
+                                            <?= e($datos2->nombre) ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -263,7 +255,7 @@ ul li:nth-child(2) .activo {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="usuario">Usuario</label>
-                                <input type="text" class="form-control" name="txtusuario" value="<?= $datos->usuario ?>" required>
+                                <input type="text" class="form-control" name="txtusuario" value="<?= e($datos->usuario) ?>" required>
                             </div>
                         </div>
                         
@@ -280,11 +272,11 @@ ul li:nth-child(2) .activo {
                                     <input type="checkbox" 
                                            class="form-check-input" 
                                            name="is_admin" 
-                                           id="is_admin<?= $datos->id_empleado ?>" 
+                                           id="is_admin<?= e($datos->id_empleado) ?>" 
                                            value="1" 
                                            <?= ($datos->is_admin == 1) ? 'checked' : '' ?>>
                                     <label class="form-check-label" 
-                                           for="is_admin<?= $datos->id_empleado ?>">
+                                           for="is_admin<?= e($datos->id_empleado) ?>">
                                         ¿Añadir como administrador?
                                     </label>
                             </div>

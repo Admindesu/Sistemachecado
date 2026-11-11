@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 if (!isset($conexion)) {
     include_once("../modelo/conexion.php");
 }
 
-if (isset($_GET['id'])) {
-    $id_horario = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
+if (isset($_POST['id'])) {
+    $id_horario = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
     
     try {
         // Verificar si el horario está siendo usado por empleados
@@ -61,7 +64,7 @@ if (isset($_GET['id'])) {
             $(function notificacion(){
                 new PNotify({
                     title: "Error",
-                    text: "Error al eliminar el horario: <?php echo $e->getMessage(); ?>",
+                    text: "Error al eliminar el horario",
                     type: "error",
                     styling: "bootstrap3"
                 });

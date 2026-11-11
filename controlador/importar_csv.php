@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 include "../modelo/conexion.php";
 ?>
 <!DOCTYPE html>
@@ -119,7 +121,7 @@ echo "<div style='display:flex; flex-wrap:wrap; gap:20px;'>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Cargos:</h4><ul>";
 foreach ($cargos['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -127,7 +129,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Direcciones:</h4><ul>";
 foreach ($direcciones['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -135,7 +137,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Subsecretarías:</h4><ul>";
 foreach ($subsecretarias['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 
@@ -143,7 +145,7 @@ echo "</ul></div>";
 echo "<div style='flex:1; min-width:300px;'>";
 echo "<h4>Horarios:</h4><ul>";
 foreach ($horarios['names'] as $id => $name) {
-    echo "<li>ID $id: $name</li>";
+    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
 }
 echo "</ul></div>";
 echo "</div>";
@@ -221,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
                     }
 
                     // Hash password
-                    $hashedPassword = md5($data[4]);
+                    $hashedPassword = hash_password($data[4]);
                     
                     // Bind parameters
                     $stmt->bind_param("sssssiiiis", 
@@ -298,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error en la Importación',
-                text: '<?= str_replace("'", "\'", $e->getMessage()) ?>',
+                text: <?= json_encode($e->getMessage()) ?>,
                 showConfirmButton: true,
                 confirmButtonText: 'OK'
             });

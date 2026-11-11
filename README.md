@@ -34,7 +34,26 @@ Extensiones PHP recomendadas: mysqli, pdo, json.
 
 Base de Datos: MySQL 5.7+ o MariaDB 10.2+.
 
-Instalación
+## Instalación con Docker (recomendado)
+
+Requisitos: Docker Desktop (incluye Docker Compose).
+
+```bash
+cp .env.example .env      # y cambia las contraseñas
+docker compose up -d --build
+```
+
+- Aplicación: http://localhost:8080
+- phpMyAdmin (opcional): `docker compose --profile tools up -d` → http://localhost:8081
+
+La primera vez se crea la base de datos `sis-asistencia` con `sql/sis-asistencia.sql`.
+Ese script solo corre cuando el volumen está vacío; para reiniciar la BD desde cero:
+`docker compose down -v` (borra todos los datos).
+
+La zona horaria se configura con `APP_TZ` en `.env` (por defecto `America/Cancun`).
+
+## Instalación con XAMPP
+
 Sigue estos pasos para poner en marcha el sistema en tu entorno local o servidor:
 
 Clona el Repositorio:

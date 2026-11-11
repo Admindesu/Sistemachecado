@@ -19,6 +19,14 @@
             <form method="POST" action="../../controlador/login.php">
                 <img src="img/caracol rojo.png">
                 <h2 class="title">BIENVENIDO</h2>
+                <?php
+                $errores_login = [
+                    'credenciales' => 'Usuario o contraseña incorrectos',
+                    'vacio' => 'Escribe tu usuario y contraseña',
+                ];
+                if (isset($_GET['error'], $errores_login[$_GET['error']])): ?>
+                    <div class="alert alert-danger"><?= $errores_login[$_GET['error']] ?></div>
+                <?php endif; ?>
 
                 <div class="input-div one">
                     <div class="i">

@@ -1,5 +1,8 @@
 
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 /**
  * Procesa el registro de un nuevo empleado a través de un formulario POST.
  *
@@ -32,11 +35,11 @@ if(!empty($_POST["btnregistrar"])){
     $direccion = $_POST["txtdireccion"];
     $subsecretaria = $_POST["txtsubsecretaria"];
     $usuario = $_POST["txtusuario"];
-    $password = md5($_POST["txtpassword"]);
+    $password = hash_password($_POST["txtpassword"]);
     $is_admin = isset($_POST['is_admin']) ? 1 : 0;
-    $id_horario = $_POST["txthorario"];
+    $id_horario = !empty($_POST["txthorario"]) ? (int) $_POST["txthorario"] : null;
 
-        $sql=$conexion->query("SELECT count(*) as 'total' FROM empleado WHERE dni ='$dni' OR usuario='$usuario'");
+        $sql = consulta($conexion, "SELECT count(*) as total FROM empleado WHERE dni = ? OR usuario = ?", "ss", $dni, $usuario);
         if($sql->fetch_object()->total > 0) {?>
             <script>
                 $(function notificacion(){
@@ -49,7 +52,8 @@ if(!empty($_POST["btnregistrar"])){
                 })
             </script>
         <?php } else {
-            $registro = $conexion->query("INSERT INTO empleado(nombre,apellido,dni,cargo,direccion,subsecretaria,usuario,password,is_admin,id_horario) VALUES('$nombre','$apellido','$dni','$cargo','$direccion','$subsecretaria','$usuario','$password','$is_admin','$id_horario')");
+            $registro = consulta($conexion, "INSERT INTO empleado(nombre,apellido,dni,cargo,direccion,subsecretaria,usuario,password,is_admin,id_horario) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                "sssiiissii", $nombre, $apellido, $dni, $cargo, $direccion, $subsecretaria, $usuario, $password, $is_admin, $id_horario);
             if ($registro == true) {?>
                 <script>
                     $(function notificacion(){

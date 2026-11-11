@@ -1,14 +1,7 @@
 <?php
 // Iniciar sesión
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: login/login.php');
-}
-
-// Verifica si el usuario no es admin y cierra la sesión
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    header('location: login/login.php');
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 ?>
 <!DOCTYPE html>
 <html lang="es">

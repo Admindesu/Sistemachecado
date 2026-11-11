@@ -1,11 +1,14 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 
 if (isset($_POST['btnregistrar'])) {
     if (!empty($_POST['txtnombre'])) {
         $nombre = $_POST['txtnombre'];
         
         // Validamos si la dirección ya existe
-        $verificar = $conexion->query("SELECT count(*) as 'total' FROM direccion WHERE nombre = '$nombre'");
+        $verificar = consulta($conexion, "SELECT count(*) as total FROM direccion WHERE nombre = ?", "s", $nombre);
         
         if ($verificar->fetch_object()->total > 0) { ?>
             <script>
@@ -20,7 +23,7 @@ if (isset($_POST['btnregistrar'])) {
             </script>
         <?php } else {
             // Si no existe, la registramos
-            $sql = $conexion->query("INSERT INTO direccion (nombre) VALUES ('$nombre')");
+            $sql = consulta($conexion, "INSERT INTO direccion (nombre) VALUES (?)", "s", $nombre);
             
             if ($sql == true) { ?>
                 <script>
@@ -41,7 +44,7 @@ if (isset($_POST['btnregistrar'])) {
                     $(document).ready(function() {
                         new PNotify({
                             title: "Error",
-                            text: "Error al registrar la dirección: <?= $conexion->error ?>",
+                            text: "Error al registrar la dirección",
                             type: "error",
                             styling: "bootstrap3"
                         });

@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 // filepath: c:\xampp\htdocs\Sistemachecado\controlador\controlador_eliminar_cargo.php
-if (!empty($_GET["id"])) {
-    $id = $_GET["id"];
+if (!empty($_POST["id"])) {
+    $id = $_POST["id"];
     
     // Primero verificamos si el cargo está en uso
-    $verificar = $conexion->query("SELECT COUNT(*) as total FROM empleado WHERE cargo = $id");
+    $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE cargo = ?", "i", $id);
     $resultado = $verificar->fetch_object();
     
     if ($resultado->total > 0) {
@@ -23,7 +26,7 @@ if (!empty($_GET["id"])) {
         <?php
     } else {
         // El cargo no está en uso, procedemos a eliminar
-        $sql = $conexion->query("DELETE FROM cargo WHERE id_cargo = $id");
+        $sql = consulta($conexion, "DELETE FROM cargo WHERE id_cargo = ?", "i", $id);
         
         if ($sql == true) { ?>
             <script>
@@ -41,7 +44,7 @@ if (!empty($_GET["id"])) {
                 $(function notificacion(){
                     new PNotify({
                         title: "Eliminación Fallida",
-                        text: "Error al eliminar cargo: <?= $conexion->error ?>",
+                        text: "Error al eliminar cargo",
                         type: "error",
                         styling: "bootstrap3"
                     })

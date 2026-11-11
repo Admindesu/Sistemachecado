@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . '/../../controlador/auth.php';
+requerir_admin();
+
 // Incluye el archivo de conexión a la base de datos
 include "../../modelo/conexion.php";
 
-// Establece la zona horaria
-date_default_timezone_set('America/Cancun');
 
 // Obtiene los parámetros de filtro desde el formulario (POST)
 $fecha_inicio = !empty($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : date('Y-01-01');
@@ -11,13 +12,20 @@ $fecha_fin = !empty($_POST['fecha_fin']) ? $_POST['fecha_fin'] : date('Y-12-31')
 $empleado_id = $_POST['empleado'] ?? '';
 
 // Construye el WHERE para el filtro de fechas y empleado
-$where = [];
-$where[] = "DATE(asistencia.fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-if ($empleado_id) {
-    $where[] = "asistencia.dni = '$empleado_id'";
-}
+// Solo se aceptan fechas válidas (AAAA-MM-DD); si no, se usa el año en curso
+$fecha_valida = function ($f) { $d = DateTime::createFromFormat('Y-m-d', $f); return $d && $d->format('Y-m-d') === $f; };
+if (!$fecha_valida($fecha_inicio)) $fecha_inicio = date('Y-01-01');
+if (!$fecha_valida($fecha_fin)) $fecha_fin = date('Y-12-31');
 
-// Une los filtros en una sola cláusula WHERE
+// Filtro por rango de fechas (sin DATE() para que MySQL pueda usar índices) y por empleado
+$where = ["asistencia.fecha >= ?", "asistencia.fecha < DATE_ADD(?, INTERVAL 1 DAY)"];
+$tipos = "ss";
+$params = [$fecha_inicio, $fecha_fin];
+if ($empleado_id) {
+    $where[] = "asistencia.dni = ?";
+    $tipos .= "s";
+    $params[] = $empleado_id;
+}
 $where_clause = "WHERE " . implode(" AND ", $where);
 
 // Construye la consulta SQL para obtener los datos de asistencia
@@ -63,8 +71,8 @@ function formatearHora($hora) {
 $filtros = [];
 if ($empleado_id) {
     // Consulta el nombre completo del empleado filtrado
-    $emp = $conexion->query("SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = '$empleado_id'")->fetch_object();
-    $filtros[] = "Empleado: " . ($emp ? $emp->nombre : 'N/A');
+    $emp = consulta($conexion, "SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = ?", "s", $empleado_id)->fetch_object();
+    $filtros[] = "Empleado: " . ($emp ? htmlspecialchars($emp->nombre) : 'N/A');
 }
 if ($fecha_inicio) $filtros[] = "Desde: $fecha_inicio";
 if ($fecha_fin) $filtros[] = "Hasta: $fecha_fin";
@@ -100,15 +108,15 @@ echo "<tr style='background-color:#f5f5f5; font-weight:bold;'>
 <tbody>";
 
 // Ejecuta la consulta y muestra los resultados
-$result = $conexion->query($sql);
+$result = consulta($conexion, $sql, $tipos, ...$params);
 
 while ($row = $result->fetch_assoc()) {
     $estado_color = getEstadoColor($row['estado']);
     
     echo "<tr>
-        <td style='text-align:center;'>{$row['dni']}</td>
-        <td>{$row['nombre_completo']}</td>
-        <td>{$row['nom_cargo']}</td>
+        <td style='text-align:center;'>" . htmlspecialchars($row['dni']) . "</td>
+        <td>" . htmlspecialchars($row['nombre_completo']) . "</td>
+        <td>" . htmlspecialchars($row['nom_cargo']) . "</td>
         <td style='text-align:center;'>" . date('d/m/Y h:i A', strtotime($row['fecha'])) . "</td>
         <td style='text-align:center;'>" . ucfirst($row['tipo']) . "</td>
         <td style='background-color:{$estado_color}; text-align:center;'>" . 

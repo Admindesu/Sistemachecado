@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../../controlador/auth.php';
+requerir_sesion();
+
 // Evitar que se muestren warnings que puedan afectar la generación del PDF
 error_reporting(E_ERROR | E_PARSE);
 
@@ -11,13 +14,23 @@ include "../../modelo/conexion.php";
 // Obtiene los parámetros de filtro enviados por POST, con valores por defecto si no existen.
 $fecha_inicio = !empty($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : date('Y-01-01');
 $fecha_fin = !empty($_POST['fecha_fin']) ? $_POST['fecha_fin'] : date('Y-12-31');
-$empleado_id = $_POST['empleado'] ?? '';
+// Un empleado normal solo puede ver su propio reporte; el admin puede elegir cualquiera.
+$empleado_id = es_admin() ? ($_POST['empleado'] ?? '') : $_SESSION['dni'];
 
 // Construye la cláusula WHERE para el filtro de fechas y empleado.
-$where = [];
-$where[] = "DATE(asistencia.fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+// Solo se aceptan fechas válidas (AAAA-MM-DD); si no, se usa el año en curso
+$fecha_valida = function ($f) { $d = DateTime::createFromFormat('Y-m-d', $f); return $d && $d->format('Y-m-d') === $f; };
+if (!$fecha_valida($fecha_inicio)) $fecha_inicio = date('Y-01-01');
+if (!$fecha_valida($fecha_fin)) $fecha_fin = date('Y-12-31');
+
+// Filtro por rango de fechas (sin DATE() para que MySQL pueda usar índices) y por empleado
+$where = ["asistencia.fecha >= ?", "asistencia.fecha < DATE_ADD(?, INTERVAL 1 DAY)"];
+$tipos = "ss";
+$params = [$fecha_inicio, $fecha_fin];
 if ($empleado_id) {
-    $where[] = "asistencia.dni = '$empleado_id'";
+    $where[] = "asistencia.dni = ?";
+    $tipos .= "s";
+    $params[] = $empleado_id;
 }
 $where_clause = "WHERE " . implode(" AND ", $where);
 
@@ -93,7 +106,7 @@ $pdf->Cell(0, 10, 'Periodo: ' . date('d/m/Y', strtotime($fecha_inicio)) . ' - ' 
 
 // Si hay filtro por empleado
 if ($empleado_id) {
-    $emp = $conexion->query("SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = '$empleado_id'")->fetch_object();
+    $emp = consulta($conexion, "SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = ?", "s", $empleado_id)->fetch_object();
     if ($emp) {
         $pdf->SetFont('Arial', 'B', 11);
         $pdf->Cell(0, 10, 'Empleado: ' . utf8_decode($emp->nombre), 0, 1, 'L');
@@ -121,7 +134,7 @@ $pdf->Ln();
 
 // Contenido de la tabla
 $pdf->SetFont('Arial', '', 9);
-$result = $conexion->query($sql);
+$result = consulta($conexion, $sql, $tipos, ...$params);
 
 while ($row = $result->fetch_assoc()) {
     $pdf->Cell($w[0], 7, $row['dni'], 1, 0, 'C');

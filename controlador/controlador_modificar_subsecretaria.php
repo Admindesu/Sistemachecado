@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 if (!empty($_POST["btnmodificarsub"])) {
     if (!empty($_POST["txtnombre"])) {
         $id = $_POST["txtid"];
         $nombre = $_POST["txtnombre"];
         
-        $sql = $conexion->query("UPDATE subsecretaria SET nombre='$nombre' WHERE id_subsecretaria=$id");
+        $sql = consulta($conexion, "UPDATE subsecretaria SET nombre = ? WHERE id_subsecretaria = ?", "si", $nombre, $id);
         
         if ($sql == true) { ?>
             <script>

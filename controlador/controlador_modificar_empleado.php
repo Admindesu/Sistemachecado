@@ -1,4 +1,7 @@
-<?php 
+<?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+ 
 // Código para depuración - comenta esta sección una vez que resuelvas el problema
 // if (isset($_POST["btnmodificar"])) {
 //     echo "<div class='alert alert-info'>Formulario enviado. Datos recibidos:<pre>";
@@ -26,49 +29,38 @@ if (isset($_POST["btnmodificar"])) {
         !empty($_POST["txtsubsecretaria"]) &&
         !empty($_POST["txtusuario"])
     ) {
-        // Asigna los valores recibidos a variables y aplica escape de caracteres para evitar inyección SQL
-        $id = $conexion->real_escape_string($_POST["txtid"]);
-        $nombre = $conexion->real_escape_string($_POST["txtnombre"]);
-        $apellido = $conexion->real_escape_string($_POST["txtapellido"]);
-        $cargo = $conexion->real_escape_string($_POST["txtcargo"]);
-        $direccion = $conexion->real_escape_string($_POST["txtdireccion"]);
-        $subsecretaria = $conexion->real_escape_string($_POST["txtsubsecretaria"]);
-        $usuario = $conexion->real_escape_string($_POST["txtusuario"]);
-        $password = $conexion->real_escape_string(md5($_POST["txtpassword"]));
+        $id = (int) $_POST["txtid"];
+        $nombre = trim($_POST["txtnombre"]);
+        $apellido = trim($_POST["txtapellido"]);
+        $cargo = (int) $_POST["txtcargo"];
+        $direccion = (int) $_POST["txtdireccion"];
+        $subsecretaria = (int) $_POST["txtsubsecretaria"];
+        $usuario = trim($_POST["txtusuario"]);
         $is_admin = isset($_POST['is_admin']) ? 1 : 0;
-        $horario = $conexion->real_escape_string($_POST["txthorario"]);
+        $horario = !empty($_POST["txthorario"]) ? (int) $_POST["txthorario"] : null;
 
-        // Construye la consulta SQL
-        if(!empty($password)){
-            $sql = "UPDATE empleado SET 
-                nombre='$nombre', 
-                apellido='$apellido', 
-                usuario='$usuario', 
-                password='$password', 
-                cargo='$cargo', 
-                direccion='$direccion', 
-                subsecretaria='$subsecretaria',
-                is_admin=$is_admin,
-                id_horario='$horario'
-                WHERE id_empleado=$id";
+        // Solo se cambia la contraseña si se escribió una nueva.
+        $password_nueva = $_POST["txtpassword"] ?? '';
+
+        if ($password_nueva !== '') {
+            $password = hash_password($password_nueva);
+            $stmt = $conexion->prepare("UPDATE empleado SET
+                nombre = ?, apellido = ?, usuario = ?, password = ?,
+                cargo = ?, direccion = ?, subsecretaria = ?, is_admin = ?, id_horario = ?
+                WHERE id_empleado = ?");
+            $stmt->bind_param("ssssiiiiii", $nombre, $apellido, $usuario, $password,
+                $cargo, $direccion, $subsecretaria, $is_admin, $horario, $id);
         } else {
-            $sql = "UPDATE empleado SET 
-                nombre='$nombre', 
-                apellido='$apellido', 
-                usuario='$usuario', 
-                cargo='$cargo', 
-                direccion='$direccion', 
-                subsecretaria='$subsecretaria',
-                is_admin=$is_admin,
-                id_horario='$horario'
-                WHERE id_empleado=$id";
+            $stmt = $conexion->prepare("UPDATE empleado SET
+                nombre = ?, apellido = ?, usuario = ?,
+                cargo = ?, direccion = ?, subsecretaria = ?, is_admin = ?, id_horario = ?
+                WHERE id_empleado = ?");
+            $stmt->bind_param("sssiiiiii", $nombre, $apellido, $usuario,
+                $cargo, $direccion, $subsecretaria, $is_admin, $horario, $id);
         }
 
-        // Debug de la consulta SQL (opcional)
-        // echo "<div class='alert alert-info'>Consulta SQL: $sql</div>";
-        
         // Ejecuta la consulta y verifica si tuvo éxito
-        $consulta = $conexion->query($sql);
+        $consulta = $stmt->execute();
         
         if($consulta){
             echo '<div class="alert alert-success">Empleado modificado correctamente</div>';
@@ -80,7 +72,7 @@ if (isset($_POST["btnmodificar"])) {
                 }, 1500);
             </script>";
         } else {
-            echo '<div class="alert alert-danger">Error al modificar empleado: ' . $conexion->error . '</div>';
+            echo '<div class="alert alert-danger">Error al modificar empleado: ' . htmlspecialchars($stmt->error) . '</div>';
         }
     } else { 
         echo '<div class="alert alert-warning">Hay campos requeridos vacíos</div>';

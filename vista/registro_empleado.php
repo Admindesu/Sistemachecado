@@ -1,16 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: vista/login.php');
-    exit;
-}
-
-// Verifica si el usuario no es admin y cierra la sesión
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    session_destroy();
-    header('location: vista/login.php');
-    exit;
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 ?>
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -46,6 +36,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
 
 <div class="row">
 <form action="" method="POST">
+<?= campo_csrf() ?>
     <div class="fl-flex-label mb-4 px-2 col-12 col-md-6">
             <label for="nombre">Nombre</label>
             <input type="text" class="input input__text" name="txtnombre" required>
@@ -72,7 +63,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
             <?php
             $sqlCargo = $conexion->query("SELECT * FROM cargo");
             while ($datosCargo = $sqlCargo->fetch_object()) { ?>
-                <option value="<?= $datosCargo->id_cargo ?>"><?= $datosCargo->nombre ?></option>
+                <option value="<?= e($datosCargo->id_cargo) ?>"><?= e($datosCargo->nombre) ?></option>
             <?php } ?>
         </select>
     </div>
@@ -84,7 +75,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
             <?php
             $sqlDireccion = $conexion->query("SELECT * FROM direccion");
             while ($datosDireccion = $sqlDireccion->fetch_object()) { ?>
-                <option value="<?= $datosDireccion->id_direccion ?>"><?= $datosDireccion->nombre ?></option>
+                <option value="<?= e($datosDireccion->id_direccion) ?>"><?= e($datosDireccion->nombre) ?></option>
             <?php } ?>
         </select>
     </div>
@@ -96,7 +87,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
             <?php
             $sqlSubsecretaria = $conexion->query("SELECT * FROM subsecretaria");
             while ($datosSubsecretaria = $sqlSubsecretaria->fetch_object()) { ?>
-                <option value="<?= $datosSubsecretaria->id_subsecretaria ?>"><?= $datosSubsecretaria->nombre ?></option>
+                <option value="<?= e($datosSubsecretaria->id_subsecretaria) ?>"><?= e($datosSubsecretaria->nombre) ?></option>
             <?php } ?>
         </select>
     </div>
@@ -115,7 +106,7 @@ $sql_horarios = $conexion->query("SELECT * FROM horarios ORDER BY nombre ASC");
             <option value="">Seleccionar...</option>
             <?php
             while ($horario = $sql_horarios->fetch_object()) { ?>
-                <option value="<?= $horario->id_horario ?>"><?= $horario->nombre ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)</option>
+                <option value="<?= e($horario->id_horario) ?>"><?= e($horario->nombre) ?> (<?= date('h:i A', strtotime($horario->hora_entrada)) ?> - <?= date('h:i A', strtotime($horario->hora_salida)) ?>)</option>
             <?php } ?>
         </select>
     </div>

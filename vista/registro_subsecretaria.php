@@ -1,16 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: login/login.php');
-    exit;
-}
-
-// Verifica si el usuario no es admin y cierra la sesión
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    session_destroy();
-    header('location: login/login.php');
-    exit;
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 // DESPUÉS cargar el layout
 require('./layout/topbar.php');
 require('./layout/sidebar.php');
@@ -41,6 +31,7 @@ ul li:nth-child(3) .activo {
                     </div>
                     <div class="card-body">
                         <form action="" method="POST">
+<?= campo_csrf() ?>
                             <div class="form-group">
                                 <label for="txtnombre">Nombre de la Subsecretaría</label>
                                 <input type="text" class="form-control" name="txtnombre" required>

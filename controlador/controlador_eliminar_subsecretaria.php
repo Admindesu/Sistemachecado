@@ -1,9 +1,12 @@
 <?php
-if (!empty($_GET["id_subsecretaria"])) {
-    $id_subsecretaria = $_GET["id_subsecretaria"];
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
+if (!empty($_POST["id_subsecretaria"])) {
+    $id_subsecretaria = $_POST["id_subsecretaria"];
     
     // Primero verificamos si la subsecretaría está en uso
-    $verificar = $conexion->query("SELECT COUNT(*) as total FROM empleado WHERE subsecretaria = $id_subsecretaria");
+    $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE subsecretaria = ?", "i", $id_subsecretaria);
     $resultado = $verificar->fetch_object();
     
     if ($resultado->total > 0) {
@@ -22,7 +25,7 @@ if (!empty($_GET["id_subsecretaria"])) {
         <?php
     } else {
         // La subsecretaría no está en uso, procedemos a eliminar
-        $sql = $conexion->query("DELETE FROM subsecretaria WHERE id_subsecretaria = $id_subsecretaria");
+        $sql = consulta($conexion, "DELETE FROM subsecretaria WHERE id_subsecretaria = ?", "i", $id_subsecretaria);
         
         if ($sql == true) { ?>
             <script>
@@ -40,7 +43,7 @@ if (!empty($_GET["id_subsecretaria"])) {
                 $(document).ready(function() {
                     new PNotify({
                         title: "Eliminación Fallida",
-                        text: "Error al eliminar subsecretaría: <?= $conexion->error ?>",
+                        text: "Error al eliminar subsecretaría",
                         type: "error",
                         styling: "bootstrap3"
                     });

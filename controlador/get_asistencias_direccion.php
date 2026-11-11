@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin(true);
+
 include "../modelo/conexion.php";
 
 $sql = "SELECT 

@@ -1,9 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) and empty($_SESSION['apellido'])) {
-    header('location:login/login.php');
-    exit; // Importante añadir exit después de un header redirect
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 
 // Ahora que verificaste la sesión, puedes incluir los archivos de diseño
 require('./layout/topbar.php');

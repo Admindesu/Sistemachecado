@@ -5,6 +5,7 @@
 
     <head lang="es">
         <meta charset="utf-8">
+        <meta name="csrf-token" content="<?= e(token_csrf()) ?>">
         <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
         <meta content="ie=edge" http-equiv="x-ua-compatible">
         <title>Plantilla-php</title>
@@ -135,7 +136,7 @@
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right pt-0" aria-labelledby="dd-user-menu">
 
-                                    <h5 class="p-2 text-center bg-primary"><?=" ". $_SESSION["nombre"]. " ". $_SESSION["apellido"]. " "?></h5>
+                                    <h5 class="p-2 text-center bg-primary"><?= e($_SESSION["nombre"] . " " . $_SESSION["apellido"]) ?></h5>
                                     <a class="dropdown-item" href=""><span class="font-icon glyphicon glyphicon-user"></span>Perfil</a>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modalCambiarPass">
                                         <span class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña
@@ -172,7 +173,9 @@
         <div class="modal fade" id="modalCambiarPass" tabindex="-1" aria-labelledby="modalCambiarPassLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="../vista/usuario.php" method="POST">
+                    <form action="../controlador/controlador_cambiar_password.php" method="POST">
+<?= campo_csrf() ?>
+                        <input type="hidden" name="volver" value="<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalCambiarPassLabel">Cambiar Contraseña</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -186,7 +189,7 @@
                             </div>
                             <div class="fl-flex-label mb-4 px-2 col-12">
                                 <label for="nueva">Nueva Contraseña</label>
-                                <input type="password" class="input input__text" name="pass_nueva" required>
+                                <input type="password" class="input input__text" name="pass_nueva" required minlength="6">
                             </div>
                             <div class="fl-flex-label mb-4 px-2 col-12">
                                 <label for="confirmar">Confirmar Nueva Contraseña</label>
@@ -201,3 +204,23 @@
                 </div>
             </div>
         </div>
+
+        <?php
+        // Resultado del cambio de contraseña (ver controlador_cambiar_password.php)
+        $mensajes_pass = [
+            'ok'          => ['success', 'Correcto', 'Contraseña actualizada correctamente'],
+            'incorrecta'  => ['error', 'Error', 'La contraseña actual es incorrecta'],
+            'no_coincide' => ['error', 'Error', 'Las contraseñas nuevas no coinciden'],
+            'corta'       => ['error', 'Error', 'La nueva contraseña debe tener al menos 6 caracteres'],
+            'vacio'       => ['error', 'Error', 'Todos los campos son obligatorios'],
+            'error'       => ['error', 'Error', 'No se pudo cambiar la contraseña'],
+        ];
+        if (isset($_GET['pass'], $mensajes_pass[$_GET['pass']])) {
+            [$tipo, $titulo, $texto] = $mensajes_pass[$_GET['pass']]; ?>
+            <script>
+                $(function () {
+                    new PNotify({ title: <?= json_encode($titulo) ?>, text: <?= json_encode($texto) ?>, type: <?= json_encode($tipo) ?>, styling: "bootstrap3" });
+                    window.history.replaceState(null, null, window.location.pathname);
+                });
+            </script>
+        <?php } ?>
