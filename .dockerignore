@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+.env.*
+docker-compose*.yml
+*.sql
+sql/
+libs/fpdf/tutorial/
+libs/fpdf/doc/
+README.md
