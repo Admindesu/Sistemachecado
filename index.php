@@ -5,7 +5,7 @@ session_start();
 if (!isset($_SESSION['dni'])) {
     header("Location: vista/login/login.php");
     exit();
-Un par de dobles comillas (") impedirá que el shell interprete cualquier metacarácter. ¿Verdadero o falso?}
+}
 
 $numeroEmpleado = $_SESSION['dni'];
 $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ? 
@@ -301,6 +301,16 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
             case 'entrada_anticipada':
                 echo '<div class="alert alert-warning">
                     <strong>¡Atención!</strong> Solo puedes registrar entrada 15 minutos antes de tu horario.
+                </div>';
+                break;
+            case 'error_registro':
+                echo '<div class="alert alert-danger">
+                    <strong>Error:</strong> No se pudo registrar tu asistencia. Verifica que tengas un horario asignado o avisa al administrador.
+                </div>';
+                break;
+            case 'datos_invalidos':
+                echo '<div class="alert alert-danger">
+                    <strong>Error:</strong> Solicitud inválida. Vuelve a intentarlo.
                 </div>';
                 break;
         }

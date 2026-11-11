@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 // Para depuración - ver lo que llega en POST
 // echo "<pre>"; print_r($_POST); echo "</pre>";
 
@@ -9,7 +12,7 @@ if (isset($_POST['btnregistrar'])) {
         $nombre = $_POST['txtnombre'];
         
         // Consulta para verificar si ya existe un cargo con el mismo nombre
-        $verificarNombre = $conexion->query("SELECT count(*) as 'total' FROM cargo WHERE nombre = '$nombre'");
+        $verificarNombre = consulta($conexion, "SELECT count(*) as total FROM cargo WHERE nombre = ?", "s", $nombre);
         
         // Si el nombre ya existe, muestra una notificación de error usando PNotify
         if ($verificarNombre->fetch_object()->total > 0) { ?>
@@ -17,7 +20,7 @@ if (isset($_POST['btnregistrar'])) {
                $(function notificacion(){
                     new PNotify({
                         title: "Error",
-                        text: "Este empleado o usuario ya existe",
+                        text: "Este cargo ya existe",
                         type: "error",
                         styling: "bootstrap3"
                     })
@@ -25,7 +28,7 @@ if (isset($_POST['btnregistrar'])) {
             </script>
         <?php } else {
             // Si el nombre no existe, inserta el nuevo cargo en la base de datos
-            $sql = $conexion->query("INSERT INTO cargo (nombre) VALUES ('$nombre')");
+            $sql = consulta($conexion, "INSERT INTO cargo (nombre) VALUES (?)", "s", $nombre);
             
             // Si la inserción fue exitosa, muestra una notificación de éxito y redirige a 'organigrama.php'
             if ($sql == true) { ?>
@@ -47,11 +50,12 @@ if (isset($_POST['btnregistrar'])) {
                 $(function notificacion(){
                     new PNotify({
                         title: 'Error',
-                        text: 'Error al registrar el cargo: <?= $conexion->error ?>',
+                        text: 'Error al registrar el cargo',
                         type: 'error',
                         styling: 'bootstrap3'
                     });
-                </script>
+                });
+            </script>
             <?php }
         }
     } else { ?>

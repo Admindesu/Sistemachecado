@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 // Verifica si el formulario fue enviado (si el botón 'btnmodificar' no está vacío)
 if (!empty($_POST['btnmodificar'])) {
 
@@ -8,7 +11,7 @@ if (!empty($_POST['btnmodificar'])) {
         $id = $_POST['txtid'];
 
         // Consulta para verificar si ya existe un cargo con el mismo nombre, excluyendo el actual por id
-        $verificarNombre = $conexion->query("select count(*) as 'total' from cargo where nombre = '$nombre' and id_cargo != '$id'");
+        $verificarNombre = consulta($conexion, "SELECT count(*) as total FROM cargo WHERE nombre = ? AND id_cargo != ?", "si", $nombre, $id);
 
         // Si el nombre ya existe, muestra una notificación de error usando PNotify
         if ($verificarNombre->fetch_object()->total > 0) { ?>
@@ -24,7 +27,7 @@ if (!empty($_POST['btnmodificar'])) {
             </script>
         <?php } else { 
             // Si el nombre no existe, realiza la actualización del cargo en la base de datos
-            $sql=$conexion->query("UPDATE cargo SET nombre='$nombre' WHERE id_cargo='$id'");
+            $sql = consulta($conexion, "UPDATE cargo SET nombre = ? WHERE id_cargo = ?", "si", $nombre, $id);
 
             // Si la actualización fue exitosa, muestra una notificación de éxito
             if ($sql==true) { ?>

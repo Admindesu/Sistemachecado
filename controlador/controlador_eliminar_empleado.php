@@ -1,5 +1,8 @@
 
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 /**
  * Controlador para eliminar un empleado de la base de datos.
  *
@@ -13,7 +16,7 @@
  */
 if (!empty($_GET['id'])) {   
     $id = $_GET['id'];
-    $sql = $conexion->query("delete from empleado where id_empleado=$id");
+    $sql = consulta($conexion, "DELETE FROM empleado WHERE id_empleado = ?", "i", $id);
     if ($sql == true) { ?>
         <script>
             $(function notificacion() {

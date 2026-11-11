@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 
 // Verifica si el formulario fue enviado (si el botón 'btnregistrar' no está vacío)
 if (isset($_POST['btnregistrar'])) {
@@ -7,7 +10,7 @@ if (isset($_POST['btnregistrar'])) {
         $nombre = $_POST['txtnombre'];
         
         // Consulta para verificar si ya existe una subsecretaría con el mismo nombre
-        $verificar = $conexion->query("SELECT count(*) as 'total' FROM subsecretaria WHERE nombre = '$nombre'");
+        $verificar = consulta($conexion, "SELECT count(*) as total FROM subsecretaria WHERE nombre = ?", "s", $nombre);
         
         // Si el nombre ya existe, muestra una notificación de error
         if ($verificar->fetch_object()->total > 0) { ?>
@@ -23,7 +26,7 @@ if (isset($_POST['btnregistrar'])) {
             </script>
         <?php } else {
             // Si el nombre no existe, inserta la nueva subsecretaría en la base de datos
-            $sql = $conexion->query("INSERT INTO subsecretaria (nombre) VALUES ('$nombre')");
+            $sql = consulta($conexion, "INSERT INTO subsecretaria (nombre) VALUES (?)", "s", $nombre);
             
             // Si la inserción fue exitosa, muestra una notificación de éxito
             if ($sql == true) { ?>
@@ -45,7 +48,7 @@ if (isset($_POST['btnregistrar'])) {
                     $(document).ready(function() {
                         new PNotify({
                             title: "Error",
-                            text: "Error al registrar la subsecretaría: <?= $conexion->error ?>",
+                            text: "Error al registrar la subsecretaría",
                             type: "error",
                             styling: "bootstrap3"
                         });

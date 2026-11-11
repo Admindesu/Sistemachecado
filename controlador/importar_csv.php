@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 include "../modelo/conexion.php";
 ?>
 <!DOCTYPE html>
@@ -221,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
                     }
 
                     // Hash password
-                    $hashedPassword = md5($data[4]);
+                    $hashedPassword = hash_password($data[4]);
                     
                     // Bind parameters
                     $stmt->bind_param("sssssiiiis", 
@@ -298,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error en la Importación',
-                text: '<?= str_replace("'", "\'", $e->getMessage()) ?>',
+                text: <?= json_encode($e->getMessage()) ?>,
                 showConfirmButton: true,
                 confirmButtonText: 'OK'
             });

@@ -1,16 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: login/login.php');
-    exit;
-}
-
-// Verifica si el usuario no es admin
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    session_destroy();
-    header('location: login/login.php');
-    exit;
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 ?>
 
 <style>

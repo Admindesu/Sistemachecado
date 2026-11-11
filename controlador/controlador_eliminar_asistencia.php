@@ -1,5 +1,8 @@
 
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 /**
  * Este script elimina un registro de asistencia de la base de datos según el ID recibido por GET.
  * 
@@ -14,7 +17,7 @@
 if (!empty($_GET['id'])) {
     include "../modelo/conexion.php";
     $id = $_GET['id'];
-    $sql = $conexion->query("DELETE FROM asistencia WHERE id_asistencia = '$id'");
+    $sql = consulta($conexion, "DELETE FROM asistencia WHERE id_asistencia = ?", "i", $id);
 
     if ($sql==true) {?>
         <script>

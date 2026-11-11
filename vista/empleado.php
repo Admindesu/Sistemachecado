@@ -1,16 +1,6 @@
 <?php
-session_start();
-if (empty($_SESSION['nombre']) || empty($_SESSION['apellido'])) {
-    header('location: vista/login.php');
-    exit;
-}
-
-// Verifica si el usuario no es admin y cierra la sesión
-if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] != 1) {
-    session_destroy();
-    header('location: vista/login.php');
-    exit;
-}
+require_once __DIR__ . '/../controlador/auth.php';
+requerir_admin();
 ?>
 
 <style>
@@ -60,7 +50,7 @@ ul li:nth-child(2) .activo {
                 LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
             ");
         } catch (Exception $e) {
-            echo "<div class='alert alert-danger'>Error al cargar los datos: " . $e->getMessage() . "</div>";
+            echo "<div class='alert alert-danger'>Error al cargar los datos.</div>";
         }
         ?>
 

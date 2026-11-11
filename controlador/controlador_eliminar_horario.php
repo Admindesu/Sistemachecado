@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 if (!isset($conexion)) {
     include_once("../modelo/conexion.php");
 }
@@ -61,7 +64,7 @@ if (isset($_GET['id'])) {
             $(function notificacion(){
                 new PNotify({
                     title: "Error",
-                    text: "Error al eliminar el horario: <?php echo $e->getMessage(); ?>",
+                    text: "Error al eliminar el horario",
                     type: "error",
                     styling: "bootstrap3"
                 });

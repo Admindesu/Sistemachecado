@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin(true);
+
 if (!isset($conexion)) {
     include_once("../modelo/conexion.php");
 }
@@ -102,7 +105,7 @@ if (isset($_POST['btnmodificar'])) {
             $(function notificacion(){
                 new PNotify({
                     title: "Error",
-                    text: "Error al modificar el horario: <?= $e->getMessage() ?>",
+                    text: "Error al modificar el horario",
                     type: "error",
                     styling: "bootstrap3"
                 });

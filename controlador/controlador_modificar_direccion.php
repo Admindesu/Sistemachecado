@@ -1,10 +1,13 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 if (!empty($_POST["btnmodificardir"])) {
     if (!empty($_POST["txtnombre"])) {
         $id = $_POST["txtid"];
         $nombre = $_POST["txtnombre"];
         
-        $sql = $conexion->query("UPDATE direccion SET nombre='$nombre' WHERE id_direccion=$id");
+        $sql = consulta($conexion, "UPDATE direccion SET nombre = ? WHERE id_direccion = ?", "si", $nombre, $id);
         
         if ($sql == true) { ?>
             <script>

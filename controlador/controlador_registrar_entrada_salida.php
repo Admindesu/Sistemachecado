@@ -2,7 +2,6 @@
 session_start();
 include "../modelo/conexion.php";
 
-date_default_timezone_set('America/Cancun');
 
 $dni = isset($_SESSION['dni']) ? $_SESSION['dni'] : '';
 $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';
@@ -48,13 +47,13 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
                 $minutos_actual = $hora_actual_comp->format('H') * 60 + $hora_actual_comp->format('i');
                 $minutos_entrada = $hora_entrada->format('H') * 60 + $hora_entrada->format('i');
                 
-                // Límites según la tolerancia definida en la tabla horarios
-                $tolerancia = isset($empleado['tolerancia_entrada']) ? intval($empleado['tolerancia_entrada']) : 15;
-                
-                // Límites fijos según los requerimientos
+                // Límites según lo configurado en la tabla horarios
+                $tolerancia = isset($empleado['tolerancia_entrada']) ? intval($empleado['tolerancia_entrada']) : 10;
+                $minutos_retardo = isset($empleado['limite_retardo']) ? intval($empleado['limite_retardo']) : 20;
+
                 $limite_anticipacion = $minutos_entrada - 15; // 15 minutos antes
                 $limite_puntual = $minutos_entrada + $tolerancia; // A tiempo hasta la tolerancia definida
-                $limite_retardo = $minutos_entrada + 30; // Retardo hasta 30 minutos después
+                $limite_retardo = $minutos_entrada + $minutos_retardo; // Retardo hasta el límite del horario
                 
                 // Verificar si no está intentando checar muy temprano
                 if ($minutos_actual < $limite_anticipacion) {
@@ -91,10 +90,9 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
                 $stmt_insert->bind_param("ssss", $dni, $tipo, $fecha_str, $estado);
                 
                 if ($stmt_insert->execute()) {
-                    // Convertir el estado para el mensaje (A_TIEMPO -> a_tiempo)
-                    $estado_mensaje = strtolower(str_replace('_', '', $estado));
-                    $mensaje = "entrada_" . $estado_mensaje;
-                    header("Location: ../index.php?msg=entrada_atiempo");
+                    // A_TIEMPO -> entrada_atiempo, RETARDO -> entrada_retardo, FALTA -> entrada_falta
+                    $mensaje = "entrada_" . strtolower(str_replace('_', '', $estado));
+                    header("Location: ../index.php?msg=" . $mensaje);
                     exit;
                 } else {
                     throw new Exception('Error registrando entrada: ' . $stmt_insert->error);
@@ -188,7 +186,7 @@ if ($dni && ($tipo === 'entrada' || $tipo === 'salida')) {
         }
     } catch (Exception $e) {
         error_log("Error en registro de asistencia: " . $e->getMessage());
-        header("Location: ../index.php?msg=error_registro&error=" . urlencode($e->getMessage()));
+        header("Location: ../index.php?msg=error_registro");
         exit;
     }
 } else {

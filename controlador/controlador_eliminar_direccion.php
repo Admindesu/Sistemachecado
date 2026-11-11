@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/auth.php';
+requerir_admin();
+
 if (isset($_POST['btnregistrar'])) {
     if (!empty($_POST['txtnombre'])) {
         $nombre = $_POST['txtnombre'];
@@ -9,7 +12,7 @@ if (!empty($_GET["id_direccion"])) {
     $id_direccion = $_GET["id_direccion"];
     
     // Primero verificamos si la dirección está en uso
-    $verificar = $conexion->query("SELECT COUNT(*) as total FROM empleado WHERE direccion = $id_direccion");
+    $verificar = consulta($conexion, "SELECT COUNT(*) as total FROM empleado WHERE direccion = ?", "i", $id_direccion);
     $resultado = $verificar->fetch_object();
     
     if ($resultado->total > 0) {
@@ -28,7 +31,7 @@ if (!empty($_GET["id_direccion"])) {
         <?php
     } else {
         // La dirección no está en uso, procedemos a eliminar
-        $sql = $conexion->query("DELETE FROM direccion WHERE id_direccion = $id_direccion");
+        $sql = consulta($conexion, "DELETE FROM direccion WHERE id_direccion = ?", "i", $id_direccion);
         
         if ($sql == true) { ?>
             <script>
@@ -46,7 +49,7 @@ if (!empty($_GET["id_direccion"])) {
                 $(document).ready(function() {
                     new PNotify({
                         title: "Eliminación Fallida",
-                        text: "Error al eliminar dirección: <?= $conexion->error ?>",
+                        text: "Error al eliminar dirección",
                         type: "error",
                         styling: "bootstrap3"
                     });
