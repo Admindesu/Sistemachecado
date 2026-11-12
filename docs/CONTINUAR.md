@@ -1,12 +1,13 @@
 # Notas para continuar (rama feature/hikvision)
 
-Última actualización: 2026-11-11. Resumen de lo hecho y lo pendiente para retomar el trabajo
+Última actualización: 2026-11-12. Resumen de lo hecho y lo pendiente para retomar el trabajo
 en otro equipo. Al iniciar Claude Code en el otro equipo basta con pedirle: *"lee docs/CONTINUAR.md
 y sigamos"*.
 
 ## Estado de la rama
 
-`feature/hikvision` (subida a GitHub, **sin fusionar en `main`**, sin pull request) contiene:
+`feature/hikvision` (subida a GitHub, **sin fusionar en `main`**; el pull request aún no está
+creado, ver Pendientes) contiene:
 
 - Integración con el terminal Hikvision DS-K1T344MBFWX-E1 por **HTTP Listening**
   (`api/hikvision/evento.php?token=...`) y sincronización de respaldo por ISAPI
@@ -22,6 +23,36 @@ y sigamos"*.
   capturados en minutos con resumen de franjas en el formulario.
 - Fusionado `feature/dashboard`: dashboard, días inhábiles y justificaciones
   (migración `002_dias_inhabiles_justificaciones.sql`).
+
+### Agregado el 2026-11-12
+
+- **Login**: el fondo se arma con CSS (`vista/login/img/Qlogo.svg` + barra oscura con
+  `logo_blanco.png`) en lugar de la imagen `grecas.png`, que se borró. Se escala con la altura
+  de la pantalla y, en pantallas más angostas que 16:9, con el ancho (para no tapar el formulario).
+- **Reporte PDF** (`vista/reportes/pdf_report.php`): A4 horizontal, encabezado `libs/header_pdf.png`
+  en todas las páginas con su proporción real (si la imagen cambia no hay que tocar código),
+  cabecera de tabla repetida y número de página.
+- **Sidebar** (`vista/layout/sidebar.php`): se genera desde la lista `$menu` (Dashboard primero,
+  Acerca de al final) y resalta solo la página actual; las subpáginas cuentan como su sección.
+  Para reordenar o agregar opciones solo se edita esa lista (ya no hay reglas `nth-child` en
+  las vistas).
+- **Asistencias** (`vista/inicio.php`): ordenadas por fecha, la más reciente primero, y botón
+  **Exportar a Excel** (`vista/reportes/excel_report.php`) que descarga un `.xlsx` real con los
+  mismos filtros y permisos que el PDF. El generador es `modelo/xlsx.php` (sin dependencias; no
+  requiere la extensión zip de PHP, que XAMPP trae desactivada).
+- **Edición masiva de empleados** (`vista/empleado.php` + `controlador/controlador_editar_masivo.php`):
+  casillas en la tabla, "Seleccionar todos los de la búsqueda" y "Editar seleccionados" para
+  cambiar cargo, dirección u horario a varios a la vez. Al cambiar el horario puede recalcular
+  sus asistencias del terminal (casilla marcada por defecto). La edición individual NO recalcula.
+
+### Notas técnicas
+
+- `vista/layout/footer.php` vuelve a cargar jQuery y Bootstrap: el JavaScript de una vista que
+  use eventos de jQuery/Bootstrap (modales, DataTables) debe ir **después** de
+  `require('./layout/footer.php')`, como en `inicio.php` y `empleado.php`.
+- Para revisar páginas sin navegador visible: Edge headless
+  (`msedge --headless=new --screenshot=... --window-size=...`). Para ver un PDF, renderizarlo con
+  pdf.js en una página HTML local (Edge headless no dibuja PDFs).
 
 ## Instalación en el servidor (equipo con XAMPP)
 
@@ -40,21 +71,30 @@ y sigamos"*.
 - 37 empleados importados del terminal (usuario = número de empleado) + `juanmanuel` (admin de prueba).
   Se borraron los 23 usuarios de prueba; respaldo en
   `Desktop\asistencia\respaldo_antes_borrar_pruebas_20261111.sql` (equipo servidor).
-- Cargo y dirección de los importados aún son provisionales.
+- Cargo y dirección: 28 importados siguen con los provisionales (Jefe de Departamento /
+  Dirección Administrativa y Archivo); 7 ya tienen Dirección de Recursos de Revisión. Se pueden
+  corregir con la edición masiva.
 - Horario Default: 09:00–17:00, tolerancia 10, retardo 20 (falta después de 9:20).
 - Horario Matutino (limpieza): 07:40–17:00, tolerancia 90 (hasta 9:10), retardo 100 (hasta 9:20).
   Asignado a Manuel Jesús Cárdenas Domínguez (40719) y Alfredo Koyoc Canul (40728).
 - Los marcajes de solo tarde del 20 y 30 de octubre se dejan así (instalación del terminal).
+- Respaldo antes de probar la edición masiva:
+  `Desktop\asistencia\respaldo_antes_prueba_masivo_20261112.sql` (los datos de prueba se
+  restauraron).
 
 ## Pendientes
 
 1. Confirmar las reglas del Horario Default (personal entra 8:30–9:30, sale 17:00): ¿límite de
-   retardo 30 para que hasta 9:30 sea retardo? Tras cambiar un horario hay que recalcular las
-   asistencias del terminal (`recalcular_empleado()` en `modelo/hikvision.php`, por cada dni).
+   retardo 30 para que hasta 9:30 sea retardo? Editar un horario NO recalcula las asistencias
+   ya guardadas: hay que recalcular (`recalcular_empleado()` en `modelo/hikvision.php`, por cada
+   dni) o reasignar el horario con la edición masiva y la casilla de recálculo.
 2. Decidir si un único marcaje por la tarde cuenta como "salida sin entrada" en vez de
    "entrada con falta".
 3. Excluir del dashboard a `juanmanuel` si no checa (genera faltas).
 4. Servidor: reservar la IP 192.168.0.207 en el router; programar
    `cron/sincronizar_hikvision.php` en el Programador de tareas (el CLI necesita las mismas
    variables HIK_* que Apache); reiniciar Apache desde el panel de XAMPP.
-5. Pull request de `feature/hikvision` hacia `main` cuando se apruebe.
+5. Crear el pull request de `feature/hikvision` hacia `main` (en este equipo no está `gh`;
+   se crea desde https://github.com/Admindesu/Sistemachecado/compare/main...feature/hikvision).
+   En otras instalaciones hay que aplicar las migraciones 001, 002 y 003.
+6. Poner cargo y dirección reales a los importados (edición masiva).
