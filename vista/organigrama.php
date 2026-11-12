@@ -20,11 +20,6 @@ include "../controlador/controlador_eliminar_direccion.php";
 include "../controlador/controlador_eliminar_subsecretaria.php";
 
 ?>
-<style>
-ul li:nth-child(3) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 
 
 

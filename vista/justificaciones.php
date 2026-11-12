@@ -82,11 +82,6 @@ $lista = consulta($conexion,
 $lista = $lista ? $lista->fetch_all(MYSQLI_ASSOC) : null;   // null: falta aplicar la migración
 $tipos_cortos = ['entrada' => 'Entrada', 'salida' => 'Salida', 'dia_completo' => 'Día completo'];
 ?>
-<style>
-ul li:nth-child(7) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 <?php require('./layout/topbar.php'); ?>
 <?php require('./layout/sidebar.php'); ?>
 

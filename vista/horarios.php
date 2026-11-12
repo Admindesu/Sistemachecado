@@ -28,11 +28,6 @@ function campos_tolerancia(int $tolerancia, int $retardo): void
 <?php }
 ?>
 
-<style>
-ul li:nth-child(4) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>

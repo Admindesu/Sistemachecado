@@ -50,11 +50,6 @@ $dias = $dias ? $dias->fetch_all(MYSQLI_ASSOC) : null;   // null: falta aplicar 
 $meses = [1 => 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 $dias_semana = [1 => 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
 ?>
-<style>
-ul li:nth-child(8) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 <?php require('./layout/topbar.php'); ?>
 <?php require('./layout/sidebar.php'); ?>
 

@@ -62,9 +62,6 @@ $hora = fn($h) => $h ? date('h:i A', strtotime($h)) : '—';
 $rangos = ['ayer' => 'Ayer', 'hoy' => 'Hoy', 'semana' => 'Semana', 'mes' => 'Mes'];
 ?>
 <style>
-ul li:nth-child(6) .activo {
-    background: rgb(171, 11, 61) !important;
-}
 :root {
     --estado-bien: #0ca30c;
     --estado-aviso: #fab219;

@@ -15,12 +15,6 @@ include '../modelo/conexion.php';
 include "../controlador/controlador_registrar_empleado.php";
 ?>
 
-<style>
-ul li:nth-child(2) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-
-</style>
 
 
 <!-- inicio del contenido principal -->

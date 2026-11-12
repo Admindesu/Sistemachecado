@@ -105,11 +105,6 @@ $horarios = $catalogo("SELECT id_horario AS id, CONCAT(nombre, ' (', TIME_FORMAT
 $nuevos = array_filter($usuarios_dispositivo, fn($u) => !$u['existe']);
 $e = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES);
 ?>
-<style>
-ul li:nth-child(2) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 <?php require('./layout/topbar.php'); ?>
 <?php require('./layout/sidebar.php'); ?>
 

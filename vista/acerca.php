@@ -7,11 +7,6 @@ require('./layout/topbar.php');
 require('./layout/sidebar.php');
 ?>
 
-<style>
-ul li:nth-child(5) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 <div class="page-content">
 
     <h4 class="text-center text-secondary">Acerca de</h4>
@@ -26,7 +21,7 @@ ul li:nth-child(5) .activo {
             2025
         </p>
         <div class="text-center mt-4">
-            <img src="../public/img-inicio/SEMA.png" alt="Logo SEMA" style="max-width:300px;">
+            <img src="../public/img-inicio/logo.png" alt="Logo IQTP" style="max-width:300px;">
         </div>
     </div>
 

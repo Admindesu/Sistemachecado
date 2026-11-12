@@ -9,11 +9,6 @@ requerir_admin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficos Estadísticos</title>
-    <style>
-        ul li:nth-child(5) .activo {
-            background: rgb(171, 11, 61) !important;
-        }
-    </style>
 </head>
 <body>
     <!-- primero se carga el topbar -->
