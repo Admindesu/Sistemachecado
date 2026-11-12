@@ -23,7 +23,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
     <style>
 
         body {
-            background-image: url('vista/login/img/SEMA.PNG');
+            background-image: url('vista/login/img/logo.png');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;

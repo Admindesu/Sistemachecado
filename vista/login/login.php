@@ -13,7 +13,16 @@
 </head>
 
 <body>
-    <img class="wave" src="img/grecas.png">
+    <!-- Fondo armado con CSS (antes era la imagen img/grecas.png) -->
+    <div class="fondo" aria-hidden="true">
+        <div class="fondo-lienzo">
+            <div class="fondo-curva"></div>
+            <img class="fondo-q" src="img/Qlogo.svg" alt="">
+        </div>
+        <div class="fondo-barra">
+            <img class="fondo-logo" src="img/logo_blanco.png" alt="IQTP - Instituto Quintanarroense de Transparencia para el Pueblo">
+        </div>
+    </div>
     <div class="container d-flex justify-content-end">
         <div class="login-content" style="margin-top: -80px;">
             <form method="POST" action="../../controlador/login.php">
