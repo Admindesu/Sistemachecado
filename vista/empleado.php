@@ -3,12 +3,6 @@ require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
 ?>
 
-<style>
-ul li:nth-child(2) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-
-</style>
 
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -71,6 +65,90 @@ ul li:nth-child(2) .activo {
             </div>
         </div>
 
+        <!-- Edición masiva: se marcan empleados en la tabla y se editan juntos -->
+        <div class="row mb-3">
+            <div class="col-12 d-flex flex-wrap align-items-center" style="gap: 8px;">
+                <button type="button" class="btn btn-warning btn-rounded" id="btnEditarSeleccionados" disabled
+                        data-toggle="modal" data-target="#modalEditarMasivo">
+                    <i class="fas fa-users-cog"></i> Editar seleccionados (<span class="js-num-seleccionados">0</span>)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSeleccionarFiltrados">
+                    <i class="fas fa-check-double"></i> Seleccionar todos los de la búsqueda
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnQuitarSeleccion">
+                    <i class="fas fa-times"></i> Quitar selección
+                </button>
+                <small class="text-muted">Marca empleados en la tabla (puedes buscar, p. ej., el cargo provisional) y cámbiales cargo, dirección u horario de una vez.</small>
+            </div>
+        </div>
+
+        <?php
+        // Resultado de la edición masiva (controlador_editar_masivo.php)
+        $mensajes_masivo = [
+            'ok'            => ['success', 'Listo', 'Se actualizaron ' . (int) ($_GET['n'] ?? 0) . ' empleados'],
+            'sin_empleados' => ['warning', 'Sin empleados', 'No seleccionaste ningún empleado'],
+            'sin_cambios'   => ['info', 'Sin cambios', 'No elegiste ningún dato para cambiar'],
+            'invalido'      => ['error', 'Dato inválido', 'El cargo, la dirección o el horario elegido no existe'],
+            'error'         => ['error', 'Error', 'No se pudieron actualizar los empleados'],
+        ];
+        $mensaje_masivo = $mensajes_masivo[$_GET['masivo'] ?? ''] ?? null;
+        ?>
+
+        <!-- Modal edición masiva -->
+        <div class="modal fade" id="modalEditarMasivo" tabindex="-1" aria-labelledby="modalEditarMasivoLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../controlador/controlador_editar_masivo.php" method="POST" id="formEditarMasivo">
+                        <?= campo_csrf() ?>
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditarMasivoLabel">
+                                Editar <span class="js-num-seleccionados">0</span> empleados
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small text-muted mb-2">Solo se cambia lo que elijas; lo que quede en «No cambiar» se conserva.</p>
+                            <p class="small mb-3"><strong>Seleccionados:</strong> <span id="listaSeleccionados"></span></p>
+                            <?php
+                            $catalogos = [
+                                'cargo' => ['Cargo', "SELECT id_cargo AS id, nombre FROM cargo ORDER BY nombre"],
+                                'direccion' => ['Dirección', "SELECT id_direccion AS id, nombre FROM direccion ORDER BY nombre"],
+                                'horario' => ['Horario', "SELECT id_horario AS id, CONCAT(nombre, ' (', TIME_FORMAT(hora_entrada, '%H:%i'), ' - ', TIME_FORMAT(hora_salida, '%H:%i'), ')') AS nombre FROM horarios ORDER BY nombre"],
+                            ];
+                            if (usar_subsecretarias()) {
+                                $catalogos['subsecretaria'] = ['Subsecretaría', "SELECT id_subsecretaria AS id, nombre FROM subsecretaria ORDER BY nombre"];
+                            }
+                            foreach ($catalogos as $campo => [$etiqueta, $consulta_catalogo]): ?>
+                                <div class="form-group">
+                                    <label for="masivo_<?= $campo ?>"><?= $etiqueta ?></label>
+                                    <select class="form-control" name="<?= $campo ?>" id="masivo_<?= $campo ?>">
+                                        <option value="">— No cambiar —</option>
+                                        <?php $opciones = $conexion->query($consulta_catalogo);
+                                        while ($opciones && ($op = $opciones->fetch_object())): ?>
+                                            <option value="<?= e($op->id) ?>"><?= e($op->nombre) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                            <?php endforeach; ?>
+                            <div class="form-check" id="opcionRecalcular" style="display: none;">
+                                <input class="form-check-input" type="checkbox" name="recalcular" value="1" id="masivo_recalcular" checked>
+                                <label class="form-check-label small" for="masivo_recalcular">
+                                    Recalcular sus asistencias del terminal con el horario nuevo (retardos y faltas)
+                                </label>
+                            </div>
+                            <div id="idsSeleccionados"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Aplicar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- CSV Upload Modal -->
         <div class="modal fade" id="csvUploadModal" tabindex="-1" aria-labelledby="csvUploadModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -117,9 +195,12 @@ ul li:nth-child(2) .activo {
         <div class="row">
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover w-100" id="example">
+                    <table class="table table-bordered table-hover w-100" id="example" data-order='[[1, "asc"]]'>
                         <thead>
                             <tr>
+                                <th scope="col" data-orderable="false" data-searchable="false" class="text-center" style="width: 30px;">
+                                    <input type="checkbox" id="checkTodos" title="Seleccionar / quitar los de esta página" aria-label="Seleccionar los empleados de esta página">
+                                </th>
                                 <th scope="col">ID</th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Apellido</th>
@@ -139,6 +220,11 @@ ul li:nth-child(2) .activo {
                                 while ($datos = $sql->fetch_object()) { 
                             ?>
                                 <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="js-seleccion" value="<?= e($datos->id_empleado) ?>"
+                                               data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>"
+                                               aria-label="Seleccionar a <?= e($datos->nombre . ' ' . $datos->apellido) ?>">
+                                    </td>
                                     <td><?= e($datos->id_empleado) ?></td>
                                     <td><?= e($datos->nombre) ?></td>
                                     <td><?= e($datos->apellido) ?></td>
@@ -324,3 +410,85 @@ ul li:nth-child(2) .activo {
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+
+<!-- Va después del footer: footer.php vuelve a cargar jQuery y Bootstrap -->
+<script>
+/*
+ * Selección para la edición masiva. DataTables conserva las filas de las otras páginas
+ * aunque no estén en pantalla, así que las casillas marcadas se leen con su API.
+ */
+(function () {
+    function tabla() { return $('#example').DataTable(); }
+    function casillas(filtro) {
+        return $(tabla().rows(filtro || {}).nodes()).find('input.js-seleccion');
+    }
+    function marcadas() { return casillas().filter(':checked'); }
+
+    function actualizar() {
+        // La tabla la inicializa footer.php; antes de eso no se toca (si no, se crearía dos veces)
+        if (!$.fn.dataTable.isDataTable('#example')) return;
+        const n = marcadas().length;
+        $('.js-num-seleccionados').text(n);
+        $('#btnEditarSeleccionados').prop('disabled', n === 0);
+        const visibles = casillas({ page: 'current', search: 'applied' });
+        const marcadasVisibles = visibles.filter(':checked').length;
+        $('#checkTodos').prop('checked', visibles.length > 0 && marcadasVisibles === visibles.length)
+                        .prop('indeterminate', marcadasVisibles > 0 && marcadasVisibles < visibles.length);
+    }
+
+    $(document).on('change', 'input.js-seleccion', actualizar);
+    $(document).on('draw.dt', '#example', actualizar);
+    $(document).on('click', 'input.js-seleccion', function (ev) { ev.stopPropagation(); });
+
+    // Casilla del encabezado: los de la página actual
+    $(document).on('change', '#checkTodos', function () {
+        casillas({ page: 'current', search: 'applied' }).prop('checked', this.checked);
+        actualizar();
+    });
+    // Todos los que coinciden con la búsqueda, en todas las páginas
+    $('#btnSeleccionarFiltrados').on('click', function () {
+        casillas({ search: 'applied' }).prop('checked', true);
+        actualizar();
+    });
+    $('#btnQuitarSeleccion').on('click', function () {
+        casillas().prop('checked', false);
+        actualizar();
+    });
+
+    // Al abrir el modal se pasan los empleados marcados al formulario
+    $('#modalEditarMasivo').on('show.bs.modal', function () {
+        const seleccion = marcadas();
+        const ids = $('#idsSeleccionados').empty();
+        const nombres = [];
+        seleccion.each(function () {
+            ids.append($('<input type="hidden" name="ids[]">').val(this.value));
+            nombres.push(this.dataset.nombre);
+        });
+        $('#listaSeleccionados').text(nombres.length > 8
+            ? nombres.slice(0, 8).join(', ') + ' y ' + (nombres.length - 8) + ' más'
+            : nombres.join(', '));
+        $('#formEditarMasivo select').val('');
+        $('#opcionRecalcular').hide();
+    });
+    $('#masivo_horario').on('change', function () {
+        $('#opcionRecalcular').toggle(this.value !== '');
+    });
+    $('#formEditarMasivo').on('submit', function (ev) {
+        const cambios = $(this).find('select').filter(function () { return this.value !== ''; }).length;
+        if (!cambios) {
+            ev.preventDefault();
+            Swal.fire({ icon: 'info', title: 'Sin cambios', text: 'Elige al menos un dato para cambiar' });
+        }
+    });
+
+    $(document).on('init.dt', '#example', actualizar);
+})();
+</script>
+
+<?php if ($mensaje_masivo): [$icono, $titulo, $texto] = $mensaje_masivo; ?>
+<script>
+    Swal.fire({ icon: <?= json_encode($icono) ?>, title: <?= json_encode($titulo) ?>, text: <?= json_encode($texto) ?> });
+    // Quita ?masivo= de la URL para que al recargar no se repita el mensaje
+    window.history.replaceState(null, null, window.location.pathname);
+</script>
+<?php endif; ?>
