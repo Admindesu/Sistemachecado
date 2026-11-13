@@ -42,8 +42,17 @@ creado, ver Pendientes) contiene:
   requiere la extensión zip de PHP, que XAMPP trae desactivada).
 - **Edición masiva de empleados** (`vista/empleado.php` + `controlador/controlador_editar_masivo.php`):
   casillas en la tabla, "Seleccionar todos los de la búsqueda" y "Editar seleccionados" para
-  cambiar cargo, dirección u horario a varios a la vez. Al cambiar el horario puede recalcular
-  sus asistencias del terminal (casilla marcada por defecto). La edición individual NO recalcula.
+  cambiar cargo, dirección u horario a varios a la vez. Al cambiar el horario hay una casilla
+  (desmarcada) para corregir también las asistencias anteriores, solo si fue un error.
+
+### Regla de negocio: cambios de horario
+
+Un cambio de horario (de un empleado o del horario mismo) aplica **desde ese momento**: lo
+respalda un documento y las asistencias ya registradas se conservan con el horario que tenían.
+Solo se recalcula el historial cuando el horario se asignó por **error del administrador**
+(casilla de la edición masiva, o `recalcular_empleado()` en `modelo/hikvision.php`).
+El terminal solo recalcula el día de cada marcaje nuevo; si llega tarde un marcaje de un día
+anterior al cambio, ese día se calcula con el horario vigente.
 
 ### Notas técnicas
 
@@ -85,9 +94,8 @@ creado, ver Pendientes) contiene:
 ## Pendientes
 
 1. Confirmar las reglas del Horario Default (personal entra 8:30–9:30, sale 17:00): ¿límite de
-   retardo 30 para que hasta 9:30 sea retardo? Editar un horario NO recalcula las asistencias
-   ya guardadas: hay que recalcular (`recalcular_empleado()` en `modelo/hikvision.php`, por cada
-   dni) o reasignar el horario con la edición masiva y la casilla de recálculo.
+   retardo 30 para que hasta 9:30 sea retardo? (Aplica desde el cambio; ver la regla de
+   negocio de arriba.)
 2. Decidir si un único marcaje por la tarde cuenta como "salida sin entrada" en vez de
    "entrada con falta".
 3. Excluir del dashboard a `juanmanuel` si no checa (genera faltas).

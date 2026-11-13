@@ -133,9 +133,11 @@ requerir_admin();
                                 </div>
                             <?php endforeach; ?>
                             <div class="form-check" id="opcionRecalcular" style="display: none;">
-                                <input class="form-check-input" type="checkbox" name="recalcular" value="1" id="masivo_recalcular" checked>
+                                <input class="form-check-input" type="checkbox" name="recalcular" value="1" id="masivo_recalcular">
                                 <label class="form-check-label small" for="masivo_recalcular">
-                                    Recalcular sus asistencias del terminal con el horario nuevo (retardos y faltas)
+                                    Corregir también sus asistencias anteriores con este horario
+                                    <span class="d-block text-muted">Solo si el horario anterior se asignó por error. Normalmente el
+                                    horario nuevo aplica desde hoy y lo ya registrado se conserva.</span>
                                 </label>
                             </div>
                             <div id="idsSeleccionados"></div>
@@ -469,6 +471,7 @@ requerir_admin();
             : nombres.join(', '));
         $('#formEditarMasivo select').val('');
         $('#opcionRecalcular').hide();
+        $('#masivo_recalcular').prop('checked', false);   // por defecto el horario nuevo aplica desde hoy
     });
     $('#masivo_horario').on('change', function () {
         $('#opcionRecalcular').toggle(this.value !== '');

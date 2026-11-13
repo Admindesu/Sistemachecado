@@ -3,8 +3,10 @@
  * Edición masiva de empleados (vista/empleado.php, botón "Editar seleccionados").
  * Cambia cargo, dirección, horario y (si están activas) subsecretaría de varios empleados
  * a la vez. Un campo vacío ("No cambiar") se deja como está.
- * Si cambia el horario, se recalculan las asistencias del terminal Hikvision de esos
- * empleados para que retardos y faltas correspondan al horario nuevo.
+ * Un cambio de horario aplica desde ese momento (normalmente lo respalda un documento) y las
+ * asistencias ya registradas se conservan. Solo si se marca "recalcular" (corrección de un
+ * horario asignado por error) se recalculan las asistencias del terminal Hikvision de esos
+ * empleados con el horario nuevo.
  * Responde con una redirección a empleado.php?masivo=<resultado>&n=<empleados>.
  */
 require_once __DIR__ . '/auth.php';
