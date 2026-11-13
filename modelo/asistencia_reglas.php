@@ -38,11 +38,13 @@ function validar_tolerancias(string $hora_entrada, string $hora_salida, int $tol
 /**
  * Empleado + su horario. null si el empleado no existe.
  * Las columnas del horario vienen en null si no tiene horario asignado.
+ * activo = 0 y fecha_baja (último día laborado) si el empleado está dado de baja.
  */
 function horario_empleado(mysqli $conexion, string $dni): ?array
 {
     $res = consulta($conexion,
-        "SELECT e.dni, h.hora_entrada, h.hora_salida, h.tolerancia_entrada, h.limite_retardo
+        "SELECT e.dni, e.activo, e.fecha_baja,
+                h.hora_entrada, h.hora_salida, h.tolerancia_entrada, h.limite_retardo
          FROM empleado e LEFT JOIN horarios h ON e.id_horario = h.id_horario
          WHERE e.dni = ?", "s", $dni);
     $fila = $res ? $res->fetch_assoc() : null;

@@ -63,11 +63,11 @@ recargar la página no reenvía el formulario.
 ## Base de datos
 
 MariaDB, base `sis-asistencia`. Esquema base en `sql/sis-asistencia.sql` más
-`sql/migraciones/001-003`.
+`sql/migraciones/001-004`.
 
 | Tabla | Contenido |
 |---|---|
-| `empleado` | Persona y usuario: `dni` (= número de empleado del terminal, único), `usuario`, `password`, `is_admin`, `cargo`, `direccion`, `subsecretaria` (opcional), `id_horario`. |
+| `empleado` | Persona y usuario: `dni` (= número de empleado del terminal, único), `usuario`, `password`, `is_admin`, `cargo`, `direccion`, `subsecretaria` (opcional), `id_horario`, y la baja: `activo`, `fecha_baja` (último día laborado), `motivo_baja`. |
 | `asistencia` | Un registro por entrada o salida: `dni`, `tipo` (`entrada`/`salida`), `fecha`, `estado`, `origen` (`web`/`hikvision`), `id_marcaje`. |
 | `marcaje_dispositivo` | Marcajes crudos del terminal; llave única (`dispositivo`, `dni`, `fecha`). Nunca se modifican. |
 | `horarios` | `hora_entrada`, `hora_salida`, `tolerancia_entrada`, `limite_retardo` (minutos desde la entrada). |
@@ -78,7 +78,9 @@ MariaDB, base `sis-asistencia`. Esquema base en `sql/sis-asistencia.sql` más
 Llaves foráneas a tener en cuenta:
 
 - `asistencia.dni` y `justificacion.dni` → `empleado.dni` con **ON DELETE CASCADE**: borrar un
-  empleado borra su historial.
+  empleado borra su historial. Por eso a quien deja de laborar se le da de **baja** (soft delete,
+  `controlador_baja_empleado.php`) en lugar de borrarlo, y el borrado definitivo
+  (`controlador_eliminar_empleado.php`) solo se permite con `activo = 0`.
 - `empleado.cargo` → `cargo` con **ON DELETE CASCADE**: borrar un cargo directamente en la base
   borraría a sus empleados. La aplicación lo impide (no deja borrar un cargo en uso), pero cuidado
   con borrados manuales en phpMyAdmin.
@@ -125,6 +127,12 @@ se llama para los días con marcajes nuevos.
 **Cambios de horario**: aplican desde ese momento; el historial no se recalcula salvo que el
 administrador lo pida para corregir un error (`recalcular_empleado()` / opción de la edición
 masiva).
+
+**Bajas**: un empleado con `activo = 0` no puede iniciar sesión (`login.php`) ni checar en la web
+(sesiones abiertas antes de la baja se rechazan al checar). `recalcular_dia()` no genera
+asistencias para días posteriores a `fecha_baja` (los marcajes se guardan igual) y el dashboard
+lo cuenta solo hasta esa fecha. Sus registros siguen en reportes. Una sesión de administrador
+abierta antes de la baja sigue viva hasta cerrar sesión.
 
 **Dashboard** (`modelo/dashboard.php`): por empleado y día laborable (lunes a viernes, sin días
 inhábiles): `PUNTUAL`, `RETARDO`, `FALTA` (entrada con falta o sin entrada), `PENDIENTE` (hoy,

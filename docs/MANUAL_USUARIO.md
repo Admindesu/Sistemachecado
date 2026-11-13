@@ -5,7 +5,7 @@
 - [Administradores](#administradores)
   - [Dashboard](#dashboard)
   - [Asistencias](#asistencias)
-  - [Empleados](#empleados)
+  - [Empleados](#empleados) (incluye [bajas de personal](#bajas-de-personal))
   - [Organigrama](#organigrama)
   - [Horarios](#horarios)
   - [Justificaciones](#justificaciones)
@@ -70,7 +70,7 @@ columna.
   [HIKVISION.md](HIKVISION.md#dar-de-alta-al-personal)). Anota las contraseñas temporales que
   aparecen al terminar; no se vuelven a mostrar.
 - **Importar CSV**: alta en lote desde un archivo; hay una plantilla para descargar.
-- **Editar** / **Eliminar**: por empleado. Eliminar borra también sus asistencias.
+- **Editar** / **Dar de baja**: por empleado (ver [Bajas](#bajas-de-personal)).
 
 **Edición masiva** — para cambiar cargo, dirección u horario a muchos a la vez:
 
@@ -83,6 +83,22 @@ columna.
 4. Al cambiar el horario aparece la opción **Corregir también sus asistencias anteriores**.
    Déjala desmarcada salvo que el horario anterior se haya asignado **por error**: un cambio de
    horario normal aplica desde ese momento.
+
+#### Bajas de personal
+
+Cuando un colaborador deja de laborar, usa **Dar de baja** en lugar de eliminarlo:
+
+1. Indica la **fecha de baja** (su último día laborado) y, si quieres, el **motivo**.
+2. Sus asistencias y justificaciones **se conservan** y siguen en los reportes PDF y Excel
+   (en el filtro de empleado aparece con la marca *(baja)*).
+3. Ya **no puede iniciar sesión** ni checar en la web, el terminal deja de generarle
+   asistencias después de esa fecha y el dashboard deja de contarle faltas.
+4. Bórralo también del terminal Hikvision para que no siga pudiendo pasar.
+
+**Ver bajas (N)** muestra a los dados de baja con su fecha y motivo. Desde ahí se puede
+**Reactivar** (si fue un error o regresa a laborar) o **Eliminar definitivamente**, que borra
+al empleado **y todo su historial** y no se puede deshacer. Solo se puede eliminar
+definitivamente a alguien que ya esté dado de baja, y nadie puede darse de baja a sí mismo.
 
 ### Organigrama
 

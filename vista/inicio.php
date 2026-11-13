@@ -84,9 +84,9 @@ requerir_admin();
                                 <select class="form-control" name="empleado">
                                     <option value="">Todos los empleados</option>
                                     <?php
-                                    $empleados = $conexion->query("SELECT dni, nombre, apellido FROM empleado ORDER BY nombre, apellido");
+                                    $empleados = $conexion->query("SELECT dni, nombre, apellido, activo FROM empleado ORDER BY activo DESC, nombre, apellido");
                                     while($emp = $empleados->fetch_object()): ?>
-                                        <option value="<?= e($emp->dni) ?>"><?= e($emp->nombre . ' ' . $emp->apellido) ?></option>
+                                        <option value="<?= e($emp->dni) ?>"><?= e($emp->nombre . ' ' . $emp->apellido) ?><?= $emp->activo ? '' : ' (baja)' ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>

@@ -295,6 +295,11 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
                     <strong>Error:</strong> Empleado no encontrado.
                 </div>';
                 break;
+            case 'empleado_baja':
+                echo '<div class="alert alert-danger">
+                    <strong>Cuenta dada de baja:</strong> ya no puedes registrar asistencia. Si es un error, avisa al administrador.
+                </div>';
+                break;
             case 'salida_temprana':
                 echo '<div class="alert alert-warning">
                     <strong>¡Atención!</strong> No puedes registrar salida antes de la hora establecida en tu horario.

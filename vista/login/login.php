@@ -32,6 +32,7 @@
                 $errores_login = [
                     'credenciales' => 'Usuario o contraseña incorrectos',
                     'vacio' => 'Escribe tu usuario y contraseña',
+                    'baja' => 'Tu cuenta está dada de baja. Si es un error, avisa al administrador.',
                 ];
                 if (isset($_GET['error'], $errores_login[$_GET['error']])): ?>
                     <div class="alert alert-danger"><?= $errores_login[$_GET['error']] ?></div>

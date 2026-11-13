@@ -26,6 +26,9 @@ $horario = horario_empleado($conexion, $dni);
 if (!$horario) {
     volver('empleado_no_encontrado');
 }
+if (!(int) $horario['activo']) {
+    volver('empleado_baja');   // sesión abierta antes de la baja
+}
 if (empty($horario['hora_entrada']) || empty($horario['hora_salida'])) {
     error_log("Checado web: el empleado $dni no tiene horario asignado");
     volver('error_registro');

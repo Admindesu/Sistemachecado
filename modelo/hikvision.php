@@ -134,6 +134,12 @@ function recalcular_dia(mysqli $conexion, string $dni, string $dia): void
         error_log("Hikvision: el empleado $dni no tiene horario; marcaje guardado sin procesar");
         return;
     }
+    // Dado de baja: sus días hasta la fecha de baja se procesan normal; después ya no
+    // genera asistencias (y lo que ya estuviera registrado se conserva).
+    if (!empty($horario['fecha_baja']) && $dia > $horario['fecha_baja']) {
+        error_log("Hikvision: el empleado $dni está dado de baja desde {$horario['fecha_baja']}; marcaje guardado sin procesar");
+        return;
+    }
 
     $res = consulta($conexion,
         "SELECT id_marcaje, fecha FROM marcaje_dispositivo

@@ -104,7 +104,7 @@ En phpMyAdmin (http://localhost/phpmyadmin):
 
 1. Crea la base `sis-asistencia` (cotejamiento `utf8mb4_general_ci`).
 2. Importa `sql/sis-asistencia.sql`.
-3. Ejecuta en orden las [migraciones](#migraciones-de-base-de-datos).
+3. Ejecuta en orden las [migraciones](#migraciones-de-base-de-datos) (001 a 004).
 
 La conexión usa por defecto `localhost`, usuario `root` sin contraseña. Para otros datos define
 `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` con `SetEnv`.
@@ -174,6 +174,7 @@ volver a ejecutar sin daño.
 | `001_hikvision.sql` | Tabla `marcaje_dispositivo` y columnas `origen` e `id_marcaje` en `asistencia`. |
 | `002_dias_inhabiles_justificaciones.sql` | Tablas `dia_inhabil` y `justificacion`. |
 | `003_subsecretaria_opcional.sql` | Permite empleados sin subsecretaría. |
+| `004_baja_empleado.sql` | Columnas `activo`, `fecha_baja` y `motivo_baja` en `empleado` (bajas de personal). **Obligatoria**: el login y el checado la necesitan. |
 
 Docker las aplica solas al crear la base.
 

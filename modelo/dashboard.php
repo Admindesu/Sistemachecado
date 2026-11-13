@@ -89,13 +89,15 @@ function minutos_hora_dashboard(?string $hora): ?int
 function resumen_asistencia(mysqli $conexion, DateTimeImmutable $desde, DateTimeImmutable $hasta,
                             DateTimeImmutable $ahora): array
 {
+    // Los dados de baja solo cuentan hasta su fecha de baja (último día laborado)
     $empleados = consulta($conexion,
-        "SELECT e.dni, e.nombre, e.apellido, d.nombre AS direccion,
+        "SELECT e.dni, e.nombre, e.apellido, e.fecha_baja, d.nombre AS direccion,
                 h.hora_entrada, h.hora_salida, h.limite_retardo
          FROM empleado e
          LEFT JOIN direccion d ON e.direccion = d.id_direccion
          LEFT JOIN horarios h ON e.id_horario = h.id_horario
-         ORDER BY e.nombre, e.apellido")->fetch_all(MYSQLI_ASSOC);
+         WHERE e.activo = 1 OR e.fecha_baja >= ?
+         ORDER BY e.nombre, e.apellido", "s", $desde->format('Y-m-d'))->fetch_all(MYSQLI_ASSOC);
 
     // Primer entrada y última salida de cada empleado por día
     $registros = [];
@@ -136,6 +138,9 @@ function resumen_asistencia(mysqli $conexion, DateTimeImmutable $desde, DateTime
         $por_dia[$clave_dia] = $vacio + ['laborable' => $laborable, 'inhabil' => $inhabil];
 
         foreach ($empleados as $emp) {
+            if (!empty($emp['fecha_baja']) && $clave_dia > $emp['fecha_baja']) {
+                continue;   // ya no laboraba ese día
+            }
             $dni = $emp['dni'];
             $reg = $registros[$dni][$clave_dia] ?? [];
             $entrada = $reg['entrada'] ?? null;

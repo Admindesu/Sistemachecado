@@ -1,6 +1,6 @@
 # Notas para continuar (rama feature/hikvision)
 
-Última actualización: 2026-11-12. Resumen de lo hecho y lo pendiente para retomar el trabajo
+Última actualización: 2026-11-13. Resumen de lo hecho y lo pendiente para retomar el trabajo
 en otro equipo. Al iniciar Claude Code en el otro equipo basta con pedirle: *"lee docs/CONTINUAR.md
 y sigamos"*.
 
@@ -54,6 +54,16 @@ Solo se recalcula el historial cuando el horario se asignó por **error del admi
 El terminal solo recalcula el día de cada marcaje nuevo; si llega tarde un marcaje de un día
 anterior al cambio, ese día se calcula con el horario vigente.
 
+### Agregado el 2026-11-13
+
+- **Bajas de personal (soft delete)**: migración `004_baja_empleado.sql` (`activo`, `fecha_baja`,
+  `motivo_baja`). "Dar de baja" en Empleados conserva todo su historial; el dado de baja no puede
+  iniciar sesión ni checar, el terminal no le genera asistencias después de la fecha de baja y el
+  dashboard lo cuenta solo hasta esa fecha. "Ver bajas" permite reactivar o eliminar
+  definitivamente (solo a quien ya está de baja). Respaldo previo:
+  `Desktopsistenciaespaldo_antes_baja_empleado_20261113.sql`.
+- Documentación completa en `README.md` y `docs/` (manual, instalación, Hikvision, arquitectura).
+
 ### Notas técnicas
 
 - `vista/layout/footer.php` vuelve a cargar jQuery y Bootstrap: el JavaScript de una vista que
@@ -71,7 +81,7 @@ anterior al cambio, ese día se calcula con el horario vigente.
   no están en el repositorio**; ver ese archivo en el servidor o `.env.example` para los nombres.
 - Ese archivo empieza con `LoadFile` de `brotlicommon.dll` y `brotlidec.dll`: sin ellos Apache no
   carga `php_curl` en Windows (`curl_init()` indefinida).
-- Migraciones 001, 002 y 003 ya aplicadas en la base local `sis-asistencia`.
+- Migraciones 001 a 004 ya aplicadas en la base local `sis-asistencia`.
 - Terminal: 192.168.0.209. Servidor: 192.168.0.207 (Wi-Fi, DHCP).
   HTTP Listening apunta a `http://192.168.0.207/checador/api/hikvision/evento.php?token=...`.
 
@@ -104,5 +114,5 @@ anterior al cambio, ese día se calcula con el horario vigente.
    variables HIK_* que Apache); reiniciar Apache desde el panel de XAMPP.
 5. Crear el pull request de `feature/hikvision` hacia `main` (en este equipo no está `gh`;
    se crea desde https://github.com/Admindesu/Sistemachecado/compare/main...feature/hikvision).
-   En otras instalaciones hay que aplicar las migraciones 001, 002 y 003.
+   En otras instalaciones hay que aplicar las migraciones 001 a 004.
 6. Poner cargo y dirección reales a los importados (edición masiva).

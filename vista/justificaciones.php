@@ -70,7 +70,7 @@ $pre_fecha = leer_fecha((string) ($_GET['fecha'] ?? ''));
 $pre_fecha = $pre_fecha ? $pre_fecha->format('Y-m-d') : date('Y-m-d');
 $pre_tipo = isset(TIPOS_JUSTIFICACION[$_GET['tipo'] ?? '']) ? $_GET['tipo'] : 'entrada';
 
-$empleados = consulta($conexion, "SELECT dni, nombre, apellido FROM empleado ORDER BY nombre, apellido")->fetch_all(MYSQLI_ASSOC);
+$empleados = consulta($conexion, "SELECT dni, nombre, apellido, activo FROM empleado ORDER BY activo DESC, nombre, apellido")->fetch_all(MYSQLI_ASSOC);
 $lista = consulta($conexion,
     "SELECT j.id_justificacion, j.dni, j.fecha_inicio, j.fecha_fin, j.tipo, j.motivo, j.observaciones, j.creado_en,
             CONCAT(e.nombre, ' ', e.apellido) AS empleado,
@@ -111,7 +111,7 @@ $tipos_cortos = ['entrada' => 'Entrada', 'salida' => 'Salida', 'dia_completo' =>
                                 <option value="">Seleccionar...</option>
                                 <?php foreach ($empleados as $emp): ?>
                                     <option value="<?= e($emp['dni']) ?>" <?= $emp['dni'] === $pre_dni ? 'selected' : '' ?>>
-                                        <?= e($emp['nombre'] . ' ' . $emp['apellido']) ?> (<?= e($emp['dni']) ?>)
+                                        <?= e($emp['nombre'] . ' ' . $emp['apellido']) ?> (<?= e($emp['dni']) ?>)<?= $emp['activo'] ? '' : ' — baja' ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

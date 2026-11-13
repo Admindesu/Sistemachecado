@@ -16,7 +16,9 @@ requerir_admin();
  */
 if (!empty($_POST['id'])) {   
     $id = $_POST['id'];
-    $sql = consulta($conexion, "DELETE FROM empleado WHERE id_empleado = ?", "i", $id);
+    // Solo se borra definitivamente a quien ya está dado de baja (borra también su historial)
+    $sql = consulta($conexion, "DELETE FROM empleado WHERE id_empleado = ? AND activo = 0", "i", $id);
+    $sql = $sql && $conexion->affected_rows > 0;
     if ($sql == true) { ?>
         <script>
             $(function notificacion() {
