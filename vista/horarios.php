@@ -14,12 +14,13 @@ function hora_mas_minutos(string $hora, int $minutos): string
  */
 function campos_tolerancia(int $tolerancia, int $retardo): void
 { ?>
-    <div class="form-row">
-        <div class="form-group col-sm-6">
+    <!-- Cuadrícula propia: la plantilla mezcla versiones de Bootstrap y .form-row/.col-sm-6 se encimaban con el resumen -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0 16px;">
+        <div class="form-group">
             <label>Tolerancia (minutos)</label>
             <input type="number" class="form-control" name="tolerancia_entrada" value="<?= $tolerancia ?>" required min="0" max="720">
         </div>
-        <div class="form-group col-sm-6">
+        <div class="form-group">
             <label>Límite de retardo (minutos)</label>
             <input type="number" class="form-control" name="limite_retardo" value="<?= $retardo ?>" required min="1" max="720">
         </div>

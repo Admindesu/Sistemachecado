@@ -125,7 +125,9 @@ requerir_admin();
                         <td><?= e(ucfirst($datos->tipo)) ?></td>
                         <td><?= e($datos->fecha) ?></td>
                         <td><?= e(str_replace('_', ' ', (string) $datos->estado)) ?></td>
-                        <td><?= $datos->origen === 'hikvision' ? '<span class="badge badge-info">Hikvision</span>' : '<span class="badge badge-secondary">Web</span>' ?></td>
+                        <td><?= $datos->origen === 'hikvision'
+                            ? '<span style="background:#17a2b8;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;">Hikvision</span>'
+                            : '<span style="background:#6c757d;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;">Web</span>' ?></td>
                         <td>
                             <a href="inicio.php?id=<?= e($datos->id_asistencia) ?>" onclick="advertencia(event)" class="btn btn-danger">
                                 <i class="fas fa-trash"></i>
