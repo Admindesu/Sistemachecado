@@ -60,9 +60,21 @@ anterior al cambio, ese día se calcula con el horario vigente.
   `motivo_baja`). "Dar de baja" en Empleados conserva todo su historial; el dado de baja no puede
   iniciar sesión ni checar, el terminal no le genera asistencias después de la fecha de baja y el
   dashboard lo cuenta solo hasta esa fecha. "Ver bajas" permite reactivar o eliminar
-  definitivamente (solo a quien ya está de baja). Respaldo previo:
-  `Desktopsistenciaespaldo_antes_baja_empleado_20261113.sql`.
+  definitivamente (solo a quien ya está de baja). Nadie puede darse de baja a sí mismo (se
+  compara por id y por número de empleado). Respaldo previo:
+  `Desktop\asistencia\respaldo_antes_baja_empleado_20261113.sql`.
 - Documentación completa en `README.md` y `docs/` (manual, instalación, Hikvision, arquitectura).
+- Correcciones de interfaz: en Horarios los campos de tolerancia/retardo quedaban tapados (ahora
+  usan su propia cuadrícula) y la etiqueta de *Origen* en Asistencias era invisible (ahora tiene
+  color propio).
+- **Documentos compartibles en claude.ai** (fuera del repositorio, privados hasta que se compartan):
+  - Manual de operación con capturas: https://claude.ai/artifact/DUfo7yjcCWYRUrTDpKWviF
+  - Documentación del sistema (Resumen, Manual de usuario, Instalación, Terminal Hikvision,
+    Arquitectura): https://claude.ai/artifact/ACP4pbBCn2BuAYLA8XHMXR
+
+  Las capturas usan **datos ficticios** porque el repositorio es público. Se tomaron con una
+  copia anonimizada de la base (`sis-asistencia-demo`, ya borrada) servida con `php -S` y Edge
+  headless. Si cambia la interfaz, hay que actualizar estos documentos a mano además de `docs/`.
 
 ### Notas técnicas
 
@@ -116,3 +128,5 @@ anterior al cambio, ese día se calcula con el horario vigente.
    se crea desde https://github.com/Admindesu/Sistemachecado/compare/main...feature/hikvision).
    En otras instalaciones hay que aplicar las migraciones 001 a 004.
 6. Poner cargo y dirección reales a los importados (edición masiva).
+7. Revisar si conviene cambiar el `ON DELETE CASCADE` de la llave de cargo en `empleado`
+   (borrar un cargo podría arrastrar empleados si se salta la validación de la vista).
