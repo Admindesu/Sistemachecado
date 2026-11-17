@@ -128,6 +128,19 @@ requerir_admin();
             'error'      => ['error', 'Error', 'No se pudo completar la operación'],
         ];
         $mensaje_masivo = $mensaje_masivo ?? ($mensajes_baja[$_GET['baja'] ?? ''] ?? null);
+
+        // Resultado del recálculo explícito (controlador_recalcular_asistencias.php)
+        $mensajes_recalculo = [
+            'ok'            => ['success', 'Recálculo hecho', 'Se recalcularon ' . (int) ($_GET['dias'] ?? 0) . ' días con registros. Quedó anotado en la bitácora'],
+            'sin_confirmar' => ['warning', 'Sin confirmar', 'Marca la casilla de confirmación para recalcular'],
+            'motivo'        => ['warning', 'Falta el motivo', 'Escribe el motivo del recálculo (queda en la bitácora)'],
+            'fecha'         => ['error', 'Fecha inválida', 'Indica las fechas de inicio y fin'],
+            'rango'         => ['error', 'Rango inválido', 'El inicio debe ser antes del fin, sin fechas futuras y de máximo un año'],
+            'sin_horario'   => ['error', 'Sin horario', 'El empleado no tiene horario asignado'],
+            'no_existe'     => ['error', 'No encontrado', 'El empleado no existe'],
+            'error'         => ['error', 'Error', 'No se pudo completar el recálculo; no se aplicaron cambios. Revisa que la migración 005 esté aplicada'],
+        ];
+        $mensaje_masivo = $mensaje_masivo ?? ($mensajes_recalculo[$_GET['recalculo'] ?? ''] ?? null);
         ?>
 
         <!-- Modal edición masiva -->
@@ -221,6 +234,58 @@ requerir_admin();
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-danger"><i class="fas fa-user-slash"></i> Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal recalcular asistencias (solo casos extraordinarios; queda en la bitácora) -->
+        <div class="modal fade" id="modalRecalcular" tabindex="-1" aria-labelledby="modalRecalcularLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../controlador/controlador_recalcular_asistencias.php" method="POST">
+                        <?= campo_csrf() ?>
+                        <input type="hidden" name="id" id="recalc_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalRecalcularLabel">Recalcular asistencias de <span id="recalc_nombre"></span></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning small">
+                                Normalmente un cambio de horario aplica desde la firma del documento y lo ya registrado
+                                sigue siendo válido. Usa esto solo en casos extraordinarios (p. ej. un horario asignado
+                                por error): los estados (a tiempo, retardo, falta…) de las fechas elegidas se vuelven a
+                                calcular con su horario actual, <strong id="recalc_horario"></strong>.
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="recalc_desde">Desde</label>
+                                    <input type="date" class="form-control" name="desde" id="recalc_desde" required max="<?= date('Y-m-d') ?>">
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="recalc_hasta">Hasta</label>
+                                    <input type="date" class="form-control" name="hasta" id="recalc_hasta" required max="<?= date('Y-m-d') ?>">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recalc_motivo">Motivo (queda en la bitácora)</label>
+                                <input type="text" class="form-control" name="motivo" id="recalc_motivo" required minlength="5" maxlength="255"
+                                       placeholder="Horario asignado por error, oficio no. …">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="confirmar" value="1" id="recalc_confirmar" required>
+                                <label class="form-check-label small" for="recalc_confirmar">
+                                    Confirmo que es una corrección extraordinaria y que los registros de esas fechas
+                                    cambiarán de estado.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Recalcular</button>
                         </div>
                     </form>
                 </div>
@@ -326,9 +391,20 @@ requerir_admin();
                                         </a>
                                         <?php if ((string) $datos->dni !== (string) ($_SESSION['dni'] ?? '')): // no a sí mismo ?>
                                         <button type="button" class="btn btn-secondary js-dar-baja"
+                                                data-toggle="modal" data-target="#modalBaja"
                                                 data-id="<?= e($datos->id_empleado) ?>"
                                                 data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>">
                                             <i class="fas fa-user-slash"></i> Dar de baja
+                                        </button>
+                                        <?php endif; ?>
+                                        <?php if ($datos->nom_horario): ?>
+                                        <button type="button" class="btn btn-outline-primary js-recalcular"
+                                                data-toggle="modal" data-target="#modalRecalcular"
+                                                data-id="<?= e($datos->id_empleado) ?>"
+                                                data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>"
+                                                data-horario="<?= e($datos->nom_horario . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')') ?>"
+                                                title="Recalcular asistencias (solo casos extraordinarios)">
+                                            <i class="fas fa-sync-alt"></i> Recalcular
                                         </button>
                                         <?php endif; ?>
                                         <?php else: ?>
@@ -589,14 +665,27 @@ requerir_admin();
 </script>
 
 <script>
-// Dar de baja: una sola ventana para todos los empleados
+// Dar de baja: una sola ventana para todos los empleados.
+// El modal lo abre data-toggle (Bootstrap 4, igual que "Editar"); aquí solo se llenan los campos.
+// No usar $('#modalBaja').modal('show'): footer.php también carga Bootstrap 5, que reemplaza
+// $.fn.modal y pone la clase "show", pero el CSS de Bootstrap 4 espera "in" y la ventana
+// queda abierta pero invisible (opacity 0), tapando la página.
 $(document).on('click', '.js-dar-baja', function () {
     $('#baja_id').val(this.dataset.id);
     $('#baja_nombre').text(this.dataset.nombre);
     $('#baja_motivo').val('');
     $('#baja_fecha').val(<?= json_encode(date('Y-m-d')) ?>);
-    $('#modalBaja').modal('show');
 });
+
+// Recalcular asistencias: igual que la baja, el modal lo abre data-toggle y aquí se llenan los campos
+$(document).on('click', '.js-recalcular', function () {
+    $('#recalc_id').val(this.dataset.id);
+    $('#recalc_nombre').text(this.dataset.nombre);
+    $('#recalc_horario').text(this.dataset.horario);
+    $('#recalc_desde, #recalc_hasta, #recalc_motivo').val('');
+    $('#recalc_confirmar').prop('checked', false);
+});
+$('#recalc_desde').on('change', function () { $('#recalc_hasta').attr('min', this.value); });
 
 // Eliminar definitivamente (solo en la lista de bajas): borra también su historial
 function eliminarDefinitivo(ev, nombre) {

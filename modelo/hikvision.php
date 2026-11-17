@@ -220,6 +220,79 @@ function procesar_eventos(mysqli $conexion, array $eventos, array $cfg): array
     return $stats;
 }
 
+/**
+ * Recalcula el estado de los registros web de un empleado en un día con su horario actual.
+ * Mismas reglas que recalcular_dia(): una entrada anticipada cuenta como A_TIEMPO, una salida
+ * antes de hora queda como SALIDA_TEMPRANA y una salida FALTA (más de 2 h tarde) marca la
+ * entrada del día como FALTA. Devuelve cuántos registros cambiaron de estado.
+ */
+function recalcular_web_dia(mysqli $conexion, array $horario, string $dni, string $dia): int
+{
+    $web = registros_del_dia($conexion, $dni, $dia, 'web');
+    if (!$web) return 0;
+
+    $nuevos = [];
+    $salida_falta = false;
+    foreach ($web as $r) {
+        $momento = new DateTime($r['fecha']);
+        if ($r['tipo'] === 'entrada') {
+            $estado = estado_entrada($horario, $momento);
+            $nuevos[$r['id_asistencia']] = $estado === 'ANTICIPADA' ? 'A_TIEMPO' : $estado;
+        } elseif ($r['tipo'] === 'salida') {
+            $estado = estado_salida($horario, $momento);
+            if ($estado === 'FALTA') $salida_falta = true;
+            $nuevos[$r['id_asistencia']] = $estado === 'TEMPRANA' ? 'SALIDA_TEMPRANA' : $estado;
+        }
+    }
+    $cambios = 0;
+    foreach ($web as $r) {
+        if (!isset($nuevos[$r['id_asistencia']])) continue;
+        $estado = $nuevos[$r['id_asistencia']];
+        if ($r['tipo'] === 'entrada' && $salida_falta) $estado = 'FALTA';
+        if ($estado !== $r['estado']) {
+            consulta($conexion, "UPDATE asistencia SET estado = ? WHERE id_asistencia = ?", "si",
+                $estado, $r['id_asistencia']);
+            $cambios++;
+        }
+    }
+    return $cambios;
+}
+
+/**
+ * Recálculo explícito de un rango de fechas (botón "Recalcular" de vista/empleado.php).
+ * Solo para casos extraordinarios, como un horario asignado por error: normalmente un cambio
+ * de horario aplica desde la firma del documento y lo ya registrado se conserva.
+ * Recalcula con el horario actual los días del rango que tengan marcajes del terminal o
+ * registros web. Respeta la fecha de baja (recalcular_dia no genera nada después de ella).
+ * Devuelve ['dias' => n, 'registros' => n] (registros = registros web que cambiaron de estado).
+ */
+function recalcular_rango(mysqli $conexion, string $dni, string $desde, string $hasta): array
+{
+    $horario = horario_empleado($conexion, $dni);
+    if (!$horario || empty($horario['hora_entrada']) || empty($horario['hora_salida'])) {
+        return ['dias' => 0, 'registros' => 0];
+    }
+    $res = consulta($conexion,
+        "SELECT DATE(fecha) AS dia FROM marcaje_dispositivo
+          WHERE dni = ? AND fecha >= ? AND fecha < DATE_ADD(?, INTERVAL 1 DAY)
+         UNION
+         SELECT DATE(fecha) FROM asistencia
+          WHERE dni = ? AND fecha >= ? AND fecha < DATE_ADD(?, INTERVAL 1 DAY)
+         ORDER BY dia",
+        "ssssss", $dni, $desde, $hasta, $dni, $desde, $hasta);
+    $dias = $res ? array_column($res->fetch_all(MYSQLI_ASSOC), 'dia') : [];
+
+    $registros = 0;
+    foreach ($dias as $dia) {
+        if (!empty($horario['fecha_baja']) && $dia > $horario['fecha_baja']) {
+            continue;   // después de la baja no se toca nada
+        }
+        recalcular_dia($conexion, $dni, $dia);
+        $registros += recalcular_web_dia($conexion, $horario, $dni, $dia);
+    }
+    return ['dias' => count($dias), 'registros' => $registros];
+}
+
 /** Recalcula todos los días con marcajes de un empleado (p. ej. justo después de darlo de alta). */
 function recalcular_empleado(mysqli $conexion, string $dni): int
 {

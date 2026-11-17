@@ -29,6 +29,8 @@ requerir_admin();
     empleado.apellido,
     empleado.dni,
     empleado.cargo,
+    empleado.activo,
+    empleado.fecha_baja,
     cargo.id_cargo,
     cargo.nombre as 'nom_cargo'
     FROM 
@@ -119,7 +121,12 @@ requerir_admin();
                     while ($datos = $sql->fetch_object()) { ?>
                     <tr>
                         <td><?= e($datos->id_asistencia) ?></td>
-                        <td><?= e($datos->nom_empleado . " " . $datos->apellido) ?></td>
+                        <td>
+                            <?= e($datos->nom_empleado . " " . $datos->apellido) ?>
+                            <?php if (!$datos->activo): ?>
+                            <span class="badge badge-secondary" title="Dado de baja; sus registros se conservan">Baja<?= $datos->fecha_baja ? ' ' . e(date('d/m/Y', strtotime($datos->fecha_baja))) : '' ?></span>
+                            <?php endif; ?>
+                        </td>
                         <td><?= e($datos->dni) ?></td>
                         <td><?= e($datos->nom_cargo) ?></td>
                         <td><?= e(ucfirst($datos->tipo)) ?></td>

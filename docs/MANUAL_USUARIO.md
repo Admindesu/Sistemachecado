@@ -71,6 +71,8 @@ columna.
   aparecen al terminar; no se vuelven a mostrar.
 - **Importar CSV**: alta en lote desde un archivo; hay una plantilla para descargar.
 - **Editar** / **Dar de baja**: por empleado (ver [Bajas](#bajas-de-personal)).
+- **Recalcular**: por empleado, solo en casos extraordinarios (ver
+  [Recalcular asistencias](#recalcular-asistencias)).
 
 **Edición masiva** — para cambiar cargo, dirección u horario a muchos a la vez:
 
@@ -99,6 +101,24 @@ Cuando un colaborador deja de laborar, usa **Dar de baja** en lugar de eliminarl
 **Reactivar** (si fue un error o regresa a laborar) o **Eliminar definitivamente**, que borra
 al empleado **y todo su historial** y no se puede deshacer. Solo se puede eliminar
 definitivamente a alguien que ya esté dado de baja, y nadie puede darse de baja a sí mismo.
+
+#### Recalcular asistencias
+
+Un cambio de horario se respalda con un documento firmado y aplica **desde la firma o
+notificación**: lo registrado antes sigue siendo válido con el horario anterior. Por eso el
+sistema nunca recalcula solo.
+
+En casos extraordinarios (por ejemplo, un horario asignado por error) usa **Recalcular** en la
+fila del empleado:
+
+1. Elige el rango **Desde** / **Hasta** (sin fechas futuras, máximo un año).
+2. Escribe el **motivo** (por ejemplo el número de oficio).
+3. Marca la casilla de confirmación y pulsa **Recalcular**.
+
+Los estados (a tiempo, retardo, falta, salida temprana…) de esas fechas se vuelven a calcular
+con el horario **actual** del empleado, tanto los del terminal como los del checado web. Las
+fechas fuera del rango y los días posteriores a una baja no se tocan. Cada recálculo queda en
+una bitácora con quién lo hizo, el rango, el horario usado y el motivo.
 
 ### Organigrama
 
@@ -152,5 +172,5 @@ terminal sea igual a su *NoEmpleado* en el sistema y que tenga horario asignado.
 se toma como entrada. Si olvidó checar en la mañana, registra una justificación de entrada.
 
 **Cambié el horario de alguien y sus faltas anteriores siguen igual.** Es lo esperado: el cambio
-aplica desde ese momento. Si el horario anterior fue un error, reasígnalo con la edición masiva
-marcando *Corregir también sus asistencias anteriores*.
+aplica desde ese momento. Si el horario anterior fue un error, asigna el correcto y usa
+[Recalcular](#recalcular-asistencias) con el rango afectado.

@@ -50,7 +50,8 @@ creado, ver Pendientes) contiene:
 Un cambio de horario (de un empleado o del horario mismo) aplica **desde ese momento**: lo
 respalda un documento y las asistencias ya registradas se conservan con el horario que tenían.
 Solo se recalcula el historial cuando el horario se asignó por **error del administrador**
-(casilla de la edición masiva, o `recalcular_empleado()` en `modelo/hikvision.php`).
+(botón **Recalcular** por empleado: rango de fechas, motivo obligatorio y bitácora
+`recalculo_asistencia`; o la casilla de la edición masiva, que no deja bitácora).
 El terminal solo recalcula el día de cada marcaje nuevo; si llega tarde un marcaje de un día
 anterior al cambio, ese día se calcula con el horario vigente.
 
@@ -93,7 +94,7 @@ anterior al cambio, ese día se calcula con el horario vigente.
   no están en el repositorio**; ver ese archivo en el servidor o `.env.example` para los nombres.
 - Ese archivo empieza con `LoadFile` de `brotlicommon.dll` y `brotlidec.dll`: sin ellos Apache no
   carga `php_curl` en Windows (`curl_init()` indefinida).
-- Migraciones 001 a 004 ya aplicadas en la base local `sis-asistencia`.
+- Migraciones 001 a 005 ya aplicadas en la base local `sis-asistencia`.
 - Terminal: 192.168.0.209. Servidor: 192.168.0.207 (Wi-Fi, DHCP).
   HTTP Listening apunta a `http://192.168.0.207/checador/api/hikvision/evento.php?token=...`.
 
@@ -126,7 +127,7 @@ anterior al cambio, ese día se calcula con el horario vigente.
    variables HIK_* que Apache); reiniciar Apache desde el panel de XAMPP.
 5. Crear el pull request de `feature/hikvision` hacia `main` (en este equipo no está `gh`;
    se crea desde https://github.com/Admindesu/Sistemachecado/compare/main...feature/hikvision).
-   En otras instalaciones hay que aplicar las migraciones 001 a 004.
+   En otras instalaciones hay que aplicar las migraciones 001 a 005.
 6. Poner cargo y dirección reales a los importados (edición masiva).
 7. Revisar si conviene cambiar el `ON DELETE CASCADE` de la llave de cargo en `empleado`
    (borrar un cargo podría arrastrar empleados si se salta la validación de la vista).

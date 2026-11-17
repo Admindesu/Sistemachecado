@@ -62,7 +62,8 @@ Con un horario de entrada 09:00, tolerancia 10 y límite de retardo 20:
 
 - La salida antes de la hora (menos 15 min) es **salida temprana**; más de 2 h después, **falta**.
 - Un cambio de horario aplica **desde ese momento**; las asistencias ya registradas no se
-  recalculan (salvo que el horario se haya asignado por error).
+  recalculan. Solo en casos extraordinarios (p. ej. un horario asignado por error) el botón
+  **Recalcular** de Empleados recalcula un rango de fechas y lo anota en una bitácora.
 - Detalles en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md#reglas-de-asistencia).
 
 ## Créditos
