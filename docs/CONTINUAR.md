@@ -1,6 +1,6 @@
 # Notas para continuar (rama feature/hikvision)
 
-Última actualización: 2026-11-13. Resumen de lo hecho y lo pendiente para retomar el trabajo
+Última actualización: 2026-11-17. Resumen de lo hecho y lo pendiente para retomar el trabajo
 en otro equipo. Al iniciar Claude Code en el otro equipo basta con pedirle: *"lee docs/CONTINUAR.md
 y sigamos"*.
 
@@ -42,8 +42,8 @@ creado, ver Pendientes) contiene:
   requiere la extensión zip de PHP, que XAMPP trae desactivada).
 - **Edición masiva de empleados** (`vista/empleado.php` + `controlador/controlador_editar_masivo.php`):
   casillas en la tabla, "Seleccionar todos los de la búsqueda" y "Editar seleccionados" para
-  cambiar cargo, dirección u horario a varios a la vez. Al cambiar el horario hay una casilla
-  (desmarcada) para corregir también las asistencias anteriores, solo si fue un error.
+  cambiar cargo, dirección u horario a varios a la vez. (Desde el 2026-11-17 ya no recalcula;
+  ver la regla de negocio.)
 
 ### Regla de negocio: cambios de horario
 
@@ -77,7 +77,40 @@ anterior al cambio, ese día se calcula con el horario vigente.
   copia anonimizada de la base (`sis-asistencia-demo`, ya borrada) servida con `php -S` y Edge
   headless. Si cambia la interfaz, hay que actualizar estos documentos a mano además de `docs/`.
 
+### Agregado el 2026-11-17
+
+- **Dar de baja no hacía nada**: la ventana se abría invisible (ver la nota técnica sobre
+  `.modal('show')`). Ahora abre con `data-toggle="modal"`. Hasta hoy nadie se había dado de baja
+  (38 de 38 activos). Falta probarlo con un empleado real: debe salir "Baja registrada" y pasar a
+  "Ver bajas".
+- **Asistencias** (`vista/inicio.php`): etiqueta "Baja dd/mm/aaaa" junto al nombre de quien está
+  dado de baja.
+- **Botón Recalcular** por empleado (`controlador/controlador_recalcular_asistencias.php`,
+  `recalcular_rango()` y `recalcular_web_dia()` en `modelo/hikvision.php`): rango de fechas (máx.
+  un año, sin futuras), motivo y confirmación obligatorios; recalcula con el horario actual los
+  registros del terminal y los web, sin tocar lo posterior a la baja. Cada uso queda en la tabla
+  `recalculo_asistencia` (migración `005_bitacora_recalculo.sql`, ya aplicada aquí). Es la **única**
+  vía de recálculo: se quitó la casilla de la edición masiva. Motivo (del usuario): por auditoría,
+  el cambio de horario lo respalda un documento firmado y aplica desde la firma o notificación.
+  Probado sobre una copia de la base: con los horarios actuales los registros del terminal salen
+  idénticos y solo cambiarían 8 registros web de agosto de 2025 (su horario cambió después).
+- `graphify-out/` en `.gitignore`: grafo de conocimiento local del código (graphify instalado con
+  `uv tool install graphifyy`; `/graphify .` en Claude Code lo reconstruye, excluyendo `public/` y
+  `libs/`).
+- Manual de operación (claude.ai) actualizado: apartado *Recalcular asistencias* con captura
+  (Figura 11, nombre ficticio Juan Pérez), edición masiva sin recálculo y etiqueta de baja. El PDF
+  exportado reemplazó a `Desktop\asistencia\Manual de operación — Sistema de Control de
+  Asistencias.pdf` (18 páginas). El doc "Documentación" (ACP4pbBCn2BuAYLA8XHMXR) **no** se
+  actualizó todavía.
+
 ### Notas técnicas
+
+- Nunca abrir un modal con `$('#x').modal('show')` en las vistas del panel: `footer.php` también
+  carga Bootstrap 5, que reemplaza `$.fn.modal` y pone la clase `show`, pero el CSS que manda es el
+  de Bootstrap 4 (espera `in`) y la ventana queda abierta con opacity 0, tapando la página. Usar
+  `data-toggle="modal" data-target="#x"` y llenar los campos en el `click`.
+- En la consola de `empleado.php` aparece `Uncaught (in promise) Error: Container is not defined`
+  desde antes de estos cambios; no está investigado.
 
 - `vista/layout/footer.php` vuelve a cargar jQuery y Bootstrap: el JavaScript de una vista que
   use eventos de jQuery/Bootstrap (modales, DataTables) debe ir **después** de
@@ -131,3 +164,10 @@ anterior al cambio, ese día se calcula con el horario vigente.
 6. Poner cargo y dirección reales a los importados (edición masiva).
 7. Revisar si conviene cambiar el `ON DELETE CASCADE` de la llave de cargo en `empleado`
    (borrar un cargo podría arrastrar empleados si se salta la validación de la vista).
+8. Probar "Dar de baja" y "Recalcular" con datos reales (ver Agregado el 2026-11-17).
+9. Opcional: vista para consultar la bitácora `recalculo_asistencia` desde el sistema (hoy solo
+   en phpMyAdmin).
+10. El dashboard repite reglas de `asistencia_reglas.php` (`minutos_hora_dashboard()`, límite de
+    retardo 20 por defecto, `MINUTOS_LIMITE_SALIDA = 120`): unificarlas en un solo lugar.
+11. Actualizar el doc "Documentación — Sistema de Control de Asistencias" en claude.ai con lo del
+    2026-11-17.
