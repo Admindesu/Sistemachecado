@@ -125,13 +125,14 @@ lecturas a menos de 5 min de la entrada se ignoran, y los checados web del día 
 se llama para los días con marcajes nuevos.
 
 **Cambios de horario**: aplican desde ese momento; el historial no se recalcula salvo que el
-administrador lo pida para corregir un error. La vía principal es el botón **Recalcular** de
+administrador lo pida para corregir un error. La única vía es el botón **Recalcular** de
 Empleados (`controlador/controlador_recalcular_asistencias.php` → `recalcular_rango()`): pide un
 rango de fechas, un motivo y una confirmación; recalcula los registros del terminal
 (`recalcular_dia()`) y los web (`recalcular_web_dia()`) con el horario actual, sin tocar nada
 posterior a la fecha de baja, y deja una fila en la bitácora `recalculo_asistencia` (quién, a
-quién, rango, horario, motivo, días). La casilla de la edición masiva (`recalcular_empleado()`)
-sigue disponible, pero no deja bitácora.
+quién, rango, horario, motivo, días). La edición masiva nunca recalcula.
+`recalcular_empleado()` solo se usa al importar empleados desde el terminal, para generar por
+primera vez las asistencias de sus marcajes.
 
 **Bajas**: un empleado con `activo = 0` no puede iniciar sesión (`login.php`) ni checar en la web
 (sesiones abiertas antes de la baja se rechazan al checar). `recalcular_dia()` no genera

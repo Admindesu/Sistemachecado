@@ -181,14 +181,10 @@ requerir_admin();
                                     </select>
                                 </div>
                             <?php endforeach; ?>
-                            <div class="form-check" id="opcionRecalcular" style="display: none;">
-                                <input class="form-check-input" type="checkbox" name="recalcular" value="1" id="masivo_recalcular">
-                                <label class="form-check-label small" for="masivo_recalcular">
-                                    Corregir también sus asistencias anteriores con este horario
-                                    <span class="d-block text-muted">Solo si el horario anterior se asignó por error. Normalmente el
-                                    horario nuevo aplica desde hoy y lo ya registrado se conserva.</span>
-                                </label>
-                            </div>
+                            <p class="small text-muted mb-0" id="avisoHorario" style="display: none;">
+                                El horario nuevo aplica desde ahora; lo ya registrado se conserva. Si fue un error,
+                                usa <strong>Recalcular</strong> en cada empleado.
+                            </p>
                             <div id="idsSeleccionados"></div>
                         </div>
                         <div class="modal-footer">
@@ -646,11 +642,10 @@ requerir_admin();
             ? nombres.slice(0, 8).join(', ') + ' y ' + (nombres.length - 8) + ' más'
             : nombres.join(', '));
         $('#formEditarMasivo select').val('');
-        $('#opcionRecalcular').hide();
-        $('#masivo_recalcular').prop('checked', false);   // por defecto el horario nuevo aplica desde hoy
+        $('#avisoHorario').hide();
     });
     $('#masivo_horario').on('change', function () {
-        $('#opcionRecalcular').toggle(this.value !== '');
+        $('#avisoHorario').toggle(this.value !== '');
     });
     $('#formEditarMasivo').on('submit', function (ev) {
         const cambios = $(this).find('select').filter(function () { return this.value !== ''; }).length;

@@ -50,8 +50,8 @@ creado, ver Pendientes) contiene:
 Un cambio de horario (de un empleado o del horario mismo) aplica **desde ese momento**: lo
 respalda un documento y las asistencias ya registradas se conservan con el horario que tenían.
 Solo se recalcula el historial cuando el horario se asignó por **error del administrador**
-(botón **Recalcular** por empleado: rango de fechas, motivo obligatorio y bitácora
-`recalculo_asistencia`; o la casilla de la edición masiva, que no deja bitácora).
+(solo con el botón **Recalcular** por empleado: rango de fechas, motivo obligatorio y bitácora
+`recalculo_asistencia`; la edición masiva ya no recalcula).
 El terminal solo recalcula el día de cada marcaje nuevo; si llega tarde un marcaje de un día
 anterior al cambio, ese día se calcula con el horario vigente.
 

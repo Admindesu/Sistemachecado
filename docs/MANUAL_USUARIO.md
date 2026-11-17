@@ -82,9 +82,8 @@ columna.
 2. La selección se conserva al cambiar de página o de búsqueda. **Quitar selección** la limpia.
 3. Pulsa **Editar seleccionados (N)**, elige solo lo que quieras cambiar (lo demás queda en
    *No cambiar*) y **Aplicar cambios**.
-4. Al cambiar el horario aparece la opción **Corregir también sus asistencias anteriores**.
-   Déjala desmarcada salvo que el horario anterior se haya asignado **por error**: un cambio de
-   horario normal aplica desde ese momento.
+4. Un cambio de horario aplica desde ese momento; lo ya registrado se conserva. Si el horario
+   anterior se asignó **por error**, usa [Recalcular](#recalcular-asistencias) en cada empleado.
 
 #### Bajas de personal
 
