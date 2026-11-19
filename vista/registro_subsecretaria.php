@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
+if (!usar_subsecretarias()) {
+    header('Location: organigrama.php');
+    exit;
+}
 // DESPUÉS cargar el layout
 require('./layout/topbar.php');
 require('./layout/sidebar.php');
@@ -12,11 +16,6 @@ include "../controlador/controlador_registrar_subsecretaria.php";
 
 ?>
 
-<style>
-ul li:nth-child(3) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 
 <!-- inicio del contenido principal -->
 <div class="page-content">

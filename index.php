@@ -23,7 +23,7 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
     <style>
 
         body {
-            background-image: url('vista/login/img/SEMA.PNG');
+            background-image: url('vista/login/img/logo.png');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -295,6 +295,11 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
                     <strong>Error:</strong> Empleado no encontrado.
                 </div>';
                 break;
+            case 'empleado_baja':
+                echo '<div class="alert alert-danger">
+                    <strong>Cuenta dada de baja:</strong> ya no puedes registrar asistencia. Si es un error, avisa al administrador.
+                </div>';
+                break;
             case 'salida_temprana':
                 echo '<div class="alert alert-warning">
                     <strong>¡Atención!</strong> No puedes registrar salida antes de la hora establecida en tu horario.
@@ -303,6 +308,16 @@ $nombreCompleto = isset($_SESSION['nombre']) && isset($_SESSION['apellido']) ?
             case 'entrada_anticipada':
                 echo '<div class="alert alert-warning">
                     <strong>¡Atención!</strong> Solo puedes registrar entrada 15 minutos antes de tu horario.
+                </div>';
+                break;
+            case 'entrada_duplicada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Ya registraste tu entrada hoy.
+                </div>';
+                break;
+            case 'salida_duplicada':
+                echo '<div class="alert alert-warning">
+                    <strong>¡Atención!</strong> Ya registraste tu salida hoy.
                 </div>';
                 break;
             case 'error_registro':

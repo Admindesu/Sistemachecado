@@ -3,12 +3,6 @@ require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
 ?>
 
-<style>
-ul li:nth-child(1) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-
-</style>
 
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -29,16 +23,21 @@ ul li:nth-child(1) .activo {
     asistencia.dni,
     asistencia.tipo,
     asistencia.fecha,
+    asistencia.estado,
+    asistencia.origen,
     empleado.nombre as 'nom_empleado',
     empleado.apellido,
     empleado.dni,
     empleado.cargo,
+    empleado.activo,
+    empleado.fecha_baja,
     cargo.id_cargo,
     cargo.nombre as 'nom_cargo'
     FROM 
     asistencia
     INNER JOIN empleado ON asistencia.dni = empleado.dni
-    INNER JOIN cargo ON empleado.cargo = cargo.id_cargo");
+    INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
+    ORDER BY asistencia.fecha DESC, asistencia.id_asistencia DESC");
 
     if (!$sql) {
         die("Error en la consulta: " . $conexion->error);
@@ -47,8 +46,11 @@ ul li:nth-child(1) .activo {
 
     <div class="container-fluid">
         <div class="mb-3">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFiltros">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalFiltros" data-formato="pdf">
                 <i class="fas fa-file-pdf"></i> Generar Reporte PDF
+            </button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalFiltros" data-formato="excel">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
             </button>
         </div>
         
@@ -65,14 +67,6 @@ ul li:nth-child(1) .activo {
                     <form id="reportForm" method="POST" target="_blank">
 <?= campo_csrf() ?>
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label>Formato de Reporte</label>
-                                <select class="form-control" name="tipo_reporte" id="tipo_reporte">
-                                    <option value="pdf">Reporte PDF</option>
-                                    <option value="excel">Reporte Excel</option>
-                                </select>
-                            </div>
-                            
                             <div class="form-group">
                                 <label>Rango de Fechas (Opcional)</label>
                                 <div class="row">
@@ -92,23 +86,23 @@ ul li:nth-child(1) .activo {
                                 <select class="form-control" name="empleado">
                                     <option value="">Todos los empleados</option>
                                     <?php
-                                    $empleados = $conexion->query("SELECT dni, nombre, apellido FROM empleado ORDER BY nombre, apellido");
+                                    $empleados = $conexion->query("SELECT dni, nombre, apellido, activo FROM empleado ORDER BY activo DESC, nombre, apellido");
                                     while($emp = $empleados->fetch_object()): ?>
-                                        <option value="<?= e($emp->dni) ?>"><?= e($emp->nombre . ' ' . $emp->apellido) ?></option>
+                                        <option value="<?= e($emp->dni) ?>"><?= e($emp->nombre . ' ' . $emp->apellido) ?><?= $emp->activo ? '' : ' (baja)' ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-primary">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primary" id="btnGenerarReporte">Generar Reporte</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover w-100 table-striped" id="example">
+            <table class="table table-bordered table-hover w-100 table-striped" id="example" data-order='[[5, "desc"]]'>
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -117,6 +111,8 @@ ul li:nth-child(1) .activo {
                         <th scope="col">Cargo</th>
                         <th scope="col">Tipo</th>
                         <th scope="col">Fecha/Hora</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Origen</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
@@ -125,11 +121,20 @@ ul li:nth-child(1) .activo {
                     while ($datos = $sql->fetch_object()) { ?>
                     <tr>
                         <td><?= e($datos->id_asistencia) ?></td>
-                        <td><?= e($datos->nom_empleado . " " . $datos->apellido) ?></td>
+                        <td>
+                            <?= e($datos->nom_empleado . " " . $datos->apellido) ?>
+                            <?php if (!$datos->activo): ?>
+                            <span class="badge badge-secondary" title="Dado de baja; sus registros se conservan">Baja<?= $datos->fecha_baja ? ' ' . e(date('d/m/Y', strtotime($datos->fecha_baja))) : '' ?></span>
+                            <?php endif; ?>
+                        </td>
                         <td><?= e($datos->dni) ?></td>
                         <td><?= e($datos->nom_cargo) ?></td>
                         <td><?= e(ucfirst($datos->tipo)) ?></td>
                         <td><?= e($datos->fecha) ?></td>
+                        <td><?= e(str_replace('_', ' ', (string) $datos->estado)) ?></td>
+                        <td><?= $datos->origen === 'hikvision'
+                            ? '<span style="background:#17a2b8;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;">Hikvision</span>'
+                            : '<span style="background:#6c757d;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;">Web</span>' ?></td>
                         <td>
                             <a href="inicio.php?id=<?= e($datos->id_asistencia) ?>" onclick="advertencia(event)" class="btn btn-danger">
                                 <i class="fas fa-trash"></i>
@@ -150,15 +155,23 @@ ul li:nth-child(1) .activo {
 <?php require('./layout/footer.php'); ?>
 
 <script>
-document.getElementById('tipo_reporte').addEventListener('change', function() {
+// El mismo modal de filtros sirve para el PDF y para Excel; el botón que lo abre elige el formato.
+const formatosReporte = {
+    pdf:   { action: 'reportes/pdf_report.php',   titulo: 'Filtros para Reporte PDF', boton: '<i class="fas fa-file-pdf"></i> Generar PDF',      clase: 'btn btn-primary', target: '_blank' },
+    excel: { action: 'reportes/excel_report.php', titulo: 'Exportar a Excel',         boton: '<i class="fas fa-file-excel"></i> Descargar Excel', clase: 'btn btn-success', target: '_self' }
+};
+function elegirFormatoReporte(formato) {
+    const f = formatosReporte[formato] || formatosReporte.pdf;
     const form = document.getElementById('reportForm');
-    if (this.value === 'pdf') {
-        form.action = 'reportes/pdf_report.php';
-    } else {
-        form.action = 'reportes/excel_report.php';
-    }
+    form.action = f.action;
+    form.target = f.target;   // el Excel se descarga, no hace falta abrir otra pestaña
+    document.getElementById('modalFiltrosLabel').textContent = f.titulo;
+    const boton = document.getElementById('btnGenerarReporte');
+    boton.innerHTML = f.boton;
+    boton.className = f.clase;
+}
+document.querySelectorAll('[data-target="#modalFiltros"]').forEach(function (b) {
+    b.addEventListener('click', function () { elegirFormatoReporte(this.dataset.formato); });
 });
-
-// Set initial form action
-document.getElementById('reportForm').action = 'reportes/pdf_report.php';
+elegirFormatoReporte('pdf');
 </script>

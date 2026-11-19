@@ -1,13 +1,34 @@
 <?php
 require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
+
+/** Hora resultante de sumar minutos a la entrada, p. ej. ('07:40:00', 90) -> '09:10' */
+function hora_mas_minutos(string $hora, int $minutos): string
+{
+    return date('H:i', strtotime($hora) + $minutos * 60);
+}
+
+/**
+ * Campos de tolerancia y retardo en minutos después de la entrada; el JS de abajo
+ * muestra debajo a qué horas equivalen.
+ */
+function campos_tolerancia(int $tolerancia, int $retardo): void
+{ ?>
+    <!-- Cuadrícula propia: la plantilla mezcla versiones de Bootstrap y .form-row/.col-sm-6 se encimaban con el resumen -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0 16px;">
+        <div class="form-group">
+            <label>Tolerancia (minutos)</label>
+            <input type="number" class="form-control" name="tolerancia_entrada" value="<?= $tolerancia ?>" required min="0" max="720">
+        </div>
+        <div class="form-group">
+            <label>Límite de retardo (minutos)</label>
+            <input type="number" class="form-control" name="limite_retardo" value="<?= $retardo ?>" required min="1" max="720">
+        </div>
+    </div>
+    <div class="alert alert-secondary small py-2 js-resumen"></div>
+<?php }
 ?>
 
-<style>
-ul li:nth-child(4) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-</style>
 
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -59,8 +80,8 @@ ul li:nth-child(4) .activo {
                                     <td><?= e($datos->nombre) ?></td>
                                     <td><?= date('h:i A', strtotime($datos->hora_entrada)) ?></td>
                                     <td><?= date('h:i A', strtotime($datos->hora_salida)) ?></td>
-                                    <td><?= e($datos->tolerancia_entrada) ?></td>
-                                    <td><?= e($datos->limite_retardo) ?></td>
+                                    <td><?= e($datos->tolerancia_entrada) ?> <small class="text-muted">(hasta <?= hora_mas_minutos($datos->hora_entrada, (int) $datos->tolerancia_entrada) ?>)</small></td>
+                                    <td><?= e($datos->limite_retardo) ?> <small class="text-muted">(hasta <?= hora_mas_minutos($datos->hora_entrada, (int) $datos->limite_retardo) ?>)</small></td>
                                     <td><?= e($datos->descripcion) ?></td>
                                     <td>
                                         <a href="#" data-toggle="modal" data-target="#editarHorario<?= e($datos->id_horario) ?>" class="btn btn-warning btn-sm">
@@ -102,15 +123,7 @@ ul li:nth-child(4) .activo {
                                                         <input type="time" class="form-control" name="hora_salida" value="<?= e($datos->hora_salida) ?>" required>
                                                     </div>
                                                     
-                                                    <div class="form-group">
-                                                        <label>Tolerancia (minutos)</label>
-                                                        <input type="number" class="form-control" name="tolerancia_entrada" value="<?= e($datos->tolerancia_entrada) ?>" required min="0" max="60">
-                                                    </div>
-                                                    
-                                                    <div class="form-group">
-                                                        <label>Límite de Retardo (minutos)</label>
-                                                        <input type="number" class="form-control" name="limite_retardo" value="<?= e($datos->limite_retardo) ?>" required min="0" max="60">
-                                                    </div>
+                                                    <?php campos_tolerancia((int) $datos->tolerancia_entrada, (int) $datos->limite_retardo); ?>
                                                     
                                                     <div class="form-group">
                                                         <label>Descripción</label>
@@ -146,7 +159,7 @@ ul li:nth-child(4) .activo {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="../controlador/controlador_registrar_horario.php">
+                <form method="POST" action="../controlador/controlador_registrar_horario.php" onsubmit="return validarHorario(this)">
 <?= campo_csrf() ?>
                     <div class="form-group">
                         <label>Nombre del Horario</label>
@@ -163,15 +176,7 @@ ul li:nth-child(4) .activo {
                         <input type="time" class="form-control" name="hora_salida" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Tolerancia (minutos)</label>
-                        <input type="number" class="form-control" name="tolerancia_entrada" required min="0" max="60" value="10">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Límite de Retardo (minutos)</label>
-                        <input type="number" class="form-control" name="limite_retardo" required min="0" max="60" value="20">
-                    </div>
+                    <?php campos_tolerancia(10, 20); ?>
                     
                     <div class="form-group">
                         <label>Descripción</label>
@@ -191,44 +196,76 @@ ul li:nth-child(4) .activo {
 <!-- fin del contenido principal -->
 
 <script>
+/* ---- Tolerancia / retardo: resumen de las franjas ---- */
+function aMinutos(hhmm) {
+    if (!hhmm) return null;
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+}
+function hora12(minutos) {
+    const h = Math.floor(minutos / 60), m = minutos % 60;
+    return ((h + 11) % 12 + 1) + ':' + String(m).padStart(2, '0') + (h < 12 ? ' a. m.' : ' p. m.');
+}
+
+/** Revisa los valores del formulario; devuelve el error o null. */
+function errorHorario(form) {
+    const entrada = aMinutos(form.hora_entrada.value);
+    const salida = aMinutos(form.hora_salida.value);
+    const tol = parseInt(form.tolerancia_entrada.value, 10);
+    const ret = parseInt(form.limite_retardo.value, 10);
+    if (entrada === null || salida === null) return 'Las horas de entrada y salida son obligatorias';
+    if (entrada >= salida) return 'La hora de salida debe ser posterior a la hora de entrada';
+    if (isNaN(tol) || tol < 0) return 'La tolerancia no puede ser negativa';
+    if (isNaN(ret) || ret <= tol) return 'El retardo debe terminar después de la tolerancia';
+    if (entrada + ret >= salida) return 'El retardo debe terminar antes de la hora de salida';
+    return null;
+}
+
+/** Muestra a qué horas equivalen la tolerancia y el retardo. */
+function sincronizarHorario(form) {
+    const entrada = aMinutos(form.hora_entrada.value);
+    const resumen = form.querySelector('.js-resumen');
+    const error = errorHorario(form);
+    resumen.classList.toggle('alert-danger', !!error);
+    resumen.classList.toggle('alert-secondary', !error);
+    if (error) {
+        resumen.textContent = error;
+        return;
+    }
+    const tol = parseInt(form.tolerancia_entrada.value, 10);
+    const ret = parseInt(form.limite_retardo.value, 10);
+    resumen.innerHTML =
+        '<b>A tiempo:</b> hasta las ' + hora12(entrada + tol) +
+        ' &nbsp;·&nbsp; <b>Retardo:</b> de ' + hora12(entrada + tol + 1) + ' a ' + hora12(entrada + ret) +
+        ' &nbsp;·&nbsp; <b>Falta:</b> después de las ' + hora12(entrada + ret);
+}
+
+function validarHorario(form) {
+    const error = errorHorario(form);
+    if (error) {
+        Swal.fire({ icon: 'error', title: 'Error', text: error });
+        return false;
+    }
+    return true;
+}
+
+['input', 'change'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (ev) {
+        const form = ev.target.form;
+        if (form && form.querySelector('.js-resumen')) sincronizarHorario(form);
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-resumen').forEach(function (r) { sincronizarHorario(r.closest('form')); });
+});
+
 function editarHorario(event, id) {
     event.preventDefault();
     const form = document.getElementById('formEditarHorario' + id);
     const formData = new FormData(form);
     formData.append('btnmodificar', '1');
 
-    // Validaciones
-    const horaEntrada = formData.get('hora_entrada');
-    const horaSalida = formData.get('hora_salida');
-    const tolerancia = parseInt(formData.get('tolerancia_entrada'));
-    const limiteRetardo = parseInt(formData.get('limite_retardo'));
-
-    if (!horaEntrada || !horaSalida) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Las horas de entrada y salida son obligatorias'
-        });
-        return;
-    }
-
-    if (horaEntrada >= horaSalida) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'La hora de salida debe ser posterior a la hora de entrada'
-        });
-        return;
-    }
-
-    if (tolerancia < 0 || tolerancia > 60 || limiteRetardo < 0 || limiteRetardo > 60 || limiteRetardo <= tolerancia) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Los valores de tolerancia y límite de retardo son inválidos'
-        });
-        return;
-    }
+    if (!validarHorario(form)) return;
 
     fetch('../controlador/controlador_modificar_horario.php', {
         method: 'POST',
@@ -282,3 +319,22 @@ function confirmarEliminacion(id) {
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+
+<?php
+// Resultado del alta de horario (ver controlador_registrar_horario.php)
+$mensajes_horario = [
+    'registrado' => ['success', '¡Listo!', 'Horario registrado correctamente'],
+    'campos'     => ['error', 'Faltan datos', 'Todos los campos son obligatorios'],
+    'formato'    => ['error', 'Hora inválida', 'Revisa el formato de las horas'],
+    'orden'      => ['error', 'Horario inválido', 'La hora de salida debe ser posterior a la hora de entrada'],
+    'tolerancia' => ['error', 'Valores inválidos', 'El límite de retardo debe ser mayor que la tolerancia y terminar antes de la hora de salida'],
+    'error'      => ['error', 'Error', 'No se pudo registrar el horario'],
+];
+if (isset($_GET['msg'], $mensajes_horario[$_GET['msg']])) {
+    [$icono, $titulo, $texto] = $mensajes_horario[$_GET['msg']]; ?>
+    <script>
+        Swal.fire({ icon: <?= json_encode($icono) ?>, title: <?= json_encode($titulo) ?>, text: <?= json_encode($texto) ?> });
+        // Quita ?msg= de la URL para que al recargar no se repita el mensaje
+        window.history.replaceState(null, null, window.location.pathname);
+    </script>
+<?php } ?>

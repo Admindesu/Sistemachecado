@@ -29,6 +29,16 @@ function e($valor): string
     return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * ¿El centro de trabajo usa subsecretarías? Se activa con APP_SUBSECRETARIAS=1.
+ * Apagado (por defecto) se ocultan en formularios, lista de empleados y organigrama;
+ * los datos que ya existan se conservan.
+ */
+function usar_subsecretarias(): bool
+{
+    return in_array(strtolower(trim((string) getenv('APP_SUBSECRETARIAS'))), ['1', 'true', 'si', 'sí', 'on'], true);
+}
+
 /* ---------- CSRF ---------- */
 function token_csrf(): string
 {

@@ -49,10 +49,58 @@ $sql = "SELECT
     ORDER BY asistencia.fecha DESC";
 
 // Clase personalizada que extiende FPDI para el reporte PDF.
-// Se sobreescribe el método Header para no mostrar encabezado, ya que se usa una plantilla.
 class PDF extends Fpdi {
+    const IMAGEN_ENCABEZADO = __DIR__ . '/../../libs/header_pdf.png';
+    const ALTO_MAX_ENCABEZADO = 35;      // mm; una imagen más "alta" se reduce y se centra
+    public $columnas = [];               // [ancho, título] de la tabla, se repite en cada página
+
+    /**
+     * Tamaño en mm de la imagen del encabezado, respetando su proporción real:
+     * a todo lo ancho de la página, o centrada si así pasaría de ALTO_MAX_ENCABEZADO.
+     * Devuelve [x, ancho, alto].
+     */
+    function medidasEncabezado(): array {
+        [$px_ancho, $px_alto] = getimagesize(self::IMAGEN_ENCABEZADO);
+        $ancho = $this->GetPageWidth();
+        $alto = $ancho * $px_alto / $px_ancho;
+        if ($alto > self::ALTO_MAX_ENCABEZADO) {
+            $alto = self::ALTO_MAX_ENCABEZADO;
+            $ancho = $alto * $px_ancho / $px_alto;
+        }
+        return [($this->GetPageWidth() - $ancho) / 2, $ancho, $alto];
+    }
+
+    // Encabezado en todas las páginas: franja del color de la imagen a todo lo ancho
+    // (rellena los lados si la imagen no alcanza) y la imagen header_pdf.png encima.
     function Header() {
-        // No header, as template is used
+        [$x, $ancho, $alto] = $this->medidasEncabezado();
+        $this->SetFillColor(129, 0, 16);
+        $this->Rect(0, 0, $this->GetPageWidth(), $alto, 'F');
+        $this->Image(self::IMAGEN_ENCABEZADO, $x, 0, $ancho, $alto);
+        $this->SetY($alto + 6);
+        // A partir de la segunda página se repite la cabecera de la tabla
+        if ($this->PageNo() > 1 && $this->columnas) {
+            $this->cabeceraTabla();
+        }
+    }
+
+    function cabeceraTabla() {
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetFillColor(230, 230, 230);
+        $this->SetTextColor(0, 0, 0);
+        foreach ($this->columnas as [$ancho, $titulo]) {
+            $this->Cell($ancho, 8, utf8_decode($titulo), 1, 0, 'C', true);
+        }
+        $this->Ln();
+        $this->SetFont('Arial', '', 9);
+    }
+
+    function Footer() {
+        $this->SetY(-12);
+        $this->SetFont('Arial', '', 8);
+        $this->SetTextColor(120, 120, 120);
+        $this->Cell(0, 6, utf8_decode('Página ') . $this->PageNo() . ' de {nb}', 0, 0, 'R');
+        $this->SetTextColor(0, 0, 0);
     }
 
     // Formatea una hora en formato 12 horas
@@ -91,49 +139,33 @@ class PDF extends Fpdi {
 }
 
 // Crea el PDF
-$pdf = new PDF('P', 'mm', 'A4');
+// Horizontal (A4: 297 x 210 mm); el título va en la imagen del encabezado
+$pdf = new PDF('L', 'mm', 'A4');
+$pdf->AliasNbPages();
+$pdf->SetMargins(10, $pdf->medidasEncabezado()[2] + 6, 10);
+$pdf->SetAutoPageBreak(true, 15);
 $pdf->AddPage();
-$pdf->SetMargins(10, 10, 10);
-
-// Título del reporte
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 10, 'Reporte de Asistencias', 0, 1, 'C');
-$pdf->Ln(5);
 
 // Periodo del reporte
 $pdf->SetFont('Arial', 'B', 11);
-$pdf->Cell(0, 10, 'Periodo: ' . date('d/m/Y', strtotime($fecha_inicio)) . ' - ' . date('d/m/Y', strtotime($fecha_fin)), 0, 1, 'C');
+$pdf->Cell(0, 8, 'Periodo: ' . date('d/m/Y', strtotime($fecha_inicio)) . ' - ' . date('d/m/Y', strtotime($fecha_fin)), 0, 1, 'C');
 
 // Si hay filtro por empleado
 if ($empleado_id) {
     $emp = consulta($conexion, "SELECT CONCAT(nombre, ' ', apellido) as nombre FROM empleado WHERE dni = ?", "s", $empleado_id)->fetch_object();
     if ($emp) {
         $pdf->SetFont('Arial', 'B', 11);
-        $pdf->Cell(0, 10, 'Empleado: ' . utf8_decode($emp->nombre), 0, 1, 'L');
+        $pdf->Cell(0, 8, 'Empleado: ' . utf8_decode($emp->nombre), 0, 1, 'L');
     }
 }
-$pdf->Ln(5);
+$pdf->Ln(3);
 
-// Encabezados de la tabla
-$pdf->SetFont('Arial', 'B', 9);
-$pdf->SetFillColor(230, 230, 230);
-
-// Configuración de la tabla
-$pdf->SetFillColor(230, 230, 230);
-$pdf->SetFont('Arial', 'B', 10);
-
-// Anchura de las columnas (total 190mm para A4)
-$w = array(25, 55, 35, 35, 20, 20);
-$headers = array('DNI', 'Empleado', 'Cargo', 'Fecha/Hora', 'Tipo', 'Estado');
-
-// Cabecera de la tabla
-foreach($headers as $i => $header) {
-    $pdf->Cell($w[$i], 8, utf8_decode($header), 1, 0, 'C', true);
-}
-$pdf->Ln();
+// Columnas de la tabla (total 277 mm: ancho horizontal menos márgenes)
+$pdf->columnas = [[25, 'DNI'], [85, 'Empleado'], [70, 'Cargo'], [40, 'Fecha/Hora'], [25, 'Tipo'], [32, 'Estado']];
+$w = array_column($pdf->columnas, 0);
+$pdf->cabeceraTabla();
 
 // Contenido de la tabla
-$pdf->SetFont('Arial', '', 9);
 $result = consulta($conexion, $sql, $tipos, ...$params);
 
 while ($row = $result->fetch_assoc()) {

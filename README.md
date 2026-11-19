@@ -1,76 +1,73 @@
-Sistema de Control de Asistencias
-Este es un sistema moderno y fácil de usar para la gestión de asistencia de personal, desarrollado con PHP para el backend y JavaScript para una interfaz de usuario dinámica y responsiva. Es ideal para llevar un registro preciso de la puntualidad y la presencia de los colaboradores de la Secretaria.
+# Sistema de Control de Asistencias
 
-Características Principales
-Registro de Asistencia: Permite a los usuarios marcar su entrada y salida de forma sencilla.
+Sistema web para registrar y supervisar la asistencia del personal. Recibe los marcajes de un
+terminal biométrico **Hikvision** (rostro, huella, tarjeta) y también permite checar desde el
+navegador; calcula retardos y faltas según el horario de cada empleado y genera reportes en
+PDF y Excel.
 
-Gestión de Usuarios: Creación, edición y eliminación de usuarios con diferentes roles (por ejemplo, empleado, administrador).
+Desarrollado en PHP 8 + MariaDB, sin frameworks ni Composer. Funciona con **XAMPP** en Windows
+o con **Docker**.
 
-Visualización de Reportes: Generación de reportes detallados de asistencia por día, semana o mes, con filtros personalizables.
+## Funciones principales
 
-Interfaz Intuitiva: Diseño amigable y fácil de navegar gracias a JavaScript.
+| Módulo | Qué hace |
+|---|---|
+| **Dashboard** | Puntualidad, retardos, faltas, pendientes y salidas sin checar por día, semana, mes o rango. |
+| **Asistencias** | Tabla de todos los registros (lo más reciente primero), reporte **PDF** y exportación a **Excel (.xlsx)**. |
+| **Empleados** | Alta, edición, baja, importación por CSV, **importación desde el terminal** y **edición masiva** de cargo, dirección y horario. |
+| **Organigrama** | Catálogos de cargos y direcciones (y subsecretarías, si se activan). |
+| **Horarios** | Hora de entrada y salida, minutos de tolerancia y límite de retardo. |
+| **Justificaciones** | Permisos que justifican una entrada, una salida o el día completo. |
+| **Días inhábiles** | Festivos y asuetos (pueden repetirse cada año); no generan faltas. |
+| **Checado web** | Cada empleado marca entrada y salida desde `index.php` y descarga su propio reporte. |
+| **Terminal Hikvision** | Recepción en tiempo real (HTTP Listening) y sincronización periódica de respaldo. |
 
-Base de Datos Relacional: Almacenamiento seguro y organizado de datos de asistencia y usuarios.
+## Inicio rápido
 
-Configuración Flexible: Permite ajustar parámetros como horarios de trabajo, días festivos, etc.
-
-Tecnologías Utilizadas
-Backend: PHP
-
-Frontend: HTML5, CSS3, JavaScript
-
-Base de Datos: MySQL (XAMPP) 
-
-Servidor Web: Apache / Nginx (XAMMP)
-
-Requisitos del Sistema
-Para ejecutar este sistema, necesitas tener instalado lo siguiente:
-
-Servidor Web: Apache, Nginx o similar, recomendamos usar Xampp para mayor facilidad de instalacion y manejo.
-
-PHP: Versión 7.4 o superior.
-
-Extensiones PHP recomendadas: mysqli, pdo, json.
-
-Base de Datos: MySQL 5.7+ o MariaDB 10.2+.
-
-## Instalación con Docker (recomendado)
-
-Requisitos: Docker Desktop (incluye Docker Compose).
+### Docker
 
 ```bash
-cp .env.example .env      # y cambia las contraseñas
+cp .env.example .env          # cambiar contraseñas y datos del terminal
 docker compose up -d --build
 ```
 
-- Aplicación: http://localhost:8080
-- phpMyAdmin (opcional): `docker compose --profile tools up -d` → http://localhost:8081
+Aplicación en http://localhost:8080. La base de datos y las migraciones se crean solas.
 
-La primera vez se crea la base de datos `sis-asistencia` con `sql/sis-asistencia.sql`.
-Ese script solo corre cuando el volumen está vacío; para reiniciar la BD desde cero:
-`docker compose down -v` (borra todos los datos).
+### XAMPP (Windows)
 
-La zona horaria se configura con `APP_TZ` en `.env` (por defecto `America/Cancun`).
+Ver la guía completa en [docs/INSTALACION.md](docs/INSTALACION.md): alias de Apache, variables
+de entorno, base de datos, migraciones y tarea programada.
 
-## Instalación con XAMPP
+**Usuario inicial** (base nueva): `juanmanuel` / `123`. Cámbialo al entrar.
 
-Sigue estos pasos para poner en marcha el sistema en tu entorno local o servidor:
+## Documentación
 
-Clona el Repositorio:
+| Documento | Para quién | Contenido |
+|---|---|---|
+| [docs/MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md) | Administradores y empleados | Cómo usar cada módulo. |
+| [docs/INSTALACION.md](docs/INSTALACION.md) | Quien instala o mantiene el servidor | Docker, XAMPP, variables, migraciones, respaldos. |
+| [docs/HIKVISION.md](docs/HIKVISION.md) | Quien configura el terminal | Configuración del equipo, cómo se procesan los marcajes, solución de problemas. |
+| [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) | Desarrolladores | Estructura del código, base de datos, reglas de asistencia, seguridad y convenciones. |
+| [docs/CONTINUAR.md](docs/CONTINUAR.md) | Desarrolladores | Estado actual del trabajo y pendientes. |
 
-Configura el Servidor Web:
-Asegúrate de que tu servidor web (Apache/Nginx) apunte al directorio raíz del proyecto (nombre-del-repositorio).
+## Reglas de asistencia (resumen)
 
-Configura la Base de Datos:
+Con un horario de entrada 09:00, tolerancia 10 y límite de retardo 20:
 
-Crea una nueva base de datos en tu servidor MySQL sis-asistencia.
+| Hora de entrada | Estado |
+|---|---|
+| hasta 09:10 | **A tiempo** |
+| 09:11 – 09:20 | **Retardo** |
+| después de 09:20 | **Falta** |
 
-Importa el archivo sistema_asistencia2.sql  a tu nueva base de datos. Este archivo contiene la estructura de las tablas y algunos datos iniciales.
-Abre tu navegador web y navega a la URL donde hayas desplegado el sistema (ej. http://localhost/sis-asistencia/vista/login/login.php o http://tu-dominio.com/).
+- La salida antes de la hora (menos 15 min) es **salida temprana**; más de 2 h después, **falta**.
+- Un cambio de horario aplica **desde ese momento**; las asistencias ya registradas no se
+  recalculan. Solo en casos extraordinarios (p. ej. un horario asignado por error) el botón
+  **Recalcular** de Empleados recalcula un rango de fechas y lo anota en una bitácora.
+- Detalles en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md#reglas-de-asistencia).
 
+## Créditos
 
-Inicia Sesion
-Usuario: isai
-
-Contraseña: 123 (¡Por favor, cambia esta contraseña inmediatamente después de iniciar sesión!)
-Esto es un Fork de InformaticaStudios: https://www.youtube.com/watch?v=w5wrSsW9s_M&list=LL&index=4&ab_channel=InformaticaStudios
+Desarrollado por Ing. Francisco Daniel Paredes Moreno e Ing. en Sistemas Fermín Pérez Soza.
+Basado originalmente en un proyecto de
+[InformaticaStudios](https://www.youtube.com/watch?v=w5wrSsW9s_M).

@@ -33,7 +33,7 @@ if(!empty($_POST["btnregistrar"])){
     $dni = $_POST["txtdni"];
     $cargo = $_POST["txtcargo"];
     $direccion = $_POST["txtdireccion"];
-    $subsecretaria = $_POST["txtsubsecretaria"];
+    $subsecretaria = !empty($_POST["txtsubsecretaria"]) ? (int) $_POST["txtsubsecretaria"] : null; // opcional
     $usuario = $_POST["txtusuario"];
     $password = hash_password($_POST["txtpassword"]);
     $is_admin = isset($_POST['is_admin']) ? 1 : 0;

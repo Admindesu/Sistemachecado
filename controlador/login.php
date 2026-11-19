@@ -21,7 +21,7 @@ if ($usuario === '' || $password === '') {
 
 $resultado = consulta(
     $conexion,
-    "SELECT id_empleado, nombre, apellido, dni, is_admin, password FROM empleado WHERE usuario = ?",
+    "SELECT id_empleado, nombre, apellido, dni, is_admin, password, activo FROM empleado WHERE usuario = ?",
     "s",
     $usuario
 );
@@ -29,6 +29,10 @@ $datos = $resultado ? $resultado->fetch_object() : null;
 
 if (!$datos || !verificar_password($password, $datos->password)) {
     volver_al_login('credenciales');
+}
+// Dado de baja: sus registros se conservan, pero ya no puede entrar
+if (!(int) $datos->activo) {
+    volver_al_login('baja');
 }
 
 // Migración automática: si la contraseña sigue en md5, se guarda con password_hash()

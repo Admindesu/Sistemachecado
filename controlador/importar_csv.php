@@ -134,12 +134,14 @@ foreach ($direcciones['names'] as $id => $name) {
 echo "</ul></div>";
 
 // Subsecretaria
-echo "<div style='flex:1; min-width:300px;'>";
-echo "<h4>Subsecretarías:</h4><ul>";
-foreach ($subsecretarias['names'] as $id => $name) {
-    echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
+if (usar_subsecretarias()) {
+    echo "<div style='flex:1; min-width:300px;'>";
+    echo "<h4>Subsecretarías:</h4><ul>";
+    foreach ($subsecretarias['names'] as $id => $name) {
+        echo "<li>ID " . (int) $id . ": " . htmlspecialchars($name) . "</li>";
+    }
+    echo "</ul></div>";
 }
-echo "</ul></div>";
 
 // Horarios
 echo "<div style='flex:1; min-width:300px;'>";
@@ -215,7 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csvFile'])) {
                     if (!in_array($data[6], $direcciones['ids'])) {
                         throw new Exception("ID de dirección inválido");
                     }
-                    if (!in_array($data[7], $subsecretarias['ids'])) {
+                    if (trim($data[7]) === '') {
+                        $data[7] = null; // subsecretaría opcional
+                    } elseif (!in_array($data[7], $subsecretarias['ids'])) {
                         throw new Exception("ID de subsecretaría inválido");
                     }
                     if (!in_array($data[9], $horarios['ids'])) {

@@ -9,12 +9,67 @@ body{
     overflow: hidden;
 }
 
-.wave{
+/* ---- Fondo institucional (Q con grecas + barra con el logo) ----
+   El lienzo mide 16:9, va pegado abajo a la izquierda (como la imagen grecas.png que
+   reemplaza) y se escala con --u: 1% del alto, salvo en pantallas más angostas que 16:9,
+   donde manda el ancho para que la Q no tape el formulario. La barra oscura llega al
+   borde derecho. */
+:root{
+	--fondo-oscuro: #3d3a36;
+	--u: min(1vh, 0.5625vw);
+}
+
+.fondo{
 	position: fixed;
-	bottom: 0;
-	left: 0;
-	height: 100%;
+	inset: 0;
 	z-index: -1;
+	overflow: hidden;
+	background: #fff;
+}
+
+.fondo-lienzo{
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	height: calc(100 * var(--u));
+	width: calc(177.78 * var(--u));
+}
+
+.fondo-q{
+	position: absolute;
+	left: -35.2%;
+	top: -26.7%;
+	width: 96.5%;
+	z-index: 2;
+}
+
+/* Parte oscura que asoma bajo la cola de la Q */
+.fondo-curva{
+	position: absolute;
+	left: 24%;
+	top: 89.5%;
+	width: 42%;
+	height: 30%;
+	border-radius: 50%;
+	background: var(--fondo-oscuro);
+	z-index: 1;
+}
+
+.fondo-barra{
+	position: absolute;
+	left: calc(95.5 * var(--u));
+	right: 0;
+	bottom: 0;
+	height: calc(24.3 * var(--u));
+	background: var(--fondo-oscuro);
+	z-index: 1;
+}
+
+.fondo-logo{
+	position: absolute;
+	right: calc(3 * var(--u));
+	bottom: calc(3.2 * var(--u));
+	height: calc(17.5 * var(--u));
 }
 
 .container{
@@ -228,7 +283,7 @@ a:hover{
 		display: none;
 	}
 
-	.wave{
+	.fondo{
 		display: none;
 	}
 

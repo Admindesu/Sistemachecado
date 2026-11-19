@@ -3,12 +3,6 @@ require_once __DIR__ . '/../controlador/auth.php';
 requerir_admin();
 ?>
 
-<style>
-ul li:nth-child(2) .activo {
-    background: rgb(171, 11, 61) !important;
-}
-
-</style>
 
 <!-- primero se carga el topbar -->
 <?php require('./layout/topbar.php'); ?>
@@ -18,7 +12,8 @@ ul li:nth-child(2) .activo {
 <!-- inicio del contenido principal -->
 <div class="page-content">
     <div class="container-fluid">
-        <h4 class="text-center text-secondary">Lista de empleados</h4>
+        <?php $ver_bajas = !empty($_GET['bajas']); ?>
+        <h4 class="text-center text-secondary"><?= $ver_bajas ? 'Empleados dados de baja' : 'Lista de empleados' ?></h4>
 
         <?php
         include "../modelo/conexion.php";
@@ -37,6 +32,8 @@ ul li:nth-child(2) .activo {
                 empleado.subsecretaria,
                 empleado.is_admin,
                 empleado.id_horario,
+                empleado.fecha_baja,
+                empleado.motivo_baja,
                 cargo.nombre AS nom_cargo,
                 direccion.nombre AS nom_direccion,
                 subsecretaria.nombre AS nom_subsecretaria,
@@ -46,9 +43,10 @@ ul li:nth-child(2) .activo {
                 FROM empleado
                 INNER JOIN cargo ON empleado.cargo = cargo.id_cargo
                 INNER JOIN direccion ON empleado.direccion = direccion.id_direccion
-                INNER JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
+                LEFT JOIN subsecretaria ON empleado.subsecretaria = subsecretaria.id_subsecretaria
                 LEFT JOIN horarios ON empleado.id_horario = horarios.id_horario
-            ");
+                WHERE empleado.activo = " . ($ver_bajas ? 0 : 1));
+            $total_bajas = (int) $conexion->query("SELECT COUNT(*) FROM empleado WHERE activo = 0")->fetch_row()[0];
         } catch (Exception $e) {
             echo "<div class='alert alert-danger'>Error al cargar los datos.</div>";
         }
@@ -64,6 +62,229 @@ ul li:nth-child(2) .activo {
                 <button type="button" class="btn btn-success btn-rounded ml-2" data-toggle="modal" data-target="#csvUploadModal">
                     <i class="fas fa-file-csv"></i> Importar CSV
                 </button>
+
+                <a href="importar_hikvision.php" class="btn btn-info btn-rounded ml-2">
+                    <i class="fas fa-user-check"></i> Importar desde Hikvision
+                </a>
+
+                <?php if ($ver_bajas): ?>
+                    <a href="empleado.php" class="btn btn-outline-primary btn-rounded ml-2">
+                        <i class="fas fa-arrow-left"></i> Volver a empleados activos
+                    </a>
+                <?php else: ?>
+                    <a href="empleado.php?bajas=1" class="btn btn-outline-secondary btn-rounded ml-2">
+                        <i class="fas fa-user-slash"></i> Ver bajas (<?= $total_bajas ?? 0 ?>)
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if ($ver_bajas): ?>
+        <div class="alert alert-secondary small">
+            Estos colaboradores ya no laboran aquí. Sus asistencias se conservan y aparecen en los reportes;
+            no pueden iniciar sesión y el terminal ya no les genera asistencias después de su fecha de baja.
+            <strong>Reactivar</strong> los regresa a la lista de activos.
+            <strong>Eliminar definitivamente</strong> borra al empleado <em>y todo su historial</em>.
+        </div>
+        <?php endif; ?>
+
+        <!-- Edición masiva: se marcan empleados en la tabla y se editan juntos -->
+        <?php if (!$ver_bajas): ?>
+        <div class="row mb-3">
+            <div class="col-12 d-flex flex-wrap align-items-center" style="gap: 8px;">
+                <button type="button" class="btn btn-warning btn-rounded" id="btnEditarSeleccionados" disabled
+                        data-toggle="modal" data-target="#modalEditarMasivo">
+                    <i class="fas fa-users-cog"></i> Editar seleccionados (<span class="js-num-seleccionados">0</span>)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSeleccionarFiltrados">
+                    <i class="fas fa-check-double"></i> Seleccionar todos los de la búsqueda
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnQuitarSeleccion">
+                    <i class="fas fa-times"></i> Quitar selección
+                </button>
+                <small class="text-muted">Marca empleados en la tabla (puedes buscar, p. ej., el cargo provisional) y cámbiales cargo, dirección u horario de una vez.</small>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <?php
+        // Resultado de la edición masiva (controlador_editar_masivo.php)
+        $mensajes_masivo = [
+            'ok'            => ['success', 'Listo', 'Se actualizaron ' . (int) ($_GET['n'] ?? 0) . ' empleados'],
+            'sin_empleados' => ['warning', 'Sin empleados', 'No seleccionaste ningún empleado'],
+            'sin_cambios'   => ['info', 'Sin cambios', 'No elegiste ningún dato para cambiar'],
+            'invalido'      => ['error', 'Dato inválido', 'El cargo, la dirección o el horario elegido no existe'],
+            'error'         => ['error', 'Error', 'No se pudieron actualizar los empleados'],
+        ];
+        $mensaje_masivo = $mensajes_masivo[$_GET['masivo'] ?? ''] ?? null;
+
+        // Resultado de la baja / reactivación (controlador_baja_empleado.php)
+        $mensajes_baja = [
+            'ok'         => ['success', 'Baja registrada', 'El colaborador quedó dado de baja; sus registros se conservan'],
+            'reactivado' => ['success', 'Reactivado', 'El colaborador volvió a la lista de activos'],
+            'propia'     => ['warning', 'No permitido', 'No puedes darte de baja a ti mismo'],
+            'fecha'      => ['error', 'Fecha inválida', 'Indica la fecha de baja'],
+            'no_existe'  => ['error', 'No encontrado', 'El empleado no existe'],
+            'error'      => ['error', 'Error', 'No se pudo completar la operación'],
+        ];
+        $mensaje_masivo = $mensaje_masivo ?? ($mensajes_baja[$_GET['baja'] ?? ''] ?? null);
+
+        // Resultado del recálculo explícito (controlador_recalcular_asistencias.php)
+        $mensajes_recalculo = [
+            'ok'            => ['success', 'Recálculo hecho', 'Se recalcularon ' . (int) ($_GET['dias'] ?? 0) . ' días con registros. Quedó anotado en la bitácora'],
+            'sin_confirmar' => ['warning', 'Sin confirmar', 'Marca la casilla de confirmación para recalcular'],
+            'motivo'        => ['warning', 'Falta el motivo', 'Escribe el motivo del recálculo (queda en la bitácora)'],
+            'fecha'         => ['error', 'Fecha inválida', 'Indica las fechas de inicio y fin'],
+            'rango'         => ['error', 'Rango inválido', 'El inicio debe ser antes del fin, sin fechas futuras y de máximo un año'],
+            'sin_horario'   => ['error', 'Sin horario', 'El empleado no tiene horario asignado'],
+            'no_existe'     => ['error', 'No encontrado', 'El empleado no existe'],
+            'error'         => ['error', 'Error', 'No se pudo completar el recálculo; no se aplicaron cambios. Revisa que la migración 005 esté aplicada'],
+        ];
+        $mensaje_masivo = $mensaje_masivo ?? ($mensajes_recalculo[$_GET['recalculo'] ?? ''] ?? null);
+        ?>
+
+        <!-- Modal edición masiva -->
+        <div class="modal fade" id="modalEditarMasivo" tabindex="-1" aria-labelledby="modalEditarMasivoLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../controlador/controlador_editar_masivo.php" method="POST" id="formEditarMasivo">
+                        <?= campo_csrf() ?>
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditarMasivoLabel">
+                                Editar <span class="js-num-seleccionados">0</span> empleados
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small text-muted mb-2">Solo se cambia lo que elijas; lo que quede en «No cambiar» se conserva.</p>
+                            <p class="small mb-3"><strong>Seleccionados:</strong> <span id="listaSeleccionados"></span></p>
+                            <?php
+                            $catalogos = [
+                                'cargo' => ['Cargo', "SELECT id_cargo AS id, nombre FROM cargo ORDER BY nombre"],
+                                'direccion' => ['Dirección', "SELECT id_direccion AS id, nombre FROM direccion ORDER BY nombre"],
+                                'horario' => ['Horario', "SELECT id_horario AS id, CONCAT(nombre, ' (', TIME_FORMAT(hora_entrada, '%H:%i'), ' - ', TIME_FORMAT(hora_salida, '%H:%i'), ')') AS nombre FROM horarios ORDER BY nombre"],
+                            ];
+                            if (usar_subsecretarias()) {
+                                $catalogos['subsecretaria'] = ['Subsecretaría', "SELECT id_subsecretaria AS id, nombre FROM subsecretaria ORDER BY nombre"];
+                            }
+                            foreach ($catalogos as $campo => [$etiqueta, $consulta_catalogo]): ?>
+                                <div class="form-group">
+                                    <label for="masivo_<?= $campo ?>"><?= $etiqueta ?></label>
+                                    <select class="form-control" name="<?= $campo ?>" id="masivo_<?= $campo ?>">
+                                        <option value="">— No cambiar —</option>
+                                        <?php $opciones = $conexion->query($consulta_catalogo);
+                                        while ($opciones && ($op = $opciones->fetch_object())): ?>
+                                            <option value="<?= e($op->id) ?>"><?= e($op->nombre) ?></option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                            <?php endforeach; ?>
+                            <p class="small text-muted mb-0" id="avisoHorario" style="display: none;">
+                                El horario nuevo aplica desde ahora; lo ya registrado se conserva. Si fue un error,
+                                usa <strong>Recalcular</strong> en cada empleado.
+                            </p>
+                            <div id="idsSeleccionados"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Aplicar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal dar de baja (soft delete) -->
+        <div class="modal fade" id="modalBaja" tabindex="-1" aria-labelledby="modalBajaLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../controlador/controlador_baja_empleado.php" method="POST">
+                        <?= campo_csrf() ?>
+                        <input type="hidden" name="accion" value="baja">
+                        <input type="hidden" name="id" id="baja_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalBajaLabel">Dar de baja a <span id="baja_nombre"></span></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small text-muted">
+                                Sus asistencias se conservan y seguirán en los reportes. Ya no podrá iniciar sesión ni checar,
+                                y no se le contarán faltas después de la fecha de baja. Se puede reactivar después.
+                            </p>
+                            <div class="form-group">
+                                <label for="baja_fecha">Fecha de baja (último día laborado)</label>
+                                <input type="date" class="form-control" name="fecha_baja" id="baja_fecha" required
+                                       value="<?= date('Y-m-d') ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="baja_motivo">Motivo (opcional)</label>
+                                <input type="text" class="form-control" name="motivo_baja" id="baja_motivo" maxlength="150"
+                                       placeholder="Renuncia, término de contrato, jubilación…">
+                            </div>
+                            <p class="small mb-0">Recuerda borrar también a la persona en el terminal Hikvision.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger"><i class="fas fa-user-slash"></i> Dar de baja</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal recalcular asistencias (solo casos extraordinarios; queda en la bitácora) -->
+        <div class="modal fade" id="modalRecalcular" tabindex="-1" aria-labelledby="modalRecalcularLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="../controlador/controlador_recalcular_asistencias.php" method="POST">
+                        <?= campo_csrf() ?>
+                        <input type="hidden" name="id" id="recalc_id">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalRecalcularLabel">Recalcular asistencias de <span id="recalc_nombre"></span></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning small">
+                                Normalmente un cambio de horario aplica desde la firma del documento y lo ya registrado
+                                sigue siendo válido. Usa esto solo en casos extraordinarios (p. ej. un horario asignado
+                                por error): los estados (a tiempo, retardo, falta…) de las fechas elegidas se vuelven a
+                                calcular con su horario actual, <strong id="recalc_horario"></strong>.
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="recalc_desde">Desde</label>
+                                    <input type="date" class="form-control" name="desde" id="recalc_desde" required max="<?= date('Y-m-d') ?>">
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="recalc_hasta">Hasta</label>
+                                    <input type="date" class="form-control" name="hasta" id="recalc_hasta" required max="<?= date('Y-m-d') ?>">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recalc_motivo">Motivo (queda en la bitácora)</label>
+                                <input type="text" class="form-control" name="motivo" id="recalc_motivo" required minlength="5" maxlength="255"
+                                       placeholder="Horario asignado por error, oficio no. …">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="confirmar" value="1" id="recalc_confirmar" required>
+                                <label class="form-check-label small" for="recalc_confirmar">
+                                    Confirmo que es una corrección extraordinaria y que los registros de esas fechas
+                                    cambiarán de estado.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Recalcular</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -95,7 +316,12 @@ ul li:nth-child(2) .activo {
                                     <strong>Formato del CSV:</strong><br>
                                     nombre,apellido,dni,usuario,password,cargo,direccion,subsecretaria,is_admin,id_horario<br><br>
                                     <strong>Ejemplo:</strong><br>
+                                    <?php if (usar_subsecretarias()): ?>
                                     Juan,Perez,12345678,jperez,password123,1,1,1,0,1
+                                    <?php else: ?>
+                                    Juan,Perez,12345678,jperez,password123,1,1,,0,1<br>
+                                    <em>La columna subsecretaria se deja vacía.</em>
+                                    <?php endif; ?>
                                 </small>
                             </div>
                             <button type="submit" class="btn btn-primary">Importar</button>
@@ -108,9 +334,14 @@ ul li:nth-child(2) .activo {
         <div class="row">
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover w-100" id="example">
+                    <table class="table table-bordered table-hover w-100" id="example" data-order='[[1, "asc"]]'>
                         <thead>
                             <tr>
+                                <th scope="col" data-orderable="false" data-searchable="false" class="text-center" style="width: 30px;">
+                                    <?php if (!$ver_bajas): ?>
+                                    <input type="checkbox" id="checkTodos" title="Seleccionar / quitar los de esta página" aria-label="Seleccionar los empleados de esta página">
+                                    <?php endif; ?>
+                                </th>
                                 <th scope="col">ID</th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Apellido</th>
@@ -119,7 +350,7 @@ ul li:nth-child(2) .activo {
                                 <th scope="col">Admin</th>
                                 <th scope="col">Cargo</th> 
                                 <th scope="col">Direccion</th>
-                                <th scope="col">Subsecretaria</th>
+                                <?php if (usar_subsecretarias()): ?><th scope="col">Subsecretaria</th><?php endif; ?>
                                 <th scope="col">Horario</th>
                                 <th scope="col">Acciones</th>
                             </tr>
@@ -130,6 +361,13 @@ ul li:nth-child(2) .activo {
                                 while ($datos = $sql->fetch_object()) { 
                             ?>
                                 <tr>
+                                    <td class="text-center">
+                                        <?php if (!$ver_bajas): ?>
+                                        <input type="checkbox" class="js-seleccion" value="<?= e($datos->id_empleado) ?>"
+                                               data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>"
+                                               aria-label="Seleccionar a <?= e($datos->nombre . ' ' . $datos->apellido) ?>">
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= e($datos->id_empleado) ?></td>
                                     <td><?= e($datos->nombre) ?></td>
                                     <td><?= e($datos->apellido) ?></td>
@@ -140,15 +378,46 @@ ul li:nth-child(2) .activo {
                                     </td>
                                     <td><?= e($datos->nom_cargo) ?></td>
                                     <td><?= e($datos->nom_direccion) ?></td>
-                                    <td><?= e($datos->nom_subsecretaria) ?></td>
+                                    <?php if (usar_subsecretarias()): ?><td><?= $datos->nom_subsecretaria !== null ? e($datos->nom_subsecretaria) : '<span class="text-muted">—</span>' ?></td><?php endif; ?>
                                     <td><?= $datos->nom_horario ? e($datos->nom_horario) . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')' : 'No asignado' ?></td>
                                     <td>
+                                        <?php if (!$ver_bajas): ?>
                                         <a href="" data-toggle="modal" data-target="#exampleModal<?= e($datos->id_empleado) ?>" class="btn btn-warning">
                                             <i class="fas fa-edit"></i> Editar
                                         </a>
-                                        <a href="empleado.php?id=<?= e($datos->id_empleado) ?>" onclick="advertencia(event)" class="btn btn-danger">
-                                            <i class="fas fa-exclamation-triangle"></i> Eliminar
+                                        <?php if ((string) $datos->dni !== (string) ($_SESSION['dni'] ?? '')): // no a sí mismo ?>
+                                        <button type="button" class="btn btn-secondary js-dar-baja"
+                                                data-toggle="modal" data-target="#modalBaja"
+                                                data-id="<?= e($datos->id_empleado) ?>"
+                                                data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>">
+                                            <i class="fas fa-user-slash"></i> Dar de baja
+                                        </button>
+                                        <?php endif; ?>
+                                        <?php if ($datos->nom_horario): ?>
+                                        <button type="button" class="btn btn-outline-primary js-recalcular"
+                                                data-toggle="modal" data-target="#modalRecalcular"
+                                                data-id="<?= e($datos->id_empleado) ?>"
+                                                data-nombre="<?= e($datos->nombre . ' ' . $datos->apellido) ?>"
+                                                data-horario="<?= e($datos->nom_horario . ' (' . date('h:i A', strtotime($datos->hora_entrada)) . ' - ' . date('h:i A', strtotime($datos->hora_salida)) . ')') ?>"
+                                                title="Recalcular asistencias (solo casos extraordinarios)">
+                                            <i class="fas fa-sync-alt"></i> Recalcular
+                                        </button>
+                                        <?php endif; ?>
+                                        <?php else: ?>
+                                        <div class="small mb-1">
+                                            <strong>Baja:</strong> <?= e(date('d/m/Y', strtotime($datos->fecha_baja))) ?>
+                                            <?php if ($datos->motivo_baja): ?><br><span class="text-muted"><?= e($datos->motivo_baja) ?></span><?php endif; ?>
+                                        </div>
+                                        <form action="../controlador/controlador_baja_empleado.php" method="POST" class="d-inline">
+                                            <?= campo_csrf() ?>
+                                            <input type="hidden" name="accion" value="reactivar">
+                                            <input type="hidden" name="id" value="<?= e($datos->id_empleado) ?>">
+                                            <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-user-check"></i> Reactivar</button>
+                                        </form>
+                                        <a href="empleado.php?id=<?= e($datos->id_empleado) ?>" onclick="eliminarDefinitivo(event, <?= e(json_encode($datos->nombre . ' ' . $datos->apellido)) ?>)" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-exclamation-triangle"></i> Eliminar definitivamente
                                         </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
 
@@ -220,10 +489,14 @@ ul li:nth-child(2) .activo {
                             </div>
                         </div>
                         
+                        <?php if (!usar_subsecretarias()): ?>
+                        <input type="hidden" name="txtsubsecretaria" value="<?= e($datos->subsecretaria) ?>">
+                        <?php else: ?>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="subsecretaria">Subsecretaría</label>
                                 <select name="txtsubsecretaria" class="form-control">
+                                    <option value="">Sin subsecretaría</option>
                                     <?php 
                                     $sql2 = $conexion->query("SELECT * FROM subsecretaria");
                                     while ($datos2 = $sql2->fetch_object()) { ?>
@@ -235,6 +508,7 @@ ul li:nth-child(2) .activo {
                                 </select>
                             </div>
                         </div>
+                        <?php endif; ?>
                         
                         <div class="col-md-6">
                             <div class="form-group">
@@ -310,3 +584,127 @@ ul li:nth-child(2) .activo {
 
 <!-- por ultimo se carga el footer -->
 <?php require('./layout/footer.php'); ?>
+
+<!-- Va después del footer: footer.php vuelve a cargar jQuery y Bootstrap -->
+<script>
+/*
+ * Selección para la edición masiva. DataTables conserva las filas de las otras páginas
+ * aunque no estén en pantalla, así que las casillas marcadas se leen con su API.
+ */
+(function () {
+    function tabla() { return $('#example').DataTable(); }
+    function casillas(filtro) {
+        return $(tabla().rows(filtro || {}).nodes()).find('input.js-seleccion');
+    }
+    function marcadas() { return casillas().filter(':checked'); }
+
+    function actualizar() {
+        // La tabla la inicializa footer.php; antes de eso no se toca (si no, se crearía dos veces)
+        if (!$.fn.dataTable.isDataTable('#example')) return;
+        const n = marcadas().length;
+        $('.js-num-seleccionados').text(n);
+        $('#btnEditarSeleccionados').prop('disabled', n === 0);
+        const visibles = casillas({ page: 'current', search: 'applied' });
+        const marcadasVisibles = visibles.filter(':checked').length;
+        $('#checkTodos').prop('checked', visibles.length > 0 && marcadasVisibles === visibles.length)
+                        .prop('indeterminate', marcadasVisibles > 0 && marcadasVisibles < visibles.length);
+    }
+
+    $(document).on('change', 'input.js-seleccion', actualizar);
+    $(document).on('draw.dt', '#example', actualizar);
+    $(document).on('click', 'input.js-seleccion', function (ev) { ev.stopPropagation(); });
+
+    // Casilla del encabezado: los de la página actual
+    $(document).on('change', '#checkTodos', function () {
+        casillas({ page: 'current', search: 'applied' }).prop('checked', this.checked);
+        actualizar();
+    });
+    // Todos los que coinciden con la búsqueda, en todas las páginas
+    $('#btnSeleccionarFiltrados').on('click', function () {
+        casillas({ search: 'applied' }).prop('checked', true);
+        actualizar();
+    });
+    $('#btnQuitarSeleccion').on('click', function () {
+        casillas().prop('checked', false);
+        actualizar();
+    });
+
+    // Al abrir el modal se pasan los empleados marcados al formulario
+    $('#modalEditarMasivo').on('show.bs.modal', function () {
+        const seleccion = marcadas();
+        const ids = $('#idsSeleccionados').empty();
+        const nombres = [];
+        seleccion.each(function () {
+            ids.append($('<input type="hidden" name="ids[]">').val(this.value));
+            nombres.push(this.dataset.nombre);
+        });
+        $('#listaSeleccionados').text(nombres.length > 8
+            ? nombres.slice(0, 8).join(', ') + ' y ' + (nombres.length - 8) + ' más'
+            : nombres.join(', '));
+        $('#formEditarMasivo select').val('');
+        $('#avisoHorario').hide();
+    });
+    $('#masivo_horario').on('change', function () {
+        $('#avisoHorario').toggle(this.value !== '');
+    });
+    $('#formEditarMasivo').on('submit', function (ev) {
+        const cambios = $(this).find('select').filter(function () { return this.value !== ''; }).length;
+        if (!cambios) {
+            ev.preventDefault();
+            Swal.fire({ icon: 'info', title: 'Sin cambios', text: 'Elige al menos un dato para cambiar' });
+        }
+    });
+
+    $(document).on('init.dt', '#example', actualizar);
+})();
+</script>
+
+<script>
+// Dar de baja: una sola ventana para todos los empleados.
+// El modal lo abre data-toggle (Bootstrap 4, igual que "Editar"); aquí solo se llenan los campos.
+// No usar $('#modalBaja').modal('show'): footer.php también carga Bootstrap 5, que reemplaza
+// $.fn.modal y pone la clase "show", pero el CSS de Bootstrap 4 espera "in" y la ventana
+// queda abierta pero invisible (opacity 0), tapando la página.
+$(document).on('click', '.js-dar-baja', function () {
+    $('#baja_id').val(this.dataset.id);
+    $('#baja_nombre').text(this.dataset.nombre);
+    $('#baja_motivo').val('');
+    $('#baja_fecha').val(<?= json_encode(date('Y-m-d')) ?>);
+});
+
+// Recalcular asistencias: igual que la baja, el modal lo abre data-toggle y aquí se llenan los campos
+$(document).on('click', '.js-recalcular', function () {
+    $('#recalc_id').val(this.dataset.id);
+    $('#recalc_nombre').text(this.dataset.nombre);
+    $('#recalc_horario').text(this.dataset.horario);
+    $('#recalc_desde, #recalc_hasta, #recalc_motivo').val('');
+    $('#recalc_confirmar').prop('checked', false);
+});
+$('#recalc_desde').on('change', function () { $('#recalc_hasta').attr('min', this.value); });
+
+// Eliminar definitivamente (solo en la lista de bajas): borra también su historial
+function eliminarDefinitivo(ev, nombre) {
+    ev.preventDefault();
+    const url = ev.currentTarget.getAttribute('href');
+    Swal.fire({
+        title: '¿Eliminar definitivamente?',
+        html: 'Se borrará a <b></b> <u>y todas sus asistencias y justificaciones</u>. Esto no se puede deshacer.<br><br>' +
+              'Para conservar su historial basta con dejarlo dado de baja.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar todo',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+        didOpen: function (popup) { popup.querySelector('b').textContent = nombre; }
+    }).then(function (r) { if (r.isConfirmed) enviarPost(url); });
+}
+</script>
+
+<?php if ($mensaje_masivo): [$icono, $titulo, $texto] = $mensaje_masivo; ?>
+<script>
+    Swal.fire({ icon: <?= json_encode($icono) ?>, title: <?= json_encode($titulo) ?>, text: <?= json_encode($texto) ?> });
+    // Quita ?masivo= de la URL para que al recargar no se repita el mensaje
+    window.history.replaceState(null, null, window.location.pathname<?= $ver_bajas ? " + '?bajas=1'" : '' ?>);
+</script>
+<?php endif; ?>
