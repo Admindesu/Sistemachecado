@@ -8,6 +8,10 @@ RUN docker-php-ext-install mysqli \
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY docker/php/app.ini "$PHP_INI_DIR/conf.d/app.ini"
 
+# Bloquea .env, .git, sql/, cron/, docs/… (el código se monta completo como volumen)
+COPY docker/php/seguridad.conf /etc/apache2/conf-available/seguridad.conf
+RUN a2enconf seguridad
+
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data . /var/www/html
 
