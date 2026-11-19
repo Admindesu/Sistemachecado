@@ -6,8 +6,8 @@ y sigamos"*.
 
 ## Estado de la rama
 
-`feature/hikvision` (subida a GitHub, **sin fusionar en `main`**; el pull request aún no está
-creado, ver Pendientes) contiene:
+`feature/hikvision` se fusionó en `main` el 2026-11-19 (merge `0b6a77f`, subido a GitHub) y
+contiene:
 
 - Integración con el terminal Hikvision DS-K1T344MBFWX-E1 por **HTTP Listening**
   (`api/hikvision/evento.php?token=...`) y sincronización de respaldo por ISAPI
@@ -100,8 +100,8 @@ anterior al cambio, ese día se calcula con el horario vigente.
 - Manual de operación (claude.ai) actualizado: apartado *Recalcular asistencias* con captura
   (Figura 11, nombre ficticio Juan Pérez), edición masiva sin recálculo y etiqueta de baja. El PDF
   exportado reemplazó a `Desktop\asistencia\Manual de operación — Sistema de Control de
-  Asistencias.pdf` (18 páginas). El doc "Documentación" (ACP4pbBCn2BuAYLA8XHMXR) **no** se
-  actualizó todavía.
+  Asistencias.pdf` (18 páginas). El doc "Documentación" (ACP4pbBCn2BuAYLA8XHMXR) se
+  actualizó el 2026-11-19 (Resumen, Manual, Instalación y Arquitectura).
 
 ### Notas técnicas
 
@@ -158,9 +158,8 @@ anterior al cambio, ese día se calcula con el horario vigente.
 4. Servidor: reservar la IP 192.168.0.207 en el router; programar
    `cron/sincronizar_hikvision.php` en el Programador de tareas (el CLI necesita las mismas
    variables HIK_* que Apache); reiniciar Apache desde el panel de XAMPP.
-5. Crear el pull request de `feature/hikvision` hacia `main` (en este equipo no está `gh`;
-   se crea desde https://github.com/Admindesu/Sistemachecado/compare/main...feature/hikvision).
-   En otras instalaciones hay que aplicar las migraciones 001 a 005.
+5. ~~Fusionar en `main`~~ (hecho el 2026-11-19). En otras instalaciones hay que aplicar las
+   migraciones 001 a 005.
 6. Poner cargo y dirección reales a los importados (edición masiva).
 7. Revisar si conviene cambiar el `ON DELETE CASCADE` de la llave de cargo en `empleado`
    (borrar un cargo podría arrastrar empleados si se salta la validación de la vista).
@@ -169,5 +168,4 @@ anterior al cambio, ese día se calcula con el horario vigente.
    en phpMyAdmin).
 10. El dashboard repite reglas de `asistencia_reglas.php` (`minutos_hora_dashboard()`, límite de
     retardo 20 por defecto, `MINUTOS_LIMITE_SALIDA = 120`): unificarlas en un solo lugar.
-11. Actualizar el doc "Documentación — Sistema de Control de Asistencias" en claude.ai con lo del
-    2026-11-17.
+11. ~~Actualizar el doc "Documentación" en claude.ai~~ (hecho el 2026-11-19).
