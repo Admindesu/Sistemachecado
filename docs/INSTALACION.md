@@ -78,6 +78,7 @@ docker compose up -d --build
 | Ver si todo está arriba | `docker compose ps` |
 | Ver errores de PHP/Apache | `docker compose logs -f app` |
 | Ver la sincronización con el terminal | `docker compose logs -f worker` |
+| Quitar los datos de ejemplo (cmd) | `docker compose exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> sis-asistencia < sql\limpiar_datos_demo.sql` |
 | Aplicar una migración (cmd) | `docker compose exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> sis-asistencia < sql\migraciones\005_bitacora_recalculo.sql` |
 | Respaldo (cmd) | `docker compose exec -T db mariadb-dump -uroot -p<DB_ROOT_PASSWORD> sis-asistencia > respaldo_AAAAMMDD.sql` |
 | Actualizar el código | `git pull` (y `docker compose up -d --build` si cambió `docker/`) |
@@ -148,6 +149,11 @@ La conexión usa por defecto `localhost`, usuario `root` sin contraseña. Para o
 
 Entra a http://localhost/checador/vista/login/login.php con `juanmanuel` / `123` y cambia la
 contraseña (menú del usuario → *Cambiar contraseña*).
+
+La base nueva trae solo al administrador `juanmanuel` y la dirección *Administracion* (más
+cargos, horarios y subsecretarías de catálogo). Una instalación hecha antes del 2026-11-20 traía
+empleados, direcciones y checados de ejemplo: quítalos con `sql/limpiar_datos_demo.sql` (solo
+borra a esos usuarios de ejemplo, no al personal real).
 
 ### 4. Sincronización periódica con el terminal
 
