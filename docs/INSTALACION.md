@@ -37,13 +37,51 @@ docker compose up -d --build
 | `worker` | Sincroniza el terminal cada `HIK_INTERVALO_SEG` segundos | — |
 | `phpmyadmin` | Opcional: `docker compose --profile tools up -d` | http://localhost:8081 (`PMA_PORT`) |
 
-- La primera vez se crea la base `sis-asistencia` con `sql/sis-asistencia.sql` y las tres
-  migraciones de `sql/migraciones/`. Esto solo ocurre con el volumen vacío; para empezar de cero:
-  `docker compose down -v` (**borra todos los datos**).
-- `docker-compose.yml` monta el código como volumen para desarrollo. En producción quita la línea
-  `- ./:/var/www/html` del servicio `app` para usar el código copiado en la imagen.
+- La primera vez se crea la base `sis-asistencia` con `sql/sis-asistencia.sql` y las
+  migraciones 001 a 005 de `sql/migraciones/`. Esto solo ocurre con el volumen vacío; para
+  empezar de cero: `docker compose down -v` (**borra todos los datos**). Una migración nueva en una
+  base ya creada se aplica a mano (ver [Docker: comandos útiles](#docker-comandos-útiles)).
+- `docker-compose.yml` monta el código como volumen: un `git pull` actualiza el sistema sin
+  reconstruir la imagen (solo hay que reconstruir con `--build` si cambia algo de `docker/`).
+- `docker/php/seguridad.conf` bloquea `.env`, `.git`, `sql/`, `cron/`, `docs/` y archivos `.md`/`.sql`
+  (lo mismo que el bloque "No exponer archivos internos" de XAMPP). Comprueba que
+  http://localhost:8080/.env responde **403**.
+- El sistema queda en la raíz del puerto, sin `/checador`: http://IP-del-servidor:8080/. La URL de
+  HTTP Listening del terminal cambia en consecuencia (ver [HIKVISION.md](HIKVISION.md)), con
+  puerto 8080.
 - Con Docker Desktop en Windows, la IP de origen del terminal se ve como la del gateway: deja
-  `HIK_IPS_PERMITIDAS` vacío y confía en el token.
+  `HIK_IPS_PERMITIDAS` vacío y confía en el token. Abre el puerto 8080 en el firewall de Windows
+  para que el terminal y los demás equipos lleguen al servidor.
+- Docker Desktop: activa *Start Docker Desktop when you sign in* para que el sistema arranque solo
+  tras un reinicio (los contenedores tienen `restart: unless-stopped`).
+
+### Pasar los datos de XAMPP a Docker
+
+1. En el equipo con XAMPP: `C:\xampp\mysql\bin\mysqldump -uroot sis-asistencia > respaldo.sql`.
+2. En el equipo con Docker, con los contenedores arriba (`docker compose up -d --build`), copia
+   `respaldo.sql` a la carpeta del repositorio e impórtalo desde **cmd** (PowerShell no admite `<`):
+
+   ```bat
+   docker compose exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> sis-asistencia < respaldo.sql
+   ```
+
+   El respaldo reemplaza las tablas creadas al iniciar. Si venía de una base sin alguna
+   migración, aplícala después (son seguras de repetir).
+3. Entra con tus usuarios de siempre y revisa que estén las asistencias recientes.
+4. Cambia la URL de HTTP Listening en el terminal y apaga Apache y MySQL de XAMPP para que no
+   haya dos sistemas recibiendo marcajes.
+
+### Docker: comandos útiles
+
+| Para | Comando |
+|---|---|
+| Ver si todo está arriba | `docker compose ps` |
+| Ver errores de PHP/Apache | `docker compose logs -f app` |
+| Ver la sincronización con el terminal | `docker compose logs -f worker` |
+| Quitar los datos de ejemplo (cmd) | `docker compose exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> sis-asistencia < sql\limpiar_datos_demo.sql` |
+| Aplicar una migración (cmd) | `docker compose exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> sis-asistencia < sql\migraciones\005_bitacora_recalculo.sql` |
+| Respaldo (cmd) | `docker compose exec -T db mariadb-dump -uroot -p<DB_ROOT_PASSWORD> sis-asistencia > respaldo_AAAAMMDD.sql` |
+| Actualizar el código | `git pull` (y `docker compose up -d --build` si cambió `docker/`) |
 
 ## XAMPP en Windows
 
@@ -111,6 +149,11 @@ La conexión usa por defecto `localhost`, usuario `root` sin contraseña. Para o
 
 Entra a http://localhost/checador/vista/login/login.php con `juanmanuel` / `123` y cambia la
 contraseña (menú del usuario → *Cambiar contraseña*).
+
+La base nueva trae solo al administrador `juanmanuel` y la dirección *Administracion* (más
+cargos, horarios y subsecretarías de catálogo). Una instalación hecha antes del 2026-11-20 traía
+empleados, direcciones y checados de ejemplo: quítalos con `sql/limpiar_datos_demo.sql` (solo
+borra a esos usuarios de ejemplo, no al personal real).
 
 ### 4. Sincronización periódica con el terminal
 

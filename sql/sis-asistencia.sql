@@ -39,30 +39,7 @@ CREATE TABLE `asistencia` (
 -- Volcado de datos para la tabla `asistencia`
 --
 
-INSERT INTO `asistencia` (`id_asistencia`, `dni`, `tipo`, `fecha`, `estado`) VALUES
-(13, '78945612', 'entrada', '2022-03-31 00:17:34', 'A_TIEMPO'),
-(14, '74433542', 'entrada', '2022-03-31 00:22:53', 'A_TIEMPO'),
-(21, '00225588', 'entrada', '2022-03-31 10:36:58', 'A_TIEMPO'),
-(22, '74433542', 'entrada', '2022-08-06 20:59:07', 'A_TIEMPO'),
-(23, '78945612', 'entrada', '2025-08-19 14:04:28', 'A_TIEMPO'),
-(24, '78945612', 'entrada', '2025-08-19 14:04:29', 'A_TIEMPO'),
-(25, '78945612', 'entrada', '2025-08-19 14:04:29', 'A_TIEMPO'),
-(26, '78945612', 'entrada', '2025-08-19 14:04:29', 'A_TIEMPO'),
-(27, '7894561212', 'entrada', '2025-08-19 14:22:55', 'A_TIEMPO'),
-(28, '78945612', 'entrada', '2025-08-20 12:20:57', 'A_TIEMPO'),
-(29, '78945612', 'salida', '2025-08-20 12:22:22', 'A_TIEMPO'),
-(30, '78945612', 'entrada', '2025-08-22 13:33:56', 'FALTA'),
-(31, '78945612', 'entrada', '2025-08-22 13:51:14', 'FALTA'),
-(32, '78945612', 'entrada', '2025-08-22 13:51:15', 'FALTA'),
-(33, '78945612', 'entrada', '2025-08-22 09:02:48', 'A_TIEMPO'),
-(34, '78945612', 'entrada', '2025-08-22 09:03:01', 'A_TIEMPO'),
-(35, '78945612', 'entrada', '2025-08-22 13:04:37', 'FALTA'),
-(36, '78945612', 'entrada', '2025-08-22 10:05:26', 'FALTA'),
-(37, '78945612', 'entrada', '2025-08-22 10:05:28', 'FALTA'),
-(38, '78945612', 'entrada', '2025-08-22 10:08:52', 'FALTA'),
-(39, '78945612', 'salida', '2025-08-22 17:12:54', 'A_TIEMPO'),
-(40, '78945612', 'salida', '2025-08-22 17:38:40', 'A_TIEMPO'),
-(41, '78945612', 'entrada', '2025-08-22 17:39:22', 'FALTA');
+-- (sin registros de ejemplo)
 
 -- --------------------------------------------------------
 
@@ -102,18 +79,7 @@ CREATE TABLE `direccion` (
 --
 
 INSERT INTO `direccion` (`id_direccion`, `nombre`) VALUES
-(1, 'Direccion de Planeación y Archivo'),
-(2, 'Direccion de Administracion'),
-(3, 'Direccion de Tecnologia e Informacion'),
-(4, 'Direccion de Residuos'),
-(5, 'Direccion de Fomento y Proteccion Forestal'),
-(6, 'Direccion de Cambio Climatico'),
-(7, 'Direccion de Manejo y Productividad Forestal'),
-(8, 'Direccion de Impacto y Riesgo Ambiental'),
-(9, 'Direccion de Educacion Ambiental'),
-(10, 'Direccion de Ordenamiento'),
-(11, 'Direccion de Relaciones Publicas'),
-(12, 'Direccion Juridica y Transparencia');
+(2, 'Administracion');
 
 -- --------------------------------------------------------
 
@@ -140,30 +106,7 @@ CREATE TABLE `empleado` (
 --
 
 INSERT INTO `empleado` (`id_empleado`, `nombre`, `apellido`, `dni`, `cargo`, `direccion`, `subsecretaria`, `usuario`, `password`, `is_admin`, `id_horario`) VALUES
-(1, 'juan manuel', 'quispe chocce', '78945612', 1, 2, 1, 'juanmanuel', '202cb962ac59075b964b07152d234b70', 1, 2),
-(2, 'josep', 'vega chavez', '77441122', 2, 3, 3, 'josepvega', '202cb962ac59075b964b07152d234b70', 0, 1),
-(4, 'maria', 'molina gutierrez', '00225566', 5, 3, 4, 'mariamolina', '202cb962ac59075b964b07152d234b70', 0, 1),
-(6, 'ismael', 'sandoval', '74433542', 4, 3, 5, 'ismaelsandoval', '202cb962ac59075b964b07152d234b70', 0, 1),
-(11, 'prueba', 'prueba', '00225588', 1, 3, 6, 'prueba', '202cb962ac59075b964b07152d234b70', 0, 1),
-(14, 'admin', 'sandoval', '7894561212', 2, 2, 3, 'asmin', '202cb962ac59075b964b07152d234b70', 0, 1),
-(16, 'ismaelito', 'quispe chocce', '123123', 2, 1, 1, 'adsasddsa', '202cb962ac59075b964b07152d234b70', 0, 1),
-(17, 'Carlos', 'Gomez', '2395', 1, 1, 1, 'carlos.gomez', '202cb962ac59075b964b07152d234b70', 1, 1),
-(18, 'Maria', 'Perez', '2396', 1, 2, 2, 'maria.perez', '202cb962ac59075b964b07152d234b70', 0, 1),
-(19, 'Juan', 'Lopez', '2397', 1, 5, 1, 'juan.lopez', '202cb962ac59075b964b07152d234b70', 0, 1),
-(20, 'Ana', 'Martinez', '2398', 1, 1, 2, 'ana.martinez', '202cb962ac59075b964b07152d234b70', 0, 1),
-(21, 'Luis', 'Garcia', '2399', 2, 2, 1, 'luis.garcia', '202cb962ac59075b964b07152d234b70', 0, 1),
-(22, 'Sofia', 'Sanchez', '2400', 1, 5, 3, 'sofia.sanchez', '202cb962ac59075b964b07152d234b70', 0, 2),
-(23, 'Pedro', 'Ramirez', '2401', 2, 4, 3, 'pedro.ramirez', '202cb962ac59075b964b07152d234b70', 1, 1),
-(24, 'Lucia', 'Torres', '2402', 3, 3, 3, 'lucia.torres', '202cb962ac59075b964b07152d234b70', 1, 1),
-(25, 'Miguel', 'Diaz', '2403', 3, 4, 1, 'miguel.diaz', '202cb962ac59075b964b07152d234b70', 1, 1),
-(26, 'Laura', 'Fernandez', '2404', 1, 4, 2, 'laura.fernandez', '202cb962ac59075b964b07152d234b70', 1, 1),
-(27, 'Jorge', 'Ruiz', '2405', 2, 2, 3, 'jorge.ruiz', '202cb962ac59075b964b07152d234b70', 1, 1),
-(28, 'Elena', 'Morales', '2406', 1, 3, 1, 'elena.morales', '202cb962ac59075b964b07152d234b70', 0, 1),
-(29, 'Diego', 'Castro', '2407', 2, 2, 2, 'diego.castro', '202cb962ac59075b964b07152d234b70', 0, 1),
-(30, 'Paula', 'Vargas', '2408', 3, 1, 3, 'paula.vargas', '202cb962ac59075b964b07152d234b70', 0, 1),
-(31, 'Raul', 'Mendoza', '2409', 4, 1, 1, 'raul.mendoza', '202cb962ac59075b964b07152d234b70', 0, 1),
-(35, 'Juan', 'Pérez', '12345678', 1, 1, 1, 'jperez', '482c811da5d5b4bc6d497ffa98491e38', 0, 1),
-(36, 'María', 'González', '87654321', 2, 2, 2, 'mgonzalez', '96b33694c4bb7dbd07391e0be54745fb', 0, 2);
+(1, 'juan manuel', 'quispe chocce', '78945612', 1, 2, 1, 'juanmanuel', '202cb962ac59075b964b07152d234b70', 1, 2);
 
 -- --------------------------------------------------------
 
@@ -290,7 +233,7 @@ ALTER TABLE `subsecretaria`
 -- AUTO_INCREMENT de la tabla `asistencia`
 --
 ALTER TABLE `asistencia`
-  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT de la tabla `cargo`
@@ -302,13 +245,13 @@ ALTER TABLE `cargo`
 -- AUTO_INCREMENT de la tabla `direccion`
 --
 ALTER TABLE `direccion`
-  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `empleado`
 --
 ALTER TABLE `empleado`
-  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `empresa`
